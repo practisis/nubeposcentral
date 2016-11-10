@@ -268,6 +268,52 @@
 			echo "Failed: " . $e->getMessage();
 		}	            
     }
+	function VerDatosFactura($id,$clave){
+        try {
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');							
+			$result = $db1->query('SELECT * FROM FACTURAS WHERE id='.$id.';');
+			$dbh = array();
+			foreach ($result as $row) {
+				$dbh[] = $row;
+			}
+			$result1 = $db1->query('SELECT id from permisos where anular=true and activo=true and clave like '.$id.';');
+			$dbh1 = array();
+			foreach ($result1 as $row1) {
+				$dbh1[] = $row1;
+			}
+			echo 'okf@@@'.json_encode($dbh).'@@@'.json_encode($dbh1);
+		} 
+		catch (Exception $e){
+			echo "Failed: " . $e->getMessage();
+		}	            
+    }
+	function CambiarFormaPagoFactura($cadenapago,$efectivo,$tarjetas,$cheques,$cc,$miid){
+        try {
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');							
+			$stmt = $db1->prepare('UPDATE FACTURAS SET paymentsUsed=?,cash=?,cards=?,cheques=?,vauleCxC=? WHERE id=?');
+			$db1->beginTransaction();
+			$stmt->execute(array($cadenapago,$efectivo,$tarjetas,$cheques,$cc,$miid));
+			$db1->commit();			
+		} 
+		catch (Exception $e){
+			$db1->rollBack();
+			echo "Failed: " . $e->getMessage();
+		}	            
+    }
+	function VerificarClave($miclave){
+        try {
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');							
+			$result = $db1->query("SELECT * from permisos where activo=true and clave like '".$miclave."';");
+			$dbh = array();
+			foreach ($result as $row) {
+				$dbh[] = $row;
+			}			
+			echo 'okvc@@@'.json_encode($dbh);
+		} 
+		catch (Exception $e){
+			echo "Failed: " . $e->getMessage();
+		}	                        
+    }
 	if ($_REQUEST['fun']=='iniciaDB'){
 		iniciaDB();
 	}
@@ -286,7 +332,19 @@
 		if((int)$_REQUEST['id']>0)
 			VerDatosFacturast((int)$_REQUEST['id'],$_REQUEST['clave']);
 	}
-	$db = new PDO('sqlite:PractisisMobile.sqlite3');
+	else if ($_REQUEST['fun']=='VerDatosFactura'){
+		if((int)$_REQUEST['id']>0)
+			VerDatosFactura((int)$_REQUEST['id'],$_REQUEST['clave']);
+	}
+	else if ($_REQUEST['fun']=='CambiarFormaPagoFactura'){
+		if((int)$_REQUEST['id']>0)
+			CambiarFormaPagoFactura($_REQUEST['cadena'],$_REQUEST['efe'],$_REQUEST['tar'],$_REQUEST['che'],$_REQUEST['cxc'],(int)$_REQUEST['id']);
+	}
+	else if ($_REQUEST['fun']=='VerificarClave'){
+		if($_REQUEST['clave']!='')
+			VerificarClave($_REQUEST['clave']);
+	}
+	/*$db = new PDO('sqlite:PractisisMobile.sqlite3');
 	print "<table border=1>";
 
 print "<tr><td>Id</td><td>Breed</td><td>Name</td><td>Age</td></tr>";
@@ -312,7 +370,7 @@ print "<td>".$row['existe']."</td></tr>";
 
 print "</table>";
 
-/*try
+try
 {
 //open the database
 
