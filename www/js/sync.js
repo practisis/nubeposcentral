@@ -46,19 +46,12 @@ function SyncStart(){
 			envia('config');
 		}
 			
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-			tx.executeSql('SELECT count(*) as cp FROM PRODUCTOS WHERE id_local !=-1',[],function(tx,results){
-				if(results.rows.item(0).cp==0||results.rows.item(0).cp==null){
-					//LaunchBoarding();
-				}
-			});
-
-			tx.executeSql('SELECT nombre,direccion,telefono from config WHERE id=1',[],function(tx,results){
-				var dataemp=results.rows.item(0);
-				$('#JSONempresaLocal').html('"empresa":{'+'"nombre":"'+dataemp.nombre+'","direccion":"'+dataemp.direccion+"-"+dataemp.telefono+'"},');
-			});
-		});
+		$.ajax({url:"api.php",
+		data:{fun:'DataEmpresa'},
+		success: function(result){
+			$('#JSONempresaLocal').html(result);
+		}});
+	
 		setTimeout(function(){SincronizadorNormal();},120000);
 		//setInterval(function(){SincronizadorNormal();},3000);
 	}else if(mesasya){
@@ -98,7 +91,8 @@ function ExtraeDatosApi(donde){
 		$("#demoGratis,#finalizado").css("display","none");
 		$("#contentStepSincro,#cuentaactiva,#mensajeperso").fadeIn();
 		$("#txtSincro").html("0%");
-		var jsoncateg=JSON.parse($('#JSONCategoriasNube').html());
+		var jsoncateg=$('#JSONCategoriasNube').html();
+		/*var jsoncateg=JSON.parse($('#JSONCategoriasNube').html());
 		var jsoncategorias=jsoncateg.Categorias;
 		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 			db.transaction(function(tx){
@@ -116,7 +110,18 @@ function ExtraeDatosApi(donde){
 				localStorage.setItem("categoriasya",true);
 				$("#theProgress").css("width" , "15%");
 				ExtraeDatosApi(2);
-			});
+			});*/
+			
+			$.ajax({url:"api.php",
+			data:{fun:'ApiCategorias',categorias:jsoncateg},
+			success: function(result){
+				if(result=='ok'){
+					localStorage.setItem("categoriasya",true);
+					$("#theProgress").css("width" , "15%");
+					ExtraeDatosApi(2);
+				}
+			}});
+		
 			
 	}else if(donde==2){
 		console.log("Datos API 2: Productos y Agregados");

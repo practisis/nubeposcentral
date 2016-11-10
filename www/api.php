@@ -268,6 +268,33 @@
 			echo "Failed: " . $e->getMessage();
 		}	            
     }
+	
+	function DataEmpresa(){
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');		
+		$result = $db1->query("SELECT nombre,direccion,telefono from config WHERE id=1");
+		$send='"empresa":{';
+		foreach($result as $row){
+			$send.='"nombre":"'.$row['nombre'].'","direccion":"'.$row['direccion'].'-'.$row['telefono'].'"';
+		}
+		$send.='},';
+		return $send;
+	}
+	
+	function APICategorias($objcategorias){
+		if($objcategorias->Categorias!=null){
+			$categorias=$objcategorias->Categorias;
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+			$db1->query('delete from categorias');
+			$db1->query("delete from sqlite_sequence where name='CATEGORIAS'");
+			foreach($categorias as $key=>$value){
+				$catnombre=$value->categoria_nombre;
+				$catimespan=$value->categoria_timespan;
+				$result = $db1->query("INSERT OR IGNORE INTO CATEGORIAS(categoria,activo,existe,timespan,sincronizar)values('".$catnombre."','1','1','".$catimespan."','false'");	
+			}
+			return "ok";
+		}
+	}
+	
 	if ($_REQUEST['fun']=='iniciaDB'){
 		iniciaDB();
 	}
@@ -286,6 +313,15 @@
 		if((int)$_REQUEST['id']>0)
 			VerDatosFacturast((int)$_REQUEST['id'],$_REQUEST['clave']);
 	}
+	else if($_REQUEST['fun']=='DataEmpresa'){
+		DataEmpresa();
+	}
+	else if($_REQUEST['fun']=='ApiCategorias'){
+		$categorias=json_decode($_REQUEST['categorias']);
+		if($categorias=null)
+			APICategorias($categorias);
+	}
+	
 	$db = new PDO('sqlite:PractisisMobile.sqlite3');
 	print "<table border=1>";
 
