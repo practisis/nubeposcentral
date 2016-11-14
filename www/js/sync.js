@@ -91,27 +91,7 @@ function ExtraeDatosApi(donde){
 		$("#demoGratis,#finalizado").css("display","none");
 		$("#contentStepSincro,#cuentaactiva,#mensajeperso").fadeIn();
 		$("#txtSincro").html("0%");
-		var jsoncateg=$('#JSONCategoriasNube').html();
-		/*var jsoncateg=JSON.parse($('#JSONCategoriasNube').html());
-		var jsoncategorias=jsoncateg.Categorias;
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-				tx.executeSql('delete from categorias',[],function(tx,results){});
-				tx.executeSql("delete from sqlite_sequence where name='CATEGORIAS'",[],function(tx,results){});
-				
-			for(var n=0;n<jsoncategorias.length;n++){
-				var item=jsoncategorias[n];
-				var timeSpanCat=getTimeSpan();
-				tx.executeSql("INSERT OR IGNORE INTO CATEGORIAS(categoria,activo,existe,timespan,sincronizar)values('"+item.categoria_nombre+"','1','1','"+item.categoria_timespan+"','false');",[],function(tx,results){
-					console.log("insertada categ:"+results.insertId);
-				});
-			}
-			},errorCB,function(){
-				localStorage.setItem("categoriasya",true);
-				$("#theProgress").css("width" , "15%");
-				ExtraeDatosApi(2);
-			});*/
-			
+		var jsoncateg=$('#JSONCategoriasNube').html();	
 			$.ajax({url:"api.php",
 			data:{fun:'ApiCategorias',categorias:jsoncateg},
 			success: function(result){
@@ -129,137 +109,82 @@ function ExtraeDatosApi(donde){
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("15%");
-		
+		var jsonmodif=$('#JSONModifNube').html());
+		var jsonprod=$('#JSONproductosNube').html();
 		/*Agregar modificadores*/
-		var jsonmodif=JSON.parse($('#JSONModifNube').html());
-		var jsonmodificadores=jsonmodif.modificadores;
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-				tx.executeSql('delete from MODIFICADORES',[],function(tx,results){});
-				tx.executeSql("delete from sqlite_sequence where name='MODIFICADORES'",[],function(tx,results){});
-			for(var n=0;n<jsonmodificadores.length;n++){
-				var item=jsonmodificadores[n];		
-				tx.executeSql('INSERT OR IGNORE INTO MODIFICADORES(no_modificador,id_formulado,nombre,valor,id_formulado_descuento,activo,timespan) VALUES('+item.no_modif+', "'+item.id_formulado+'" ,"'+item.nombre+'",'+item.valor+',"'+item.id_form_desc+'","'+item.activo+'","'+item.timespan+'")',[],function(tx,resultsm){
-				console.log("insertado producto:"+resultsm.insertId);
-				});
-			}
-			},errorCB,successCB);
-		/*FIN MODIFICADORES*/
-		
-		var jsonprod=JSON.parse($('#JSONproductosNube').html());
-		var jsonproductos=jsonprod.Productos;
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-				tx.executeSql('delete from productos',[],function(tx,results){});
-				tx.executeSql("delete from sqlite_sequence where name='PRODUCTOS'",[],function(tx,results){});
-			for(var n=0;n<jsonproductos.length;n++){
-				var item=jsonproductos[n];
-				tx.executeSql('INSERT OR IGNORE INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar,color,estado,tieneimpuestos) VALUES("'+item.formulado_nombre+'", "'+item.formulado_codigo+'" ,'+item.formulado_precio+','+item.categoria_timespan+','+item.cargaiva+','+item.formulado_productofinal+','+item.formulado_matprima+',"'+item.formulado_timespan+'",'+item.carga_servicio+',"false","'+item.color+'",'+item.activo+',"'+item.tieneimpuestos+'")',[],function(tx,results){
-				console.log("insertado producto:"+results.insertId);
-				});
-			}
-			},errorCB,function(){
-				localStorage.setItem("productosya",true);
-				$("#theProgress").css("width" , "30%");
-				ExtraeDatosApi(3);
-			});
-		
+		$.ajax({url:"api.php",
+			data:{fun:'ApiModificadoresProductos',modificadores:jsonmodif,productos:jsonprod},
+			success: function(result){
+				if(result=='ok'){
+					localStorage.setItem("productosya",true);
+					$("#theProgress").css("width" , "30%");
+					ExtraeDatosApi(3);
+				}
+		}});
 	}else if(donde==3){
 		console.log("Datos API 3: Clientes");
 		//$(".navbar").slideUp();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("30%");
-		var jsoncli=JSON.parse($('#JSONclientesNube').html());
-		//{"Clientes":[{"id":"1","nombre":" Consumidor Final","cedula":"9999999999999","telefono":"","direccion":"","email":"","timespan" : "0"}]}
-		var jsonclientes=jsoncli.Clientes;
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-			tx.executeSql('delete from clientes',[],function(tx,results){});
-			tx.executeSql("delete from sqlite_sequence where name='CLIENTES'",[],function(tx,results){});
-			for(var n=0;n<jsonclientes.length;n++){
-				var item=jsonclientes[n];
-				tx.executeSql('INSERT OR IGNORE INTO CLIENTES(nombre,cedula,email,direccion,telefono,sincronizar,existe,timespan) VALUES("'+item.nombre+'" , "'+item.cedula+'" , "'+item.email+'" , "'+item.direccion+'" ,  "'+item.telefono+'" ,  "false" , "0" , "0" )',[],function(tx,results){
-				console.log("insertado cliente:"+results.insertId);
-				});
-			}
-			},errorCB,function(){
-				localStorage.setItem("clientesya",true);
-				$("#theProgress").css("width" , "45%");
-				ExtraeDatosApi(4);
-			});
+		var jsoncli=$('#JSONclientesNube').html();
+		$.ajax({url:"api.php",
+			data:{fun:'ApiClientes',clientes:jsoncli},
+			success: function(result){
+				if(result=='ok'){
+					localStorage.setItem("clientesya",true);
+					$("#theProgress").css("width" , "45%");
+					ExtraeDatosApi(4);
+				}
+		}});
 	}else if(donde==4){
 		console.log("Datos API 4: Presupuesto");
 		//$(".navbar").slideUp();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("45%");
-		var jsonpres=JSON.parse($('#JSONpresupuestoNube').html());
-		var jsonpresupuestos=jsonpres.presupuesto;
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-				tx.executeSql('delete from presupuesto',[],function(tx,results){});
-				tx.executeSql("delete from sqlite_sequence where name='PRESUPUESTO'",[],function(tx,results){});
-				for(var n=0;n<jsonpresupuestos.length;n++){
-					var item=jsonpresupuestos[n];
-					tx.executeSql('INSERT OR IGNORE INTO PRESUPUESTO(timespan,valor,fecha,transacciones) VALUES("'+item.timespan+'",'+item.valor+','+item.fecha+','+item.transacciones+')',[],function(tx,results){
-					console.log("insertado presupuesto:"+results.insertId);
-					});
+		var jsonpres=$('#JSONpresupuestoNube').html();
+		$.ajax({url:"api.php",
+			data:{fun:'APIPresupuesto',presupuesto:jsonpres},
+			success: function(result){
+				if(result=='ok'){
+					localStorage.setItem("presupuestoya",true);
+					$("#theProgress").css("width" , "60%");
+					ExtraeDatosApi(5);
 				}
-		},errorCB,function(){
-				localStorage.setItem("presupuestoya",true);
-				$("#theProgress").css("width" , "60%");
-				ExtraeDatosApi(5);
-		});
+		}});
 	}else if(donde==5){
 		console.log("Datos API 5: Categorias Menu");
 		//$(".navbar").slideUp();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("60%");
-		var jsonpres=JSON.parse($('#JSONCatMenuNube').html());
-		var jsonpresupuestos=jsonpres.menucategorias;
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-				tx.executeSql('delete from MENU_CATEGORIAS',[],function(tx,results){});
-				tx.executeSql("delete from sqlite_sequence where name='MENU_CATEGORIAS'",[],function(tx,results){});
-				for(var n=0;n<jsonpresupuestos.length;n++){
-					var item=jsonpresupuestos[n];
-					tx.executeSql('INSERT OR IGNORE INTO MENU_CATEGORIAS(orden,nombre,timespan,activo)VALUES('+item.orden+',"'+item.nombre+'","'+item.timespan+'","'+item.activo+'")',[],function(tx,results){
-					console.log("insertada Categoria Menu:"+results.insertId);
-					});
+		var jsoncatmenu=$('#JSONCatMenuNube').html();
+		$.ajax({url:"api.php",
+			data:{fun:'APICategoriasMenu',menucategorias:jsoncatmenu},
+			success: function(result){
+				if(result=='ok'){
+					localStorage.setItem("menucategoriasya",true);
+					$("#theProgress").css("width" , "85%");
+					ExtraeDatosApi(6);
 				}
-		},errorCB,function(){
-				localStorage.setItem("menucategoriasya",true);
-				$("#theProgress").css("width" , "85%");
-				ExtraeDatosApi(6);
-		});
+		}});
 	}else if(donde==6){
 		console.log("Datos API 6: Menu");
 		//$(".navbar").slideUp();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("85%");
-		var jsonpres=JSON.parse($('#JSONMenuNube').html());
-		var jsonpresupuestos=jsonpres.menu;
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-				tx.executeSql('delete from MENU',[],function(tx,results){});
-				tx.executeSql("delete from sqlite_sequence where name='MENU'",[],function(tx,results){});
-				for(var n=0;n<jsonpresupuestos.length;n++){
-					var item=jsonpresupuestos[n];
-					
-					//tx.executeSql('INSERT INTO MENU (fila,columna,idcatmenu,idproducto,timespan,activo) VALUES('+(parseInt(item.fila)+1)+','+item.columna+',"'+item.idcatmenu+'","'+item.idproducto+'","'+item.timespan+'","'+item.activo+'")',[],function(tx,results){
-					tx.executeSql('INSERT INTO MENU(fila,columna,idcatmenu,idproducto,timespan,activo) SELECT '+(parseInt(item.fila)+1)+','+item.columna+',"'+item.idcatmenu+'","'+item.idproducto+'","'+item.timespan+'","'+item.activo+'" WHERE NOT EXISTS(SELECT 1 FROM MENU WHERE timespan like "'+item.timespan+'")',[],function(tx,results){
-							console.log("insertado producto menu inicio:"+results.insertId);
-					});
-					//console.log("insertado producto de menu:"+results.insertId);
-					//});
+		var jsonmenu=$('#JSONMenuNube').html();
+		$.ajax({url:"api.php",
+			data:{fun:'APIMenuDiseno',menudiseno:jsonmenu},
+			success: function(result){
+				if(result=='ok'){
+					localStorage.setItem("menuya",true);
+					$("#theProgress").css("width" , "95%");
+					ExtraeDatosApi(7);
 				}
-		},errorCB,function(){
-				localStorage.setItem("menuya",true);
-				$("#theProgress").css("width" , "95%");
-				ExtraeDatosApi(7);
+			}
 		});
 	}else if(donde==7){
 		console.log("Datos API 7: Permisos e impuestos");
@@ -309,76 +234,74 @@ function ExtraeDatosApi(donde){
             localStorage.setItem("id_pais",ext[0].id_pais);
 
             if(ext[0].id_version_nube == 4){
-              localStorage.setItem("con_profesionales","true");
-
-            var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-          	db.transaction(function(tx){
-
-                tx.executeSql("INSERT OR IGNORE INTO CATEGORIAS(categoria,activo,existe,timespan,sincronizar)values('Personalizada','1','1','-14','true');",[],function(tx,results){
-                	console.log("insertada categ:"+results.insertId);
-                });
-
-                tx.executeSql('INSERT OR IGNORE INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar,color,estado,tieneimpuestos) VALUES("Personalizado", "1414" ,0,-14,0,1,0,"-14",0,"true","",1,"true");',[],function(tx,results){
-                  console.log("insertado producto personalizado"+results.insertId);
-                });
-              },errorCB,function(){
-          	});
-
+				localStorage.setItem("con_profesionales","true");
+				$.ajax({url:"api.php",
+				data:{fun:'APIProductosProfesional'},
+				success: function(result){
+						if(result=='ok'){
+							console.log("Insertada Categoria y Producto para version Profesionales.");
+						}
+					}
+				});
             }else{
               localStorage.setItem("con_profesionales","false");
             }
-
-            var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-              tx.executeSql('UPDATE CONFIG SET pais="'+ext[0].pais+'",id_idioma = "'+ext[0].idioma+'",sin_documento="'+ext[0].documento+'",con_nombre_orden="'+ext[0].orden+'",con_propina="'+ext[0].propina+'",con_tarjeta="'+ext[0].tarjeta+'",con_shop="'+ext[0].shop+'",ip_servidor="'+ext[0].ipservidor+'",con_mesas="'+ext[0].mesas+'",logo="'+ext[0].logo+'",id_version_nube="'+ext[0].id_version_nube+'",pide_telefono="'+ext[0].pide_telefono+'",telefono_inte="'+ext[0].telefono_inte+'",mensajefinal="'+ext[0].mensajefinal+'",terminos_condiciones="'+ext[0].terminos+'",id_locales="'+ext[0].id_locales+'",email_fact="'+ext[0].email_fact+'",key="'+ext[0].key+'",numero_contribuyente="'+ext[0].numero_contribuyente+'",obligado_contabilidad="'+ext[0].obligado_contabilidad+'",prueba_produccion="'+ext[0].prueba_produccion+'",tiene_factura_electronica="'+ext[0].tiene_factura_electronica+'",mensaje_factura="'+ext[0].msj_factura_electronica+'",respaldar="'+ext[0].respaldar+'" WHERE id=1',[],function(tx,results){
-
-  				console.log("actualizada empresa permisos");
-				if(ext[0].logo!=''&&ext[0].logo!=null){
-					var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
-					if ( app ) {
-						if(ext[0].logo!=null&&ext[0].logo!=''&&ext[0].logo!="null")
-							downloadImage(encodeURI("https://www.practisis.net/practipos2/logos/"+ext[0].logo),ext[0].logo);
+			
+			var jsonimp=$('#JSONImpuestosNube').html();
+			
+			$.ajax({url:"api.php",
+				data:{fun:'APIExtra',extra:$('#JSONExtraNube').html(),impuestos:jsonimp},
+				success: function(result){
+						if(result=='ok'){
+							if(ext[0].logo!=''&&ext[0].logo!=null){
+								var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+								if ( app ) {
+									if(ext[0].logo!=null&&ext[0].logo!=''&&ext[0].logo!="null")
+										downloadImage(encodeURI("https://www.practisis.net/practipos2/logos/"+ext[0].logo),ext[0].logo);
+								}
+							}
+							
+							localStorage.setItem("permisosya",true);
+							$("#theProgress").css("width" , "98%");
+							ExtraeDatosApi(8);
+						}
 					}
-				}
-				
-  			  });
-            },errorCB,successCB);
-		}
+				});
 		
-		/*INSERTA IMPUESTOS*/
+			/*INSERTA IMPUESTOS*/
 			if($('#JSONImpuestosNube').html()!=''){
-				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-				db.transaction(function(tx){
 				var jsonimp=JSON.parse($('#JSONImpuestosNube').html());
 				var imp=jsonimp.impuestos;
 				console.log(imp);
 				//$('#idiva').html('0');
 				for(var t in imp){
 					var itemi=imp[t];
-					
-						tx.executeSql('INSERT OR IGNORE INTO IMPUESTOS (nombre,porcentaje,activo,timespan) values (?,?,?,?)',[itemi.nombre,itemi.porcentaje,itemi.activo,itemi.id],function(tx,results){
-							console.log("Insertado impuesto: "+results.insertId);
-							if($.trim(itemi.nombre.toLowerCase())=='iva')
+					$.ajax({url:"api.php",
+					data:{fun:'APIImpuestos',dataimpuesto:JSON.stringify(itemi)},
+					success: function(result){
+						if($.trim(itemi.nombre.toLowerCase())=='iva')
 								$('#idiva').html(itemi.id);
 							
-							if($('#impuesto-'+itemi.id).length==0){
-								$('#taxes').append('<input id="impuesto-'+itemi.id+'" type="text" value="'+itemi.id+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100)+'">');
-							}else{
-								$("impuesto-"+itemi.id).val(itemi.id+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100));
-							}
-						});
+						if($('#impuesto-'+itemi.id).length==0){
+							$('#taxes').append('<input id="impuesto-'+itemi.id+'" type="text" value="'+itemi.id+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100)+'">');
+						}else{
+							$("impuesto-"+itemi.id).val(itemi.id+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100));
+						}
+					}
+					});
 				}
-				},errorCB,function(){
-					localStorage.setItem("permisosya",true);
-					$("#theProgress").css("width" , "98%");
-					ExtraeDatosApi(8);
-				});
-			}			
+			}
 			/*FIN IMPUESTOS*/
+		}
+		localStorage.setItem("permisosya",true);
+		$("#theProgress").css("width" , "98%");
+		ExtraeDatosApi(8);
+			
 	}else if(donde==8){
-
 		console.log("Datos API 8: Mesas");
 		//$(".navbar").slideUp();
+		var jsontipomesa=$('#JSONTipoMesasNube').html();
+		var jsonmesas=$('#JSONMesasNube').html();
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
 		$("#txtSincro").html("98%");
@@ -386,55 +309,16 @@ function ExtraeDatosApi(donde){
 
 		/*json tipos de mesa extra*/
 		if($('#JSONTipoMesasNube').html()!=''){
-			var jsontipomesa=JSON.parse($('#JSONTipoMesasNube').html());
-			var jsontipodemesas=jsontipomesa.tipomesas;
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-					tx.executeSql('delete from TIPO_MESA',[],function(tx,results){});
-					tx.executeSql("delete from sqlite_sequence where name='TIPO_MESA'",[],function(tx,results){});
-					for(var n=0;n<jsontipodemesas.length;n++){
-						var item=jsontipodemesas[n];
-						
-						//tx.executeSql('INSERT INTO MENU (fila,columna,idcatmenu,idproducto,timespan,activo) VALUES('+(parseInt(item.fila)+1)+','+item.columna+',"'+item.idcatmenu+'","'+item.idproducto+'","'+item.timespan+'","'+item.activo+'")',[],function(tx,results){
-						tx.executeSql('INSERT INTO TIPO_MESA(imagen_activa,imagen_inactiva,es_mesa,timespan) SELECT "'+item.imagen_activa+'","'+item.imagen_inactiva+'","'+item.es_mesa+'","'+item.id+'" WHERE NOT EXISTS(SELECT 1 FROM TIPO_MESA WHERE timespan like "'+item.id+'")',[],function(tx,results){
-								console.log("insertado tipo de mesa inicio:"+results.insertId);
-						});
-						//console.log("insertado producto de menu:"+results.insertId);
-						//});
-					}
-			},errorCB,successCB);
-		}
-		/**/
-		
-		/*json mesas*/
-		if($('#JSONMesasNube').html()!=''){
-			var jsonmesa=JSON.parse($('#JSONMesasNube').html());
-			var jsondemesas=jsonmesa.mesas;
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-					tx.executeSql('delete from MESAS',[],function(tx,results){});
-					tx.executeSql("delete from sqlite_sequence where name='MESAS'",[],function(tx,results){});
-					for(var n=0;n<jsondemesas.length;n++){
-						var item=jsondemesas[n];
-						
-						//tx.executeSql('INSERT INTO MENU (fila,columna,idcatmenu,idproducto,timespan,activo) VALUES('+(parseInt(item.fila)+1)+','+item.columna+',"'+item.idcatmenu+'","'+item.idproducto+'","'+item.timespan+'","'+item.activo+'")',[],function(tx,results){
-						tx.executeSql('INSERT INTO MESAS(left,top,id_tipomesa,activo,nombre,timespan,tab) SELECT '+item.left+','+item.top+',"'+item.tipo_mesa+'","'+item.activo+'","'+item.nombre+'","'+item.id+'","'+item.tab+'" WHERE NOT EXISTS(SELECT 1 FROM MESAS WHERE timespan like "'+item.id+'")',[],function(tx,results){
-								console.log("insertado mesa inicio:"+results.insertId);
-						});
-						//console.log("insertado producto de menu:"+results.insertId);
-						//});
-					}
-			},errorCB,function(){
-                localStorage.setItem("mesasya",true);
-				$("#theProgress").css("width" , "98%");
-				ExtraeDatosApi(9);
+			$.ajax({url:"api.php",
+				data:{fun:'APIMesas',tipomesas:jsontipomesa,mesas:jsonmesas},
+				success: function(result){
+					localStorage.setItem("mesasya",true);
+					$("#theProgress").css("width" , "98%");
+					ExtraeDatosApi(9);
+				}
 			});
 		}
-		/**/
-
-		
-		}else if(donde==9){
-
+	}else if(donde==9){
 		console.log("Datos API 9: Locales");
 		$("#demoGratis").css("display","none");
 		$("#contentStepSincro").fadeIn();
@@ -442,29 +326,22 @@ function ExtraeDatosApi(donde){
 
 		/*json locales*/
 		if($('#JSONLocales').html()!=''){
-			var jsonlocales=JSON.parse($('#JSONLocales').html());
-			var jsonlocalesd=jsonlocales.locales;
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-					tx.executeSql('delete from MESAS',[],function(tx,results){});
-					tx.executeSql("delete from sqlite_sequence where name='MESAS'",[],function(tx,results){});
-					for(var n=0;n<jsonlocalesd.length;n++){
-						var item=jsonlocalesd[n];
-
-						tx.executeSql('INSERT INTO LOCALES(local,activo,timespan) SELECT "'+item.local+'","'+item.activo+'","'+item.timespan+'" WHERE NOT EXISTS(SELECT 1 FROM LOCALES WHERE timespan like "'+item.timespan+'")',[],function(tx,results){
-								console.log("insertado locales inicio:"+results.insertId);
-						});
-
+			var jsonlocales=$('#JSONLocales').html();
+			$.ajax({url:"api.php",
+				data:{fun:'APILocales',locales:jsonlocales},
+				success: function(result){
+					if(result=='ok'){
+						console.log('fin API INICIAL.');
+						localStorage.setItem("localesya",true);
+						$("#theProgress").css("width" , "100%");
+						$("#txtSincro").html("100%");
+						setTimeout(function(){
+							$("#theProgress").css("width","0%");
+							$("#txtSincro").html("");
+						},1000);
+						setTimeout(function(){SyncStart()},1500);
 					}
-			},errorCB,function(){
-				localStorage.setItem("localesya",true);
-				$("#theProgress").css("width" , "100%");
-				$("#txtSincro").html("100%");
-				setTimeout(function(){
-					$("#theProgress").css("width","0%");
-					$("#txtSincro").html("");
-				},1000);
-				setTimeout(function(){SyncStart()},1500);
+				}
 			});
 		}
 		/**/
@@ -503,10 +380,13 @@ function ExtraeDatosApi(donde){
 }
 
 function SincronizadorNormal(){
-	
 	console.log("sincronizador normal");
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Ready to start the normal synchronizer"]);});
+	$.ajax({url:"api.php",
+		data:{fun:'APILog',hora:new Date().getTime(),texto:"Ready to start the normal synchronizer"},
+		success: function(result){
+			
+		}
+	});
 	procesocount=1;
 	$('#fadeRow,#demoGratis,#finalizado').css("display","none");
 	$('#contentStepSincro,#cuentaactiva,#mensajeperso').fadeIn();
@@ -577,9 +457,10 @@ function registrarUser(){
 			localStorage.setItem('datosquemados',empresa+'|'+pais+'|'+nombrePais+'|'+id_idioma);
 			//alert(iddevice+'/'+nombre+'/'+id_idioma+'/'+nombre);
 			//$("#btnNewEmp").html('<img src="images/loader.gif"  width="50%" />');
-			//$.post("https://practisis.net/registro/registroNubePOS.php", {
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Ready to send the new register post"]);});
+			$.ajax({url:"api.php",
+				data:{fun:'APILog',hora:new Date().getTime(),texto:"Ready to send the new register post"},
+			});
+			
 			
 			$.post("https://practisis.net/registro/testnubepos.php", {
 				nombre : nombre,
@@ -619,13 +500,18 @@ function registrarUser(){
 							
 				}
 				
-				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-				db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Get response at the new register post"]);});
+				$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Get response at the new register post"},
+					success: function(result){}
+				});
 				
 			}).fail(function(xhr, status, error) {
 				
-				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-				db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail the peticion of the new register post",status]);});
+				$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail the peticion of the new register post"},
+					success: function(result){}
+				});
+				
 				
 				//console.log(xhr);
 				console.log(status);
@@ -753,8 +639,11 @@ function UserLogin(){
 		$('#btnvalida2').html("<img src='images/loader.gif' width='20px'/>");
 		var apiURL='https://practisis.net/connectnubepos/api2.php';
 		
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Ready to send the login post"]);});
+		$.ajax({url:"api.php",
+			data:{fun:'APILog',hora:new Date().getTime(),texto:"Ready to send the login post"},
+			success: function(result){}
+		});
+		
 		
 		$.post(apiURL,{action:"login", user : quien , pass : pass, deviceid : iddevice}).done(function(data){
 			//alert(quien+'/'+pass+'/'+iddevice);
@@ -802,8 +691,11 @@ function UserLogin(){
 					$('#cargandoTabs').modal('show');
 			  }
 			  
-				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-				db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Get response at the login post"]);});
+			 
+				$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Get response at the login post"},
+					success: function(result){}
+				});	
 			}
 			
 		}).fail(function(xhr, status, error) {
@@ -817,8 +709,12 @@ function UserLogin(){
 			
 			$('#btnvalida2').html("Login");
 			
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail the peticion of the login post",status]);});
+			$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail the peticion of the login post"},
+					success: function(result){}
+				});	
+			
+			
 		});
 	}
 }
@@ -826,8 +722,12 @@ function UserLogin(){
 function DatosIniciales(cual){
 	if(VerificarConexion()){
 		var apiURL='https://practisis.net/connectnubepos/api2.php';
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Ready to send the initial data post"]);});
+		
+		$.ajax({url:"api.php",
+			data:{fun:'APILog',hora:new Date().getTime(),texto:"Ready to send the initial data post"},
+			success: function(result){}
+		});	
+		
 		
 		$.post(apiURL,{
 			id_emp: localStorage.getItem("empresa"),
@@ -839,8 +739,10 @@ function DatosIniciales(cual){
 			if(response!='block' && response!='Desactivado'){
 				//$('.navbar').slideDown();
 				
-				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-				db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Get response at the initial data post"]);});
+				$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Get response at the initial data post"},
+					success: function(result){}
+				});	
 				
 				var arraydatos=JSON.parse(response);
 				console.log(">>>>Iniciar >>>"+response);
@@ -905,8 +807,10 @@ function DatosIniciales(cual){
 				},100);
 			}
 		}).fail(function(xhr, status, error) {
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail the peticion of the initial data post",status]);});
+			$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail the peticion of the initial data post",datos:status},
+					success: function(result){}
+			});	
 			console.log(status);
 		});
 	}
@@ -927,9 +831,12 @@ function DatosRecurrentes(cual){
 		id_barra : localStorage.getItem("idbarra"),
 		deviceid:$("#deviceid").html()
 		}).done(function(response){
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Get the response at the normal synchronizer post"]);});
 			
+			
+			$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Get the response at the normal synchronizer post",datos:""},
+					success: function(result){}
+			});
 			if(response!='block' && response!='Desactivado'){
 				console.log(response);
 				jsonSync=JSON.parse(response);
@@ -952,15 +859,6 @@ function DatosRecurrentes(cual){
 				$('#JSONTipoMesasNube').html(JSON.stringify(jsonSync.BigJson[12].Tipomesas));
 				$('#JSONMesasNube').html(JSON.stringify(jsonSync.BigJson[13].Mesas));
                 $('#JSONLocales').html(JSON.stringify(jsonSync.BigJson[14].Locales));
-
-				//$('#JSONTipoMesasNube').html('{"tipomesas":[{"id":"1","imagen_activa":"mesagrandeanchaa.png","imagen_inactiva":"mesagrandeanchai.png","es_mesa":"true"},	{"id":"2","imagen_activa":"mesagrandealtaa.png","imagen_inactiva":"mesagrandealtai.png","es_mesa":"true"}]}');
-			
-				//$('#JSONMesasNube').html('{"mesas":[{"id":"1","left":"780","top":"120","tipo_mesa":"1","nombre":"Mesa 1","activo":"true"},{"id":"2","left":"100","top":"120","tipo_mesa":"2","nombre":"Mesa 2","activo":"true"}]}');
-				//$('#JSONPropinasNube').html('{"propinas":[{"id":"1","porcentaje":"true","valor":"5","activo":"true"},{"id":"2","porcentaje":"false","valor":"10","activo":"true"}]}');
-				//$('#JSONimpuestosNube').html('{"impuestos":[{"id":"1","nombre":"IVA","porcentaje":"12","activo":"true","timespan":"1245"},{"id":"2","nombre":"Servicio","porcentaje":"10","activo":"true","timespan":"1246"}]}');
-
-				//$('#JSONModifNube').html('{"modificadores":[{"id":"1","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"2","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal2","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"3","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal3","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"4","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal4","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"5","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal5","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"6","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal6","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"7","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal7","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"8","no_modif":"1","id_formulado":"708331454520391001","nombre":"Con Sal8","valor":"0.15","activo":"true","id_form_desc":"0"},{"id":"2","no_modif":"2","id_formulado":"708331454520391001","nombre":"Con Limon","valor":"0.10","activo":"true","id_form_desc":"0"}]}');
-
 				localStorage.setItem("dias",jsonSync.BigJson[7].Extra[0].dias);
 				localStorage.setItem("msj",jsonSync.BigJson[7].Extra[0].msj);
 				//localStorage.setItem("permisos",jsonSync.BigJson[5].Extra[0].constrasenia);
@@ -995,9 +893,11 @@ function DatosRecurrentes(cual){
 			}
 
 		}).fail(function(xhr, status, error){
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail the peticion of the normal synchronizer post",status]);});
 			
+			$.ajax({url:"api.php",
+					data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail the peticion of the normal synchronizer post",datos:status},
+					success: function(result){}
+			});
 			updateOnlineStatus("OFFLINE");
 			setTimeout(function(){SincronizadorNormal()},180000);
 		});
@@ -1010,7 +910,7 @@ function DatosRecurrentes(cual){
 			var jsoncategorias=JSON.parse($('#JSONCategoriasNube').html());
 			console.log(jsoncategorias);
 			localStorage.setItem('dataupdate','');
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+				var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 				db.transaction(function(tx){
 				for(var n=0;n<jsoncategorias.length;n++){
 					var item=jsoncategorias[n];
@@ -1045,8 +945,10 @@ function DatosRecurrentes(cual){
 							DatosRecurrentes(2);
 							updateOnlineStatus("ONLINE");
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: categorias",status]);});
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: categorias",datos:status},
+								success: function(result){}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1117,8 +1019,11 @@ function DatosRecurrentes(cual){
 						DatosRecurrentes(3);
 						updateOnlineStatus('ONLINE');
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: productos",status]);});
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: productos",datos:status},
+								success: function(result){}
+						});
+						
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1167,8 +1072,10 @@ function DatosRecurrentes(cual){
 						DatosRecurrentes(4);
 						updateOnlineStatus('ONLINE');
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: clientes",status]);});
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: clientes",datos:status},
+								success: function(result){}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1218,8 +1125,10 @@ function DatosRecurrentes(cual){
 						updateOnlineStatus('ONLINE');
 						
 					}).fail(function(xhr,status,error){	
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Presupuestos",status]);});
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Presupuestos",datos:status},
+								success: function(result){}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1330,8 +1239,11 @@ function DatosRecurrentes(cual){
 						DatosRecurrentes(6);
 						updateOnlineStatus('ONLINE');
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of:empresa",status]);});
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of:empresa",datos:status},
+								success: function(result){}
+						});
+						
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1380,8 +1292,10 @@ function DatosRecurrentes(cual){
 						DatosRecurrentes(7);
 						updateOnlineStatus('ONLINE');
 					}).fail(function(xhr,status,response){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Categorías Menú",status]);});
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Categorías Menú",datos:status},
+								success: function(result){}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1440,8 +1354,11 @@ function DatosRecurrentes(cual){
 						},1500);
 						updateOnlineStatus('ONLINE');
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Productos Menú",status]);});
+					
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Productos Menú",datos:status},
+								success: function(result){}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1498,9 +1415,11 @@ function DatosRecurrentes(cual){
 						localStorage.setItem("dataupdate","");
 						updateOnlineStatus('ONLINE');
 				}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Permisos Usuarios",status]);});
-						updateOnlineStatus("OFFLINE");
+					
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Permisos Usuarios",datos:status},
+								success: function(result){}
+						});
 				});
 			});
 		}
@@ -1568,8 +1487,10 @@ function DatosRecurrentes(cual){
 						updateOnlineStatus('ONLINE');
 						DatosRecurrentes(9);
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Permisos ",status]);});
+						$.ajax({url:"api.php",
+								data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Permisos",datos:status},
+								success: function(result){}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){$("#theProgress").css("width" , "0%"); SincronizadorNormal()},180000);
 					});
@@ -1615,8 +1536,9 @@ function DatosRecurrentes(cual){
 						updateOnlineStatus('ONLINE');
 						DatosRecurrentes(10);
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Tipo Mesas ",status]);});
+						$.ajax({url:"api.php",
+							data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Tipo Mesas",datos:status}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1663,8 +1585,9 @@ function DatosRecurrentes(cual){
 						updateOnlineStatus('ONLINE');
                         DatosRecurrentes(11);
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Mesas ",status]);});
+						$.ajax({url:"api.php",
+							data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Mesas ",datos:status}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1712,8 +1635,9 @@ function DatosRecurrentes(cual){
 						},1500);
 						updateOnlineStatus('ONLINE');
 					}).fail(function(xhr,status,error){
-						var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-						db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail deletesinc of: Locales ",status]);});
+						$.ajax({url:"api.php",
+							data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail deletesinc of: Locales",datos:status}
+						});
 						updateOnlineStatus("OFFLINE");
 						setTimeout(function(){SincronizadorNormal()},180000);
 					});
@@ -1731,8 +1655,9 @@ function SubirDatosaNube(cual){
 	if(cual==5) cualcosa='Impuestos';
 	if(cual==6) cualcosa='Modificadores';
 	
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Ready to start the upload synchronizer",cualcosa]);},errorCB);
+	$.ajax({url:"api.php",
+		data:{fun:'APILog',hora:new Date().getTime(),texto:"Ready to start the upload synchronizer",datos:cualcosa}
+	});
 	console.log("sincronizador de subida...");
 	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 	if(cual==0){
@@ -1871,8 +1796,10 @@ function PostaLaNube(arraydatos,cual,accion,t){
 		json:jsonc,
 		deviceid:$("#deviceid").html()
 	}).done(function(response){
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion) values (?,?)',[new Date().getTime(),"Successfully upload of:"+accion]);});
+		
+		$.ajax({url:"api.php",
+		data:{fun:'APILog',hora:new Date().getTime(),texto:"Successfully upload of:"+accion,datos:accion}
+		});
 		console.log(response);
 		if(parseInt(response)>0){
 			db.transaction(function(tx){
@@ -1906,8 +1833,10 @@ function PostaLaNube(arraydatos,cual,accion,t){
 		}
 		updateOnlineStatus("ONLINE");
 	}).fail(function(xhr,status,error){
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){tx.executeSql('insert into LOGACTIONS (time,descripcion,datos) values (?,?,?)',[new Date().getTime(),"Fail upload synchronizer:",status]);});
+			
+			$.ajax({url:"api.php",
+			data:{fun:'APILog',hora:new Date().getTime(),texto:"Fail upload synchronizer:",status,datos:status}
+			});
 			updateOnlineStatus("OFFLINE");
 			setTimeout(function(){SincronizadorNormal()},180000);
 	});

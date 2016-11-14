@@ -295,6 +295,163 @@
 		}
 	}
 	
+	function APIModificadoresProductos($objmodif,$objproductos){
+		if($objmodif->modificadores!=null){
+			$modif=$objmodif->modificadores;
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+			$db1->query('delete from MODIFICADORES');
+			$db1->query("delete from sqlite_sequence where name='MODIFICADORES'");
+			foreach($modif as $key=>$value){
+				$no_modif=$modif->no_modif;
+				$id_formulado=$modif->id_formulado;
+				$nombre=$modif->nombre;
+				$valor=$modif->valor;
+				$id_form_desc=$modif->id_form_desc;
+				$activo=$modif->activo;
+				$timespan=$modif->timespan;
+				$result = $db1->query("INSERT OR IGNORE INTO MODIFICADORES(no_modificador,id_formulado,nombre,valor,id_formulado_descuento,activo,timespan) VALUES();");	
+			}
+			
+			$produc=$objproductos->Productos;
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+			$db1->query('delete from productos');
+			$db1->query("delete from sqlite_sequence where name='PRODUCTOS'");
+			foreach($produc as $key=>$value){
+				$nombre=$value->formulado_nombre;
+				$codigo=$value->formulado_codigo;
+				$precio=$value->formulado_precio;
+				$timespancat=$value->categoria_timespan;
+				$cargaiva=$value->cargaiva;
+				$productofinal=$value->formulado_productofinal;
+				$materiaprima=$value->formulado_matprima;
+				$timespan=$value->formulado_timespan;
+				$cargaservicio=$value->carga_servicio;
+				$color=$value->color;
+				$activo=$value->activo;
+				$tieneimpuestos=$value->tieneimpuestos;
+				
+				$result=$db1->query('INSERT OR IGNORE INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar,color,estado,tieneimpuestos) VALUES("'.$nombre.'", "'.$codigo.'" ,'.$precio.','.$timespancat.','.$cargaiva.','.$productofinal.','.$materiaprima.',"'.$timespan.'",'.$cargaservicio.',"false","'.$color.'",'.$activo.',"'.$tieneimpuestos.'")');
+				
+			}
+			echo "ok";
+		}
+	}
+	
+	function APIClientes($clientes){
+			$clien=$clientes->Clientes;
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+			$db1->query('delete from clientes');
+			$db1->query("delete from sqlite_sequence where name='CLIENTES'");
+			foreach($clien as $key=>$value){
+				$result=$db1->query('INSERT OR IGNORE INTO CLIENTES(nombre,cedula,email,direccion,telefono,sincronizar,existe,timespan) VALUES("'.$value->nombre.'" , "'.$value->cedula.'" , "'.$value->email.'" , "'.$value->direccion.'" ,  "'.$value->telefono.'" ,  "false" , "0" , "0" )');
+			}
+			echo "ok";
+	}
+	
+	function APIPresupuesto($presupuesto){
+		$presup=$presupuesto->presupuesto;
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query('delete from presupuesto');
+		$db1->query("delete from sqlite_sequence where name='PRESUPUESTO'");
+		foreach($presup as $key=>$value){
+			$result=$db1->query('INSERT OR IGNORE INTO PRESUPUESTO(timespan,valor,fecha,transacciones) VALUES("'.$value->timespan.'",'.$value->valor.','.$value->fecha.','.$value->transacciones.')');
+		}
+		echo "ok";
+	}
+	
+	function APICategoriasMenu($categoriasmenu){
+		$catmenu=$categoriasmenu->menucategorias;
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query('delete from MENU_CATEGORIAS');
+		$db1->query("delete from sqlite_sequence where name='MENU_CATEGORIAS'");
+		foreach($catmenu as $key=>$value){
+			$result=$db1->query('INSERT OR IGNORE INTO MENU_CATEGORIAS(orden,nombre,timespan,activo)VALUES('.$value->orden.',"'.$value->nombre.'","'.$value->timespan.'","'.$value->activo.'")');
+		}
+		echo "ok";
+	}
+	
+	function APIMenuDiseno($menudiseno){
+		$menu=$menudiseno->menu;
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query('delete from MENU');
+		$db1->query("delete from sqlite_sequence where name='MENU'");
+		foreach($menu as $key=>$value){
+			$result=$db1->query('INSERT INTO MENU(fila,columna,idcatmenu,idproducto,timespan,activo) SELECT '.((int)$value->fila+1).','.$value->columna.',"'.$value->idcatmenu.'","'$value->idproducto.'","'$value->timespan.'","'.$value->activo.'" WHERE NOT EXISTS(SELECT 1 FROM MENU WHERE timespan like "'.$value->timespan.'")');
+		}
+		echo "ok";
+	}
+	
+	function APIProductosProfesional(){
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query("INSERT OR IGNORE INTO CATEGORIAS(categoria,activo,existe,timespan,sincronizar)values('Personalizada','1','1','-14','true');");
+		$db1->query('INSERT OR IGNORE INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar,color,estado,tieneimpuestos) VALUES("Personalizado", "1414" ,0,-14,0,1,0,"-14",0,"true","",1,"true");');
+		echo 'ok';
+	}
+	
+	function APIExtra($extra){
+		$extras=$extra->extras;
+		$imp=$impuestos->impuestos;
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query('delete from MENU');
+		$db1->query("delete from sqlite_sequence where name='MENU'");
+		foreach($extras as $key=>$value){
+			$result=$db1->query('UPDATE CONFIG SET pais="'.$value->pais.'",id_idioma = "'.$value->idioma.'",sin_documento="'.$value->documento.'",con_nombre_orden="'.$value->orden.'",con_propina="'.$value->propina.'",con_tarjeta="'.$value->tarjeta.'",con_shop="'.$value->shop.'",ip_servidor="'.$value->ipservidor.'",con_mesas="'.$value->mesas.'",logo="'.$value->logo.'",id_version_nube="'+.$value->id_version_nube.'",pide_telefono="'.$value->pide_telefono.'",telefono_inte="'.$value->telefono_inte.'",mensajefinal="'+.$value->mensajefinal.'",terminos_condiciones="'.$value->terminos.'",id_locales="'.$value->id_locales.'",email_fact="'.$value->email_fact.'",key="'.$value->key.'",numero_contribuyente="'.$value->numero_contribuyente.'",obligado_contabilidad="'.$value->obligado_contabilidad.'",prueba_produccion="'.$value->prueba_produccion.'",tiene_factura_electronica="'.$value->tiene_factura_electronica.'",mensaje_factura="'.$value->msj_factura_electronica.'",respaldar="'.$value->respaldar.'" WHERE id=1');
+		}
+		echo 'ok';
+	}
+	
+	function APIImpuestos($impuesto){
+		$value=$impuesto;
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$result=$db1->query("INSERT OR IGNORE INTO IMPUESTOS (nombre,porcentaje,activo,timespan) values ('".$value->nombre."','".$value->porcentaje."','".$value->activo."','".$value->id."')";
+		echo 'ok';
+	}
+	
+	function APIMesas($mtipomesas,$mmesas){
+		$tipomesas=$mtipomesas->tipomesas;
+		$mesas=$mmesas->mesas;
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query('delete from TIPO_MESA');
+		$db1->query("delete from sqlite_sequence where name='TIPO_MESA'");
+		foreach($tipomesas as $key=>$value){
+			$result=$db1->query('INSERT INTO TIPO_MESA(imagen_activa,imagen_inactiva,es_mesa,timespan) SELECT "'.$value->imagen_activa.'","'.$value->imagen_inactiva.'","'.$value->es_mesa.'","'.$value->id.'" WHERE NOT EXISTS(SELECT 1 FROM TIPO_MESA WHERE timespan like "'.$value->id.'")');
+		}
+		
+		$db1->query('delete from MESAS');
+		$db1->query("delete from sqlite_sequence where name='MESAS'");
+		foreach($mesas as $key=>$value){
+			$result=$db1->query('INSERT INTO MESAS(left,top,id_tipomesa,activo,nombre,timespan,tab) SELECT '.$value->left.','.$value->top.',"'.$value->tipo_mesa.'","'.$value->activo.'","'.$value->nombre.'","'.$value->id.'","'.$value->tab.'" WHERE NOT EXISTS(SELECT 1 FROM MESAS WHERE timespan like "'.$value->id.'")');
+		}
+		echo 'ok';
+	}
+	
+	function APILocales($mlocales){
+		$locales=$mlocales->locales;
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query('delete from LOCALES');
+		$db1->query("delete from sqlite_sequence where name='LOCALES'");
+		foreach($locales as $key=>$value){
+			$result=$db1->query('INSERT INTO LOCALES(local,activo,timespan) SELECT "'.$value->local.'","'.$value->activo.'","'.$value->timespan.'" WHERE NOT EXISTS(SELECT 1 FROM LOCALES WHERE timespan like "'.$value->timespan.'")');
+		}
+		echo 'ok';
+	}
+	
+	function APILog($hora,$texto,$datos){
+		if($datos==null)
+			$datos='';
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$db1->query('insert into LOGACTIONS (time,descripcion,datos) values ("'.$hora.'","'.$texto.'","'.$datos.'")');
+		echo 'ok';
+	}
+	
+	function RECCategorias($categoria){
+			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+			$db1->query("INSERT OR IGNORE INTO CATEGORIAS (categoria,activo,existe,timespan,sincronizar)values('".$categoria->formulado_tipo."','1','1','".$categoria->timespan."','false')");
+			$db1->query("UPDATE CATEGORIAS SET categoria = '".$categoria->formulado_tipo."' WHERE timespan='".$categoria->timespan."'");
+			echo 'ok';
+	}
+	
+	
 	if ($_REQUEST['fun']=='iniciaDB'){
 		iniciaDB();
 	}
@@ -318,8 +475,50 @@
 	}
 	else if($_REQUEST['fun']=='ApiCategorias'){
 		$categorias=json_decode($_REQUEST['categorias']);
-		if($categorias=null)
+		if($categorias!=null)
 			APICategorias($categorias);
+	}else if($_REQUEST['fun']=='ApiModificadoresProductos'){
+		$modificadores=json_decode($_REQUEST['modificadores']);
+		$productos=json_decode($_REQUEST['productos']);
+		if($modificadores!=null||$productos!=null)
+			APIModificadoresProductos($modificadores,$productos);
+	}else if($_REQUEST['fun']=='ApiClientes'){
+		$clientes=json_decode($_REQUEST['clientes']);
+		if($clientes!=null)
+			APIClientes($clientes);
+	}else if($_REQUEST['fun']=='APIPresupuesto'){
+		$presup=json_decode($_REQUEST['presupuesto']);
+		if($presup!=null)
+			APIPresupuesto($presup);
+	}else if($_REQUEST['fun']=='APICategoriasMenu'){
+		$catmenu=json_decode($_REQUEST['menucategorias']);
+		if($catmenu!=null)
+			APICategoriasMenu($catmenu);
+	}else if($_REQUEST['fun']=='APIMenuDiseno'){
+		$menu=json_decode($_REQUEST['menudiseno']);
+		if($menu!=null)
+			APIMenuDiseno($menu);
+	}else if($_REQUEST['fun']=='APIProductosProfesional'){
+			APIProductosProfesional();
+	}else if($_REQUEST['fun']=='APIExtra'){
+			APIExtra();
+	}else if($_REQUEST['fun']=='APIImpuestos'){
+		if($_REQUEST['dataimpuesto']!=null){
+			APIImpuestos(json_decode($_REQUEST['dataimpuesto']));
+		}
+	}else if($_REQUEST['fun']=='APIMesas'){
+		if($_REQUEST['tipomesas']!=null||$_REQUEST['mesas']){
+			APIMesas(json_decode($_REQUEST['tipomesas']),json_decode($_REQUEST['mesas']));
+		}
+	}else if($_REQUEST['fun']=='APILocales'){
+		if($_REQUEST['locales']!=null){
+			APILocales(json_decode($_REQUEST['locales']));
+		}
+	}else if($_REQUEST['fun']=='APILog'){
+			APILog($_REQUEST['hora'],$_REQUEST['texto'],$_REQUEST['datos']);
+	}else if($_REQUEST['fun']=='RECCategorias'){
+		if(json_decode($_REQUEST['categoria']))
+			RECCategorias(json_decode($_REQUEST['categoria']));
 	}
 	
 	$db = new PDO('sqlite:PractisisMobile.sqlite3');
