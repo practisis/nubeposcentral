@@ -444,12 +444,68 @@
 		echo 'ok';
 	}
 	
-	function RECCategorias($categoria){
-			$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
-			$db1->query("INSERT OR IGNORE INTO CATEGORIAS (categoria,activo,existe,timespan,sincronizar)values('".$categoria->formulado_tipo."','1','1','".$categoria->timespan."','false')");
-			$db1->query("UPDATE CATEGORIAS SET categoria = '".$categoria->formulado_tipo."' WHERE timespan='".$categoria->timespan."'");
-			echo 'ok';
+	function RECCategorias($categorias){
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$cadenaupdate='';
+		$n=0;
+		foreach($categorias as $key=>$value){
+			$db1->query("INSERT OR IGNORE INTO CATEGORIAS (categoria,activo,existe,timespan,sincronizar)values('".$value->	formulado_tipo."','1','1','".$value->timespan."','false')");
+			$db1->query("UPDATE CATEGORIAS SET categoria = '".$value->formulado_tipo."' WHERE timespan='".$value->timespan."'");
+			
+			$cadenaupdate.=$value->idreal.",";
+		}
+		echo $cadenaupdate;
 	}
+	
+	function RECModificadoresProductos($modificadores,$productos){
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$cadenaupdate='';
+		
+		foreach($modificadores as $key=>$value){
+			$db1->query('INSERT OR IGNORE INTO MODIFICADORES (no_modificador, id_formulado ,nombre, valor, id_formulado_descuento, activo, timespan) VALUES('.$value->no_modif.', "'.$value->id_formulado.'" ,"'.$value->nombre.'",'.$value->valor.',"'.$value->id_form_desc.'","'.$value->activo.'","'.$value->timespan.'")');
+			$db1->query('UPDATE MODIFICADORES SET no_modificador="'.$value->no_modif.'",id_formulado="'.$value->id_formulado.'",nombre="'.$value->nombre.'",valor="'.$value->id_form_desc.'",id_formulado_descuento="'.$value->id_form_desc.'",activo="'.$value->activo.'",timespan="'.$value->timespan.'" WHERE nombre like "'.$value->nombre.'"');
+			$cadenaupdate.=$value->id.",";
+		}
+		
+		foreach($productos as $key=>$valuep){
+			$db1->query('INSERT OR IGNORE INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar,color,estado,tieneimpuestos)VALUES("'.$valuep->formulado.'","'.$valuep->formulado_codigo.'",'.$valuep->precio.',"'.$valuep->formulado_tipo_timespan.'",'.$valuep->ivacompra.','.$valuep->esproductofinal.','.$valuep->esmateria.',"'.$valuep->timespan.'" ,'.$valuep->tieneservicio.',"false","'.$valuep->color.'",'.$valuep->activo.',"'.$valuep->tieneimpuestos.'")');
+			
+			$db1->query('UPDATE PRODUCTOS SET formulado="'.$valuep->formulado.'",codigo="'.$valuep->formulado_codigo.'",precio='.$valuep->precio.',categoriaid="'.$valuep->formulado_tipo_timespan.'",cargaiva='.$valuep->ivacompra.',productofinal='.$valuep->esproductofinal.',materiaprima='.$valuep->esmateria.',timespan="'.$valuep->timespan.'",servicio='.$valuep->tieneservicio.',sincronizar="false",color="'.$valuep->color.'",estado='.$valuep->activo.' ,tieneimpuestos="'.$valuep->tieneimpuestos.'" WHERE timespan="'.$valuep->timespan.'"');
+			
+			$cadenaupdate.=$valuep->id.",";
+		}
+		echo $cadenaupdate;
+	}
+	
+	function RECClientes($clientes){
+		$db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		$cadenaupdate='';
+		
+		foreach($clientes as $key=>$value){
+			$db1->query('INSERT OR IGNORE INTO CLIENTES(nombre,cedula,email,direccion,telefono,sincronizar,existe,timespan) VALUES("'$value->nombre.'" , "'$value->cedula.'" , "'$value->email.'" , "'$value->direccion.'" ,  "'$value->telefono.'" ,  "false" , "0" , "0" )');
+			
+			$db1->query('UPDATE CLIENTES SET nombre=  "'$value->nombre.'"  , cedula = "'$value->cedula.'" , email="'$value->email.'" , direccion = "'$value->direccion.'" , sincronizar="false"  WHERE cedula="'$value->cedula.'"');
+		}
+		
+		echo $cadenaupdate;
+	}
+	
+	function RECEmpresalocalhost($empresa){
+		$db1->query($db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		foreach($empresa as $key=>$value){
+			$db1->query('UPDATE CONFIG SET nombre="'.$value->nombreempresa.'",razon = "'.$value->razon.'" , ruc2="'.$value->ruc.'",telefono ="'.$value->telefono.'",direccion="'.$value->direccion.'",serie="'.$value->serie.'",establecimiento="'.$value->establecimiento.'",nombreterminal="'.$value->nombreterminal.'" WHERE id=1');
+		}
+		echo "ok";
+	}
+	
+	function RECEmpresa($empresa){
+		$db1->query($db1 = new PDO('sqlite:PractisisMobile.sqlite3');
+		foreach($empresa as $key=>$value){
+			$db1->query('UPDATE CONFIG SET nombre="'.$value->nombreempresa.'",razon = "'.$value->razon.'" , ruc2="'.$value->ruc.'",telefono ="'.$value->telefono.'",direccion="'.$value->direccion.'",serie="'.$value->serie.'",establecimiento="'.$value->establecimiento.'",nombreterminal="'.$value->nombreterminal.'",pais="'.$value->pais.'",id_idioma = "'.$value->idioma.'",sin_documento="'.$value->documento.'",con_nombre_orden="'.$value->orden.'",con_propina="'.$value->propina.'",con_tarjeta="'.$value->tarjeta.'",con_shop="'.$value->shop.'",con_notasorden="'.$value->notas.'",con_comanderas="'.$value->comanderas.'",con_localhost="'.$value->localhost.'",ip_servidor="'.$value->ipservidor.'",con_mesas="'.$value->mesas.'",logo="'.$value->logo.'",id_version_nube="'.$value->id_version_nube.'",pide_telefono="'.$value->pide_telefono.'",telefono_inte="'.$value->telefono_inte.'",mensajefinal="'.$value->mensajefinal.'",terminos_condiciones="'.$value->terminos.'",id_locales="'.$value->id_locales.'",email_fact="'.$value->email_fact.'",key="'.$value->key.'",numero_contribuyente="'.$value->numero_contribuyente.'",obligado_contabilidad="'.$value->obligado_contabilidad.'",prueba_produccion="'.$value->prueba_produccion.'",tiene_factura_electronica="'.$value->tiene_factura_electronica.'",mensaje_factura="'.$value->msj_factura_electronica.'",respaldar="'.$value->respaldar.'" WHERE id=1');
+		}
+		echo "ok";
+	}
+
 	
 	
 	if ($_REQUEST['fun']=='iniciaDB'){
@@ -515,10 +571,30 @@
 			APILocales(json_decode($_REQUEST['locales']));
 		}
 	}else if($_REQUEST['fun']=='APILog'){
+		
 			APILog($_REQUEST['hora'],$_REQUEST['texto'],$_REQUEST['datos']);
 	}else if($_REQUEST['fun']=='RECCategorias'){
-		if(json_decode($_REQUEST['categoria']))
-			RECCategorias(json_decode($_REQUEST['categoria']));
+		
+		if(json_decode($_REQUEST['categorias'])){
+			RECCategorias(json_decode($_REQUEST['categorias']));
+		}
+	}else if($_REQUEST['fun']=='RECModificadoresProductos'){
+		
+		if(json_decode($_REQUEST['modificadores'])||json_decode($_REQUEST['productos'])){
+			RECModificadoresProductos(json_decode($_REQUEST['modificadores']),json_decode($_REQUEST['productos']));
+		}
+	}else if($_REQUEST['fun']=='RECClientes'){
+		if(json_decode($_REQUEST['clientes'])){
+			RECClientes(json_decode($_REQUEST['clientes']));
+		}
+	}else if($_REQUEST['fun']=='RECEmpresalocalhost'){
+		if(json_decode($_REQUEST['empresa'])){
+			RECEmpresalocalhost(json_decode($_REQUEST['empresa']));
+		}
+	}else if($_REQUEST['fun']=='RECEmpresa'){
+		if(json_decode($_REQUEST['empresa'])){
+			RECEmpresa(json_decode($_REQUEST['empresa']));
+		}
 	}
 	
 	$db = new PDO('sqlite:PractisisMobile.sqlite3');
