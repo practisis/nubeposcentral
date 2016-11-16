@@ -37,10 +37,12 @@
 
 if(editarClientesID){
 	$("#guardar").html("Actualizar");
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function(tx){
-	tx.executeSql('SELECT * FROM CLIENTES WHERE id=?',[editarClientesID],function(tx,results){
-		//console.log(results);
+	var apiURL='api.php';
+	$.post(apiURL,{
+		id : editarClientesID,
+		fun : 'BuscarClienteId'
+	}).done(function(response){
+		var results=JSON.parse(response);
 		var inhtml='';
 		var inhtml2='';
 		for (var i=0; i < results.rows.length; i++){
@@ -51,8 +53,7 @@ if(editarClientesID){
 			$("#direccion").val(row.direccion);
 			$("#telefono").val(row.telefono);
 		}
-		});
-	},errorCB,successCB);
+	});
 	
 }else{
 	
@@ -64,31 +65,38 @@ if(editarClientesID){
 }
 function GuardaCliente(){
 	if(!editarClientesID){
-	var nombrep=$('#nombrecliente').val();
-	var cedulap=$('#cedulacliente').val();
-	var telefonop=$('#telefono').val();
-	var direccionp=$('#direccion').val();
-	var emailp=$('#email').val();
-	timespanCliente=getTimeSpan();
-	if(nombrep!=''&&cedulap!=''&&emailp!=''){
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-			tx.executeSql('INSERT INTO CLIENTES(nombre,telefono,direccion,email,cedula,existe,timespan) SELECT "'+nombrep+'","'+telefonop+'","'+direccionp+'","'+emailp+'","'+cedulap+'",0 , "'+timespanCliente+'" WHERE NOT EXISTS(SELECT 1 FROM CLIENTES WHERE nombre = "'+nombrep+'" or cedula="'+cedulap+'" or email="'+emailp+'"  );',[],function(tx,results){
-				console.log("cliente:"+results.insertId);
-				});
+		var nombrep=$('#nombrecliente').val();
+		var cedulap=$('#cedulacliente').val();
+		var telefonop=$('#telefono').val();
+		var direccionp=$('#direccion').val();
+		var emailp=$('#email').val();
+		timespanCliente=getTimeSpan();
+		if(nombrep!=''&&cedulap!=''&&emailp!=''){
+			var apiURL='api.php';
+			$.post(apiURL,{
+				nombrep : nombrep,
+				telefonop : telefonop,
+				direccionp : direccionp,
+				emailp : emailp,
+				cedulap : cedulap,
+				timespanCliente : timespanCliente,		
+				fun : 'GuardaCliente'
+			}).done(function(response){
+				console.log("cliente:");
+			});
 				$("input").val(" ");
-				alerta("Cliente Guardado con exito");
-			},errorCB,successCB);
-	}else{
-		alerta("Por favor complete los datos requeridos(*).");
-		/*$('#jsalert').html("Por favor complete los datos requeridos(*).");
-		setTimeout(function(){$('#jsalert').effect('highlight',{color:'white'},1000);},500);
-		setTimeout(function(){$('#jsalert').fadeOut('slow');},4000);*/
+				alerta("Cliente Guardado con exito");		
+		}
+		else{
+			alerta("Por favor complete los datos requeridos(*).");
+			/*$('#jsalert').html("Por favor complete los datos requeridos(*).");
+			setTimeout(function(){$('#jsalert').effect('highlight',{color:'white'},1000);},500);
+			setTimeout(function(){$('#jsalert').fadeOut('slow');},4000);*/
+		}
 	}
-	}else{
+	else{
 		ActualizarCliente();
-	}
-	
+	}	
 }
 
 function ActualizarCliente(){
@@ -100,20 +108,26 @@ function ActualizarCliente(){
 	var direccionp=$('#direccion').val();
 	var cedulap=$('#cedulacliente').val();
 	if(nombrep!=''&&emailp!=''&&cedulap!=''){
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-			tx.executeSql('UPDATE CLIENTES SET nombre="'+nombrep+'",telefono="'+telefonop+'",email="'+emailp+'",direccion="'+direccionp+'",cedula="'+cedulap+'" WHERE id="'+idcliente+'" AND NOT EXISTS(SELECT 1 FROM CLIENTES WHERE (cedula like "'+cedulap+'" or email like "'+emailp+'") and id!="'+idcliente+'");',[],function(tx,results){
-				console.log("cliente:"+idcliente);
-				VerDatosCliente(idcliente);
-				alerta("Datos actualizados con éxito.");
-				
-				envia("listadeclientes");
-				/*$('#jsalert').html("Datos actualizados con éxito.");
-				setTimeout(function(){$('#jsalert').effect('highlight',{color:'white'},1000);},500);
-				setTimeout(function(){$('#jsalert').fadeOut('slow');},4000);*/
-			});
-		},errorCB,successCB);
-	}else{
+		var apiURL='api.php';
+		$.post(apiURL,{
+			nombrep : nombrep,
+			telefonop : telefonop,
+			direccionp : direccionp,
+			emailp : emailp,
+			cedulap : cedulap,	
+			idcliente : idcliente,
+			fun : 'ActualizarCliente'
+		}).done(function(response){
+			console.log("cliente:"+idcliente);
+			VerDatosCliente(idcliente);
+			alerta("Datos actualizados con éxito.");				
+			envia("listadeclientes");					
+			/*$('#jsalert').html("Datos actualizados con éxito.");
+			setTimeout(function(){$('#jsalert').effect('highlight',{color:'white'},1000);},500);
+			setTimeout(function(){$('#jsalert').fadeOut('slow');},4000);*/
+		});
+	}
+	else{
 		alerta("Por favor complete los datos requeridos(*).");
 		//$('#jsalert').html("Por favor complete los datos requeridos(*).");
 		/*setTimeout(function(){$('#jsalert').effect('highlight',{color:'white'},1000);},500);

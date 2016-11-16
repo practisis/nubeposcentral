@@ -205,13 +205,13 @@
 		$('#divformaspago').modal("show");
 	}
 	function ColocarFormasPago(){
-	var formaspago=$('#jsonformaspago').html();
-	var evalJson=JSON.parse(formaspago);
-	//console.log(evalJson);
-	for(var k in evalJson){
-		var x = 1;
-		var mihtml='';
-		for(var j in evalJson[k]){
+		var formaspago=$('#jsonformaspago').html();
+		var evalJson=JSON.parse(formaspago);
+		//console.log(evalJson);
+		for(var k in evalJson){
+			var x = 1;
+			var mihtml='';
+			for(var j in evalJson[k]){
 			//alert(evalJson[k][j]+id);
 				mihtml+= '<tr>';
 				mihtml+= '<td class="columna1">';
@@ -233,250 +233,251 @@
 				mihtml+= '</td>';
 				mihtml+= '</tr>';
 				x++;
+			}
 		}
+		$('#tablaformaspago').html(mihtml);
+		/*var evalJson = eval(formaspago);
+		for(var k in evalJson){
+			alert(evalJson[k].id);
+		}*/
 	}
-	$('#tablaformaspago').html(mihtml);
-	/*var evalJson = eval(formaspago);
-	for(var k in evalJson){
-		alert(evalJson[k].id);
-	}*/
-}
-function changePaymentCategory(index,nombre){
-	$('.paymentMethods').each(function(){
-		if($(this).attr('idPaymentMethod')==index){
-			$(this).click();
-		}
-	});
-	
-	var value = 0;
-	$('.paymentMethods').each(function(){
-		if($(this).val() != 0 && $(this).val() != '' && $(this).val() != null){
-			value += parseFloat($(this).val());
+	function changePaymentCategory(index,nombre){
+		$('.paymentMethods').each(function(){
+			if($(this).attr('idPaymentMethod')==index){
+				$(this).click();
 			}
 		});
-	updateForm(value);
-	//$('.buttonsPayment').click();
-}
+		
+		var value = 0;
+		$('.paymentMethods').each(function(){
+			if($(this).val() != 0 && $(this).val() != '' && $(this).val() != null){
+				value += parseFloat($(this).val());
+				}
+			});
+		updateForm(value);
+		//$('.buttonsPayment').click();
+	}
 
-function updateForm(value){
-	value = parseFloat(value);
-	var total = parseFloat($('#invoiceTotal').html());
-	var change = (value - total);
-	
-	if(value < total){
-		$('#invoiceDebt').html('FALTANTE');
-		change = Math.abs(change);
-		$('#invoicePaid').html(value.toFixed(2));
-		$('#cardValue').val(change.toFixed(2));
-		$('#chequeValue').val(change.toFixed(2));
-		$('#valueCxX').val(change.toFixed(2));
-		}
-	else if(value > total){
-		$('#invoiceDebt').html('VUELTO');
-		change = Math.abs(change);
-		$('#invoicePaid').html(value.toFixed(2));
-		$('#cardValue').val(0);
-		$('#chequeValue').val(0);
-		}
-	else{
-		if(value == total){
+	function updateForm(value){
+		value = parseFloat(value);
+		var total = parseFloat($('#invoiceTotal').html());
+		var change = (value - total);
+		
+		if(value < total){
+			$('#invoiceDebt').html('FALTANTE');
+			change = Math.abs(change);
+			$('#invoicePaid').html(value.toFixed(2));
+			$('#cardValue').val(change.toFixed(2));
+			$('#chequeValue').val(change.toFixed(2));
+			$('#valueCxX').val(change.toFixed(2));
+			}
+		else if(value > total){
 			$('#invoiceDebt').html('VUELTO');
 			change = Math.abs(change);
 			$('#invoicePaid').html(value.toFixed(2));
 			$('#cardValue').val(0);
 			$('#chequeValue').val(0);
 			}
-		}
-
-	$('#changeFromPurchase').html(change.toFixed(2));
-}
-
-function CambiarMetodo(cual){
-	//$("#paymentCategory-"+cual).click();
-	var nombre=$('#payment'+cual).attr('paymentMethod');
-	var index=$('#payment'+cual).attr('idPaymentMethod');
-	var idimagen=$('#paymentCategory-'+index+' .originalImage').attr('id').split('_');
-	//alert(nombre);
-	/*$('.originalImage').each(function(){
-		var getImage = $(this).attr('id').split('_');
-		$(this).attr('src','../../images/'+ getImage[1] +'.png');
-		});*/
-
-	//$('#pagos_'+ nombre).attr('src', '../../images/'+idimagen[1]+'Hover.png');
-	$('.textoformapago').css('color','#58595B');
-	$('#forma_'+index).css('color','#FFF');
-	$('.functionalityDiv').hide();
-	$('#functionality-'+ index).show();
-	$('.columna1 div').each(function(){
-		$(this).attr('class','paymentCategories');
-		$(this).css('backgroundColor','');
-	});
-	$('#paymentCategory-'+ index).attr('class','categoryChosen');
-	var faltante=parseFloat($('#invoiceTotal').html());
-	var pagado=0;
-	$('.paymentMethods').each(function(){
-		var partepago=0;
-		if($(this).val()!=''){
-			//if(nombre=='Efectivo')
-				//$(this).val('0.00');
-			partepago=parseFloat($(this).val());
-		}
-		faltante-=partepago;
-		pagado+=partepago;
-	});
-
-	if(faltante>0){
-		if($('#payment'+nombre).val()=='')
-			$('#payment'+nombre).val(faltante.toFixed(2));
 		else{
-				if(nombre=='Efectivo')
-					$('#payment'+nombre).select();
-				else{
-					$('#payment'+nombre).val(faltante.toFixed(2));
-					$('#payment'+nombre).select();
+			if(value == total){
+				$('#invoiceDebt').html('VUELTO');
+				change = Math.abs(change);
+				$('#invoicePaid').html(value.toFixed(2));
+				$('#cardValue').val(0);
+				$('#chequeValue').val(0);
 				}
 			}
-			
+
+		$('#changeFromPurchase').html(change.toFixed(2));
 	}
-	$('#payment'+cual).select();
-}
 
-var iabRefa = null;
-function iabLoadStarta(event){
-  //alert(event);
-}
-function iabLoadStopa(event){
-  //alert(event.type + ' - ' + event.url);
-  var link = event.url;
-  var res = link.split("?");
-  if(res[0]=='https://www.practisis.net/pagos_tarjetas_void_back.php'){
-    var datos = res[1].split("&");
-    var order_idaux = datos[5].split("order_id=");
-    var order_id = order_idaux[1]
-    var response_codeaux = datos[0].split("response_code=");
-    var response_code = response_codeaux[1];
-    var response_code_textaux = datos[1].split("response_code_text=");
-    var response_code_text = response_code_textaux[1].replace(/%20/gi, " ");
-    document.getElementById('respuestatarjeta').value=order_id+'||'+response_code+'||'+response_code_text;
-    iabRefa.close();
-    //alert(event.type);
-  }
-}
-function iabClosea(event) {
-  validaranulada();
-    //alert(event.type + ' - ' + event.code);
-    iabRefa.removeEventListener('loadstart', iabLoadStarta);
-    iabRefa.removeEventListener('loadstop', iabLoadStopa);
-    iabRefa.removeEventListener('exit', iabClosea);
-}
+	function CambiarMetodo(cual){
+		//$("#paymentCategory-"+cual).click();
+		var nombre=$('#payment'+cual).attr('paymentMethod');
+		var index=$('#payment'+cual).attr('idPaymentMethod');
+		var idimagen=$('#paymentCategory-'+index+' .originalImage').attr('id').split('_');
+		//alert(nombre);
+		/*$('.originalImage').each(function(){
+			var getImage = $(this).attr('id').split('_');
+			$(this).attr('src','../../images/'+ getImage[1] +'.png');
+			});*/
 
-function validaranulada(){
-  var respuesta = $('#respuestatarjeta').val();
-  if(respuesta!=''){
-    var resp = respuesta.split("||");
-    if(resp[0] != 'null' && resp[0] != '' && resp[1] == '1'){
-      AnularFactura();
-    }else{
-      if(resp[2] != ''){
-        alert('The transaction could not be executed successfully.\nError: '+resp[2]+'.\n');
-        $('#respuestatarjeta').val('');
-      }
-    }
-  }else{
-    alert('The transaction was canceled.');
-    $('#respuestatarjeta').val('');
-  }
-}
-
-function AnularFacturaAux(){
- if(localStorage.getItem("con_tarjeta")=='true'){
-    $('#respuestatarjeta').val('');
-    var order_id =  $('#order_id').val();
-    var myURL=encodeURI('https://www.practisis.net/pagos_tarjetas_void.php?order_id='+order_id);
-          iabRefa = window.open(myURL,'_blank', 'location=yes');
-          iabRefa.addEventListener('loadstart', iabLoadStarta);
-          iabRefa.addEventListener('loadstop', iabLoadStopa);
-          iabRefa.addEventListener('exit', iabClosea);
-  }else{
-    AnularFactura();
-  }
-}
-
-function AnularFactura(){
-	var id=$('#idfactura').val();
-    if(localStorage.getItem("con_localhost") == 'true'){
-     var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-     $.post(apiURL,{
-		id_emp : localStorage.getItem("empresa"),
-		action : 'AnularFactura',
-		id_barra : localStorage.getItem("idbarra"),
-		deviceid:$("#deviceid").html(),
-        idfactura : id
-		}).done(function(response){
-			if(response!='block' && response!='Desactivado'){
-				console.log(response);
-                if(localStorage.getItem("idioma")==1)
-        			showalert("Factura anulada con éxito.");
-        		else if(localStorage.getItem("idioma")==2)
-        			showalert("Invoice canceled.");
-
-        		$('#factanulada').fadeIn('slow');
-        		$('#btnanularf,#reimprimir').fadeOut('slow');
-
-			}else if(response=='Desactivado'){
-			    envia('cloud');
-				setTimeout(function(){
-					$('.navbar').slideUp();
-					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-					$('#desactivo').fadeIn();
-				},100);
-			}else{
-				envia('cloud');
-				setTimeout(function(){
-					$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
-					$('.navbar').slideUp();
-					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-					$('#bloqueo').fadeIn();
-				},100);
-
-			}
-
-		}).fail(function(){
-			updateOnlineStatus("OFFLINE");
-			setTimeout(function(){SincronizadorNormal()},180000);
+		//$('#pagos_'+ nombre).attr('src', '../../images/'+idimagen[1]+'Hover.png');
+		$('.textoformapago').css('color','#58595B');
+		$('#forma_'+index).css('color','#FFF');
+		$('.functionalityDiv').hide();
+		$('#functionality-'+ index).show();
+		$('.columna1 div').each(function(){
+			$(this).attr('class','paymentCategories');
+			$(this).css('backgroundColor','');
 		});
-    }else{
-    var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx3){
-				tx3.executeSql('select fetchJson as j from facturas where id=?',[id],function(tx3,results){
-					var mijson=results.rows.item(0).j;
-					mijson=mijson.replace('"anulada" : "false"','"anulada" : "true"');
-					//console.log(mijson);
-					tx3.executeSql('UPDATE FACTURAS SET anulada=?,sincronizar="true",fetchJson=? where id=?',[1,mijson,id],function(tx3,results3){
-						console.log(results3);
-						if(localStorage.getItem("idioma")==1)
-							showalert("Factura anulada con éxito.");
-						else if(localStorage.getItem("idioma")==2)
-							showalert("Invoice canceled.");
+		$('#paymentCategory-'+ index).attr('class','categoryChosen');
+		var faltante=parseFloat($('#invoiceTotal').html());
+		var pagado=0;
+		$('.paymentMethods').each(function(){
+			var partepago=0;
+			if($(this).val()!=''){
+				//if(nombre=='Efectivo')
+					//$(this).val('0.00');
+				partepago=parseFloat($(this).val());
+			}
+			faltante-=partepago;
+			pagado+=partepago;
+		});
 
-						$('#factanulada').fadeIn('slow');
-						$('#btnanularf,#reimprimir').fadeOut('slow');
-						//location.reload(true);
-					});
-				});
-			},errorCB,successCB);
-    }
-}
+		if(faltante>0){
+			if($('#payment'+nombre).val()=='')
+				$('#payment'+nombre).val(faltante.toFixed(2));
+			else{
+					if(nombre=='Efectivo')
+						$('#payment'+nombre).select();
+					else{
+						$('#payment'+nombre).val(faltante.toFixed(2));
+						$('#payment'+nombre).select();
+					}
+				}
+				
+		}
+		$('#payment'+cual).select();
+	}
 
-function ReimprimirFactura(){
-	var elid=$('#idfactura').val();
-	var laprint='';
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function(tx){
-			tx.executeSql("SELECT printer FROM CONFIG where id=1",[],function(tx,results){
-			//console.log(results);
+	var iabRefa = null;
+	function iabLoadStarta(event){
+	  //alert(event);
+	}
+	function iabLoadStopa(event){
+		//alert(event.type + ' - ' + event.url);
+		var link = event.url;
+		var res = link.split("?");
+		if(res[0]=='https://www.practisis.net/pagos_tarjetas_void_back.php'){
+			var datos = res[1].split("&");
+			var order_idaux = datos[5].split("order_id=");
+			var order_id = order_idaux[1]
+			var response_codeaux = datos[0].split("response_code=");
+			var response_code = response_codeaux[1];
+			var response_code_textaux = datos[1].split("response_code_text=");
+			var response_code_text = response_code_textaux[1].replace(/%20/gi, " ");
+			document.getElementById('respuestatarjeta').value=order_id+'||'+response_code+'||'+response_code_text;
+			iabRefa.close();
+			//alert(event.type);
+		}
+	}
+	function iabClosea(event) {
+		validaranulada();
+		//alert(event.type + ' - ' + event.code);
+		iabRefa.removeEventListener('loadstart', iabLoadStarta);
+		iabRefa.removeEventListener('loadstop', iabLoadStopa);
+		iabRefa.removeEventListener('exit', iabClosea);
+	}
+
+	function validaranulada(){
+		var respuesta = $('#respuestatarjeta').val();
+		if(respuesta!=''){
+			var resp = respuesta.split("||");
+			if(resp[0] != 'null' && resp[0] != '' && resp[1] == '1'){
+				AnularFactura();
+			}
+			else{
+				if(resp[2] != ''){
+					alert('The transaction could not be executed successfully.\nError: '+resp[2]+'.\n');
+					$('#respuestatarjeta').val('');
+				}
+			}
+		}
+		else{
+			alert('The transaction was canceled.');
+			$('#respuestatarjeta').val('');
+		}
+	}
+	function AnularFacturaAux(){
+		if(localStorage.getItem("con_tarjeta")=='true'){
+			$('#respuestatarjeta').val('');
+			var order_id =  $('#order_id').val();
+			var myURL=encodeURI('https://www.practisis.net/pagos_tarjetas_void.php?order_id='+order_id);
+			iabRefa = window.open(myURL,'_blank', 'location=yes');
+			iabRefa.addEventListener('loadstart', iabLoadStarta);
+			iabRefa.addEventListener('loadstop', iabLoadStopa);
+			iabRefa.addEventListener('exit', iabClosea);
+		}
+		else{
+			AnularFactura();
+		}
+	}
+
+	function AnularFactura(){
+		var id=$('#idfactura').val();
+		var apiURL='';
+		if(localStorage.getItem("con_localhost") == 'true'){
+			apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+			$.post(apiURL,{
+				id_emp : localStorage.getItem("empresa"),
+				action : 'AnularFactura',
+				id_barra : localStorage.getItem("idbarra"),
+				deviceid:$("#deviceid").html(),
+				idfactura : id
+			}).done(function(response){
+				if(response!='block' && response!='Desactivado'){
+					console.log(response);
+					if(localStorage.getItem("idioma")==1)
+						showalert("Factura anulada con éxito.");
+					else if(localStorage.getItem("idioma")==2)
+						showalert("Invoice canceled.");
+					$('#factanulada').fadeIn('slow');
+					$('#btnanularf,#reimprimir').fadeOut('slow');
+				}
+				else if(response=='Desactivado'){
+					envia('cloud');
+					setTimeout(function(){
+						$('.navbar').slideUp();
+						$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+						$('#desactivo').fadeIn();
+					},100);
+				}
+				else{
+					envia('cloud');
+					setTimeout(function(){
+						$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
+						$('.navbar').slideUp();
+						$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+						$('#bloqueo').fadeIn();
+					},100);
+
+				}
+
+			}).fail(function(){
+				updateOnlineStatus("OFFLINE");
+				setTimeout(function(){SincronizadorNormal()},180000);
+			});
+		}
+		else{
+			apiURL='api.php';
+			$.post(apiURL,{
+				id : id,
+				fun : 'AnularFactura'
+			}).done(function(response){		
+				console.log(response);
+				if(localStorage.getItem("idioma")==1)
+					showalert("Factura anulada con éxito.");
+				else if(localStorage.getItem("idioma")==2)
+					showalert("Invoice canceled.");
+
+				$('#factanulada').fadeIn('slow');
+				$('#btnanularf,#reimprimir').fadeOut('slow');
+				//location.reload(true);
+			});
+		}
+	}
+
+	function ReimprimirFactura(){
+		var elid=$('#idfactura').val();
+		var laprint='';
+		var apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'SacarImpresora'
+		}).done(function(response){	
+			var results=JSON.parse(response);
 			if(results.rows.length>0){
-				var idprinter=results.rows.item(0);
+				var idprinter=results.rows.item(1);
 				if(idprinter.printer!=null){
 					laprint=idprinter.printer;
 				}else{
@@ -485,15 +486,14 @@ function ReimprimirFactura(){
 					else if(localStorage.getItem("idioma")==2)
 						showalert("There is no configured printer.");
 				}
-
                 if(localStorage.getItem("con_localhost") == 'true'){
-                 var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-                 $.post(apiURL,{
-            		id_emp : localStorage.getItem("empresa"),
-            		action : 'ReimprimirFactura',
-            		id_barra : localStorage.getItem("idbarra"),
-            		deviceid:$("#deviceid").html(),
-                    idfactura : elid
+					apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+					$.post(apiURL,{
+						id_emp : localStorage.getItem("empresa"),
+						action : 'ReimprimirFactura',
+						id_barra : localStorage.getItem("idbarra"),
+						deviceid:$("#deviceid").html(),
+						idfactura : elid
             		}).done(function(response){
             			if(response!='block' && response!='Desactivado'){
             				console.log(response);
@@ -513,7 +513,8 @@ function ReimprimirFactura(){
 											showalert("There is a problem: " + error);
 
 									});
-								}else{
+								}
+								else{
 									StarIOAdapter.printepson(jsonfact+"reimpr",localStorage.getItem("printmodel"),localStorage.getItem("printaddress"),localStorage.getItem("printtype"), function() {
 										if(localStorage.getItem("idioma")==1)
 										showalert("Imprimiendo Factura.");
@@ -528,15 +529,16 @@ function ReimprimirFactura(){
 									});
 								}
     						}
-
-            			}else if(response=='Desactivado'){
+            			}
+						else if(response=='Desactivado'){
             			    envia('cloud');
             				setTimeout(function(){
             					$('.navbar').slideUp();
             					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
             					$('#desactivo').fadeIn();
             				},100);
-            			}else{
+            			}
+						else{
             				envia('cloud');
             				setTimeout(function(){
             					$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
@@ -544,19 +546,21 @@ function ReimprimirFactura(){
             					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
             					$('#bloqueo').fadeIn();
             				},100);
-
             			}
-
             		}).fail(function(){
             			updateOnlineStatus("OFFLINE");
             			setTimeout(function(){SincronizadorNormal()},180000);
             		});
-                }else{
+                }
+				else{
 				/*si existe la impresora*/
-				if(laprint!=''){
-					db.transaction(function(tx2){
-							tx2.executeSql("SELECT fetchJson as j FROM FACTURAS where id=?",[elid],function(tx2,results2){
-							//console.log(results);
+					if(laprint!=''){
+						apiURL='api.php';
+						$.post(apiURL,{
+							id : elid,
+							fun : 'SacarJson'
+						}).done(function(response){	
+							var results2=JSON.parse(response);
 							if(results2.rows.length>0){
 								var jsonfact=results2.rows.item(0);
 								if(jsonfact.j!=''){
@@ -573,7 +577,8 @@ function ReimprimirFactura(){
 												showalert("There is a problem: " + error);
 											
 										});
-									}else{
+									}
+									else{
 										StarIOAdapter.printepson(jsonfact.j+"reimpr",localStorage.getItem("printmodel"),localStorage.getItem("printaddress"),localStorage.getItem("printtype"), function() {
 											if(localStorage.getItem("idioma")==1)
 											showalert("Imprimiendo Factura.");
@@ -589,17 +594,16 @@ function ReimprimirFactura(){
 									}
 								}
 							}
-						});
-					},errorCB,successCB);
-				}
+						});					
+					}
                 }
-			}else{
-				if(localStorage.getItem("idioma")==1)
-						showalert("No se ha configurado una impresora.");
-					else if(localStorage.getItem("idioma")==2)
-						showalert("There is no configured printer.");
 			}
-		});
-	},errorCB,successCB);	
-}
+			else{
+				if(localStorage.getItem("idioma")==1)
+					showalert("No se ha configurado una impresora.");
+				else if(localStorage.getItem("idioma")==2)
+					showalert("There is no configured printer.");
+			}
+		});	
+	}
 </script>
