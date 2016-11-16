@@ -956,10 +956,10 @@ var msjcloud=0;
 				var apiURL='api.php';
 				$.post(apiURL,{
 					clave : miclave,
-					action : 'VerificarClave'
+					fun : 'VerificarClave'
 				}).done(function(response){
-					var respuesta=xmlhttp.responseText.split("@@@");
-					var results1=JSON.parse(respuesta[1]);				
+					var respuesta=response.split("@@@");
+									
 					if(results1.rows.length>0){
 						var it=results1.rows.item(0);
 						//alert(it.irnube+'**'+donde);

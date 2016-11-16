@@ -26,39 +26,39 @@ function ActivarCategoria(cual,categoria){
 			miscateg[k].className="categoria esCategoria ";
 	}
 	cual.className="categoriaActiva esCategoria active";
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(
-	function (tx){
-		//console.log('SELECT * FROM PRODUCTOS WHERE categoriaid='+categoria+' and productofinal=1 and estado=1 ORDER BY formulado asc');
-		$('#taxes').html('');
-		tx.executeSql("SELECT * FROM IMPUESTOS WHERE activo=? group by nombre order by id",["true"],function(tx,results3){
-							console.log(results3);
-							var impuestos='';
-							var impuestosid='';
-							if(results3.rows.length>0){
-								console.log("encuentra impuestos");
-								var cuan=0;
-								for(var r=0;r<results3.rows.length;r++){
-									var imp=results3.rows.item(r);
-									if(cuan>0){
-										impuestos+="@";
-										impuestosid+="@";
-									}
-									impuestos+=parseFloat(imp.porcentaje)/100;
-									impuestosid+=imp.timespan;
-									$('#taxes').append('<input id="impuesto-'+imp.timespan+'" type="text" value="'+imp.id+"|"+imp.nombre+"|"+parseFloat((imp.porcentaje)/100)+'">');
-									
-									cuan++;
-								}
-								console.log(impuestos+'/'+impuestosid);
-								$('#impuestosactivos').html(impuestos);
-								$('#impuestosactivosid').html(impuestosid);
-								
+	$('#taxes').html('');
+	var apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'SacaImpuestos'
+		}).done(function(response){
+			var results3=JSON.parse(response);	
+			var impuestos='';
+			var impuestosid='';
+			if(results3.rows.length>0){
+				console.log("encuentra impuestos");
+				var cuan=0;
+				for(var r=0;r<results3.rows.length;r++){
+					var imp=results3.rows.item(r);
+					if(cuan>0){
+						impuestos+="@";
+						impuestosid+="@";
+					}
+					impuestos+=parseFloat(imp.porcentaje)/100;
+					impuestosid+=imp.timespan;
+					$('#taxes').append('<input id="impuesto-'+imp.timespan+'" type="text" value="'+imp.id+"|"+imp.nombre+"|"+parseFloat((imp.porcentaje)/100)+'">');				
+					cuan++;
 				}
+				console.log(impuestos+'/'+impuestosid);
+				$('#impuestosactivos').html(impuestos);
+				$('#impuestosactivosid').html(impuestosid);
+			}
+		}).fail(function(){
 		});
-
-		tx.executeSql('SELECT * FROM PRODUCTOS WHERE categoriaid='+categoria+' and productofinal=1 and estado=1 ORDER BY formulado asc',[],function(tx,res){
-			//console.log(res);
+	$.post(apiURL,{
+		id : categoria,
+		fun : 'SacaProductos'
+		}).done(function(response){
+			var res=JSON.parse(response);	
 			if(res.rows.length>0){
 				//alert('prods');
 				for(m=0;m<res.rows.length;m++){
@@ -70,46 +70,29 @@ function ActivarCategoria(cual,categoria){
 						impuestos=$('#impuestosactivos').html();
 						impuestosid=$('#impuestosactivosid').html();
 					}
-						var lineHeight='';
-						if(row.formulado.length>12)
-							lineHeight='line-height:18px;';
-							
-						$('#listaProductos').append('<div style="background-color:'+row.color+'; border:1px solid '+row.color+'; '+lineHeight+' text-transform:capitalize; " id="'+ row.timespan+'" data-precio="'+ row.precio +'" data-impuestos="'+impuestos +'" data-impuestosindexes="'+impuestosid +'" data-id_local = "'+row.id_local+'" data-formulado="'+ row.formulado +'" onclick="VerificarAgregados(this); return false;" ontap="VerificarAgregados(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_'+row.categoriaid +'">'+ row.formulado +'</div>');
-					
-					/*if(row.cargaiva==1){
-						impuestos+='0.12';
-						impuestosid+='1';
-					}
-					if(row.servicio==1){
-						if(row.cargaiva==1){
-							impuestos+='@';
-							impuestosid+='@';
-						}
-						impuestos+='0.10';
-						impuestosid+='2';
-					}*/
+					var lineHeight='';
+					if(row.formulado.length>12)
+						lineHeight='line-height:18px;';						
+					$('#listaProductos').append('<div style="background-color:'+row.color+'; border:1px solid '+row.color+'; '+lineHeight+' text-transform:capitalize; " id="'+ row.timespan+'" data-precio="'+ row.precio +'" data-impuestos="'+impuestos +'" data-impuestosindexes="'+impuestosid +'" data-id_local = "'+row.id_local+'" data-formulado="'+ row.formulado +'" onclick="VerificarAgregados(this); return false;" ontap="VerificarAgregados(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_'+row.categoriaid +'">'+ row.formulado +'</div>');	
 				}
 				if($(window).width()>900){
 						Init31();
-					}
-					else{
-						Init3();
-					}
+				}
+				else{
+					Init3();
+				}
 				$('#listaProductos').css("display","");
 				showProducts(categoria);
 			}
-		});				
-	},errorCB,successCB);
-	
-	
+		}).fail(function(){
+		});	
 	$('.producto').hide();
 	if($(window).width()>900){
 			Init31();
 	}
 	else{
 			Init3();	
-	}
-	
+	}	
 	var maxw=0;
 	$('#listacat li').each(function(){
 		//alert(parseFloat($(this).css("height")));
@@ -117,8 +100,7 @@ function ActivarCategoria(cual,categoria){
 			maxw=parseFloat($(this).css("height"));
 	});
 	$('#listacat li').css("height",maxw);
-	$('#listacat li a').css("height",maxw);
-	
+	$('#listacat li a').css("height",maxw);	
 	showProducts(categoria);
 }
 
@@ -139,40 +121,37 @@ function ActivarCategoriasp(cual,categoria){
 		if(miscateg[k].id!='listaCategorias' && miscateg[k].id!='contenidoCategorias')
 			miscateg[k].className="categoria esCategoria ";
 	}
-	cual.className="categoriaActiva esCategoria active";
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(
-	function (tx){
-		$('#taxes').html('');
-		tx.executeSql("SELECT * FROM IMPUESTOS WHERE activo=? group by nombre order by id",["true"],function(tx,results3){
-							console.log(results3);
-							var impuestos='';
-							var impuestosid='';
-							if(results3.rows.length>0){
-								console.log("encuentra impuestos");
-								var cuan=0;
-								for(var r=0;r<results3.rows.length;r++){
-									var imp=results3.rows.item(r);
-									if(cuan>0){
-										impuestos+="@";
-										impuestosid+="@";
-									}
-									impuestos+=parseFloat(imp.porcentaje)/100;
-									impuestosid+=imp.timespan;
-									$('#taxes').append('<input id="impuesto-'+imp.timespan+'" type="text" value="'+imp.id+"|"+imp.nombre+"|"+parseFloat((imp.porcentaje)/100)+'">');
+	cual.className="categoriaActiva esCategoria active";	
+	$('#taxes').html('');
+	var apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'SacaImpuestos'
+		}).done(function(response){
+			var results3=JSON.parse(response);
+			console.log(results3);
+			var impuestos='';
+			var impuestosid='';
+			if(results3.rows.length>0){
+				console.log("encuentra impuestos");
+				var cuan=0;
+				for(var r=0;r<results3.rows.length;r++){
+					var imp=results3.rows.item(r);
+					if(cuan>0){
+						impuestos+="@";
+						impuestosid+="@";
+					}
+					impuestos+=parseFloat(imp.porcentaje)/100;
+					impuestosid+=imp.timespan;
+					$('#taxes').append('<input id="impuesto-'+imp.timespan+'" type="text" value="'+imp.id+"|"+imp.nombre+"|"+parseFloat((imp.porcentaje)/100)+'">');
 
-									cuan++;
-								}
-								console.log(impuestos+'/'+impuestosid);
-								$('#impuestosactivos').html(impuestos);
-								$('#impuestosactivosid').html(impuestosid);
-
+					cuan++;
 				}
+				console.log(impuestos+'/'+impuestosid);
+				$('#impuestosactivos').html(impuestos);
+				$('#impuestosactivosid').html(impuestosid);
+			}
+		}).fail(function(){
 		});
-
-	},errorCB,successCB);
-
-
 	$('.producto').hide();
 	if($(window).width()>900){
 			Init31();
@@ -180,7 +159,6 @@ function ActivarCategoriasp(cual,categoria){
 	else{
 			Init3();
 	}
-
 	var maxw=0;
 	$('#listacat li').each(function(){
 		if(parseFloat($(this).css("height"))>maxw)
@@ -204,53 +182,43 @@ function ActivarCategoriasp(cual,categoria){
 
 
 function showProducts(categoria,direction){
-
-  if(categoria == -14){
-    $('#listaProductos').hide();
-    $('#prodprofesionales').show();
-  }else{
-
-	$('#loader').hide();
-	$('.producto').hide();
-	$('#listaProductos').hide();
-    $('#prodprofesionales').hide();
-	var listaProductosWidth = $('#listaProductos').width();
-	var listaProductosHeight = $('#listaProductos').height();
-	var productosWidth = 0;
-	var fixedProdtuctosHeight = 0;
-	var fixedProdtuctosWidth = 0;
-
-	$('.categoria_producto_'+ categoria).each(function(){
-		productosWidth += parseInt($(this).outerWidth());
-		fixedProdtuctosHeight = parseInt($(this).outerHeight());
-		fixedProdtuctosWidth = parseInt($(this).outerWidth());
+	if(categoria == -14){
+		$('#listaProductos').hide();
+		$('#prodprofesionales').show();
+	}else{
+		$('#loader').hide();
+		$('.producto').hide();
+		$('#listaProductos').hide();
+		$('#prodprofesionales').hide();
+		var listaProductosWidth = $('#listaProductos').width();
+		var listaProductosHeight = $('#listaProductos').height();
+		var productosWidth = 0;
+		var fixedProdtuctosHeight = 0;
+		var fixedProdtuctosWidth = 0;
+		$('.categoria_producto_'+ categoria).each(function(){
+			productosWidth += parseInt($(this).outerWidth());
+			fixedProdtuctosHeight = parseInt($(this).outerHeight());
+			fixedProdtuctosWidth = parseInt($(this).outerWidth());
+		});	
+		var maxProductsPerRow = Math.floor(listaProductosWidth/fixedProdtuctosWidth);
+		var maxProductsPerColumn = Math.floor(listaProductosHeight/fixedProdtuctosHeight); 
+		var maxProductsPerSection = parseInt(maxProductsPerRow) * parseInt(maxProductsPerColumn);
+		var counter = 0;
+		var pager = $('#pager').val();
+		$('.categoria_producto_'+ categoria).each(function(index,value){
+					$('#listaProductos').show();
+					$(this).show();
 		});
-	
-	var maxProductsPerRow = Math.floor(listaProductosWidth/fixedProdtuctosWidth);
-	var maxProductsPerColumn = Math.floor(listaProductosHeight/fixedProdtuctosHeight); 
-	var maxProductsPerSection = parseInt(maxProductsPerRow) * parseInt(maxProductsPerColumn);
-	var counter = 0;
-	var pager = $('#pager').val();
-	$('.categoria_producto_'+ categoria).each(function(index,value){
-				$('#listaProductos').show();
-				$(this).show();
-	});
-	$('#maxPage').val(counter);
-
-  }
-
+		$('#maxPage').val(counter);
+	}
 }
-
-
 function agregarCompra(item,origen){
-
 	var i = 1;
 	$('#descuentoFactura').val(0);
 	$('#resultBuscador').fadeOut('slow');
 	//variables facturacion
 	var subtotalSinIva = $('#subtotalSinIva').val();
 	var subtotalIva = $('#subtotalIva').val();
-
 	//variables compra
 	var total = 0;
 	var sumTotal = 0;
@@ -260,9 +228,7 @@ function agregarCompra(item,origen){
 		productoCantidad = currentCantidad;
 		currentAction='';
 		currentCantidad=0;
-
 	}
-
 	var productoID = $(item).attr('id');
 	if(origen==2){
 		var idpartes= $(item).attr('id').split('_');
@@ -277,9 +243,7 @@ function agregarCompra(item,origen){
 	//alert(productoAgregados);
 	var subtotalSinIvaCompra = 0;
 	var subtotalIvaCompra = 0;
-
 	//agregados producto
-
 	var vectoragregados=0;
 	var tablaagregados="";
 	var sumaagregados=0;
@@ -297,42 +261,35 @@ function agregarCompra(item,origen){
 		}
 		tablaagregados+="</table>";
 	}
-
-
 	//verificar cantidades
 	if(parseInt($.trim($('.cantidad').html())) != 0){
 		productoCantidad = $.trim($('.cantidad').html());
 	}
-
 	//impuestos start
 	if($.trim(productoImpuestosIndexes) != '' && $.trim(productoImpuestosIndexes) != 0){
 		if($.trim(productoImpuestosIndexes).indexOf('@') !== -1){
 			$.each(productoImpuestosIndexes.split('@'), function(index,value){
 				if(productoImpuestosIndexes.indexOf(parseInt($('#idiva').html())) !== -1){
 					subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
-					}
+				}
 				else{
 					subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
-					}
-
+				}
 				if($('#impuestoFactura-'+ value).length == 0){
-
 					var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
 					var currentimp=(parseFloat(productoCantidad) *( parseFloat(productoPrecio)+sumaagregados) * parseFloat(impuestoDetalles[2]));
 					taxTotal+= currentimp;
-
 					$('#factura').append('<input type="hidden" id="impuestoFactura-'+ value +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ currentimp +'"/>');
-					}
+				}
 				else{
 					var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
 					var currentTax = $('#impuestoFactura-'+ value).val();
 					var calcimp=((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
 					taxTotal += calcimp;
-
 					$('#impuestoFactura-'+ value).val(parseFloat(currentTax) + parseFloat(calcimp));
-					}
-				});
-			}
+				}
+			});
+		}
 		else{
 			productoImpuestosIndexes == parseInt($('#idiva').html()) ? subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) : subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
               //alert($('#impuestoFactura-'+productoImpuestosIndexes)+'**'+productoImpuestosIndexes);
@@ -340,17 +297,18 @@ function agregarCompra(item,origen){
 				var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
 				taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
 				$('#factura').append('<input type="hidden" id="impuestoFactura-'+ productoImpuestosIndexes +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ taxTotal +'"/>');
-				}
+			}
 			else{
 				var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
 				var currentTax = $('#impuestoFactura-'+ productoImpuestosIndexes).val();
 				taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
 				$('#impuestoFactura-'+ productoImpuestosIndexes).val(parseFloat(currentTax) + parseFloat(taxTotal));
-				}
 			}
-		}else{
-			subtotalSinIvaCompra=(parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
 		}
+	}
+	else{
+		subtotalSinIvaCompra=(parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+	}
 	//impuestos end
 	var max=0;
 	$('#tablaCompra tr').each(function(){
@@ -360,22 +318,15 @@ function agregarCompra(item,origen){
 			var dataid=idtr.split('_');
 			if(parseInt(dataid[1])>=max)
 				max=parseInt(dataid[1])+1;
-		}
-		
-	});
-	
+		}		
+	});	
 	var innerlinea="";
 	if(localStorage.getItem("con_notas")=="true"){
 		innerlinea=' onclick="MostrarNota(this)"; ';
-	}
-	
+	}	
 //	alert(productoCantidad+"/"+productoPrecio+"/"+taxTotal+"/"+sumaagregados);
-	
 	var total = productoCantidad * (productoPrecio + sumaagregados) + taxTotal;//YAESTA
-	
 	//alert(total);
-	
-	
 	$('#tablaCompra').append('<tr id="cant_'+max+'"><td class="lineadetalle" data-borrarcantidad="'+ productoCantidad +'" data-borrarimpuesto="'+ productoImpuestos +'" data-borrarimpuestoindexes="'+ productoImpuestosIndexes +'" data-borrarprecio="'+ productoPrecio +'" data-agregados="'+sumaagregados+'" onclick="borrarCompra(this); return false;" style="width: 5%;"><button type="button" class="btn btn-danger btn-xs product_del"><span class="glyphicon glyphicon-remove" ></span></button><input type="hidden" class="totales" value="'+ total +'"/></td><td onclick="modificarCantidad('+max+' , '+id_local+')" style="border-right:1px solid #909192; text-align: center; width:20%;" class="lineadetalle" "><input type="hidden" class="productDetails" value="'+ productoID +'|'+ productoNombre +'|'+ productoCantidad +'|'+ productoPrecio +'|'+ productoPrecio +'|'+ productoImpuestos +'|'+ (productoCantidad * (productoPrecio+sumaagregados) + taxTotal) +'|'+productoImpuestosIndexes+'|'+sumaagregados+'" data-detagregados="'+productoAgregados+'"  data-id_real="'+id_local+'"  /><input type="hidden" class="cantidadproductoscomandados" value="'+productoCantidad+'"/>'+productoCantidad +'</td><td style="border-right:1px solid #909192; padding:5px;text-align: left; width:50%; text-transform:capitalize;" class="lineadetalle"><span class="lineanota" data-id="'+max+'" '+innerlinea+'>'+productoNombre+'</span>'+tablaagregados+'</td><td style="padding-right:20px; text-align: right;" class="lineadetalle">'+ (total).toFixed(4) +'</td></tr>');
 
 	/*$('[data-toggle="popover"]').popover({content:"<textarea class='form-control' id='textonota' type='text' ></textarea><div style='text-align:right; margin-top:5px;'><button class='btn btn-success' onclick='AgregarNota();'>Agregar</button></div>",html:true,placement:"top"});*/
@@ -951,140 +902,141 @@ function cambiarCantidad(){
 	var productoIDAcambiar = $('#productoIDAcambiar').val();
 
     if(productoIDAcambiar == -14){
-      var tddetalles0 = $('#cant_'+identificadorTr+' td')[0];
-      var tddetalles=$('#cant_'+identificadorTr+' td')[1];
-      var tdtotal=$('#cant_'+identificadorTr+' td')[3];
-	  var inpdetalleagregados=$(tddetalles).find('.productDetails');
-      var detalleaux = $(inpdetalleagregados).val().split("|");
-      var productoImpuestos = $(tddetalles0).data('borrarimpuesto');
-      var productoImpuestosIndexes = $(tddetalles0).data('borrarimpuestoindexes');
-      var cambiototal = $(tddetalles0).find('.totales');
-      var sumaagregados = 0;
-      var taxTotalaux = 0;
-      var taxTotal = 0;
-      if($.trim(productoImpuestos).indexOf('@') !== -1){
-        var impuestoaux = productoImpuestos.split("@");
-        if(impuestoaux != ''){
-          for(var i = 0;i < impuestoaux.length;i++){
-             taxTotalaux += parseFloat(impuestoaux[i]);
-          }
-        }
-      }else{
-        if(productoImpuestos != ''){
-            taxTotalaux += parseFloat(productoImpuestos);
-        }
-      }
-      taxTotal = parseFloat(taxTotalaux.toFixed(2)) + 1;
-      var nuevodetalle = detalleaux[0] +'|'+ detalleaux[1] +'|'+ cantidadActual +'|'+ detalleaux[3] +'|'+ detalleaux[4] +'|'+ productoImpuestos +'|'+ (cantidadActual * (detalleaux[3]*taxTotal)) +'|'+productoImpuestosIndexes+'|'+sumaagregados;
-      var nuevotd = '<input type="hidden" class="productDetails" value="'+nuevodetalle+'" data-detagregados="" data-id_real="-14"><input type="hidden" class="cantidadproductoscomandados" value="'+cantidadActual+'">'+cantidadActual;
-      $(tddetalles).html(nuevotd);
-      $(cambiototal).val((cantidadActual * (detalleaux[3]*taxTotal)).toFixed(4));
-      //alert(taxTotalaux+'**'+detalleaux[3]+'**'+taxTotal);
-      $(tdtotal).html((cantidadActual * (detalleaux[3]*taxTotal)).toFixed(4));
-      var sumTotal = 0;
-      $('.totales').each(function(){
-      	sumTotal += parseFloat($.trim($(this).val()));
-      });
-      console.log('tu factura es de : ' + sumTotal);
-      var sumcantidadComandada = 0;
-      $('.cantidadproductoscomandados').each(function(){
-      	sumcantidadComandada += parseFloat($.trim($(this).val()));
-      });
-      console.log('los items facturados son'+sumcantidadComandada);
-      $('#itemsVendidos').html(sumcantidadComandada);
-      $('#menuSubNew2').html("Total - Ver "+sumcantidadComandada+" pedidos");
+		var tddetalles0 = $('#cant_'+identificadorTr+' td')[0];
+		var tddetalles=$('#cant_'+identificadorTr+' td')[1];
+		var tdtotal=$('#cant_'+identificadorTr+' td')[3];
+		var inpdetalleagregados=$(tddetalles).find('.productDetails');
+		var detalleaux = $(inpdetalleagregados).val().split("|");
+		var productoImpuestos = $(tddetalles0).data('borrarimpuesto');
+		var productoImpuestosIndexes = $(tddetalles0).data('borrarimpuestoindexes');
+		var cambiototal = $(tddetalles0).find('.totales');
+		var sumaagregados = 0;
+		var taxTotalaux = 0;
+		var taxTotal = 0;
+		if($.trim(productoImpuestos).indexOf('@') !== -1){
+			var impuestoaux = productoImpuestos.split("@");
+			if(impuestoaux != ''){
+				for(var i = 0;i < impuestoaux.length;i++){
+					taxTotalaux += parseFloat(impuestoaux[i]);
+				}
+			}
+		}
+		else{
+			if(productoImpuestos != ''){
+				taxTotalaux += parseFloat(productoImpuestos);
+			}
+		}
+		taxTotal = parseFloat(taxTotalaux.toFixed(2)) + 1;
+		var nuevodetalle = detalleaux[0] +'|'+ detalleaux[1] +'|'+ cantidadActual +'|'+ detalleaux[3] +'|'+ detalleaux[4] +'|'+ productoImpuestos +'|'+ (cantidadActual * (detalleaux[3]*taxTotal)) +'|'+productoImpuestosIndexes+'|'+sumaagregados;
+		var nuevotd = '<input type="hidden" class="productDetails" value="'+nuevodetalle+'" data-detagregados="" data-id_real="-14"><input type="hidden" class="cantidadproductoscomandados" value="'+cantidadActual+'">'+cantidadActual;
+		$(tddetalles).html(nuevotd);
+		$(cambiototal).val((cantidadActual * (detalleaux[3]*taxTotal)).toFixed(4));
+		//alert(taxTotalaux+'**'+detalleaux[3]+'**'+taxTotal);
+		$(tdtotal).html((cantidadActual * (detalleaux[3]*taxTotal)).toFixed(4));
+		var sumTotal = 0;
+		$('.totales').each(function(){
+		sumTotal += parseFloat($.trim($(this).val()));
+		});
+		console.log('tu factura es de : ' + sumTotal);
+		var sumcantidadComandada = 0;
+		$('.cantidadproductoscomandados').each(function(){
+		sumcantidadComandada += parseFloat($.trim($(this).val()));
+		});
+		console.log('los items facturados son'+sumcantidadComandada);
+		$('#itemsVendidos').html(sumcantidadComandada);
+		$('#menuSubNew2').html("Total - Ver "+sumcantidadComandada+" pedidos");
 
-      /*$('#itemsVendidos').css('display','block');
-      $('#itemsVendidos').css('background-color','red');*/
+		/*$('#itemsVendidos').css('display','block');
+		$('#itemsVendidos').css('background-color','red');*/
 
-      $('#justo').html('$ '+sumTotal.toFixed(2));
-      $('#payButton').html('PAGAR');
-      $('#invoiceTotal').html(sumTotal.toFixed(2));
-      $('#changeFromPurchase').html(Math.abs(sumTotal).toFixed(2));
-      $('#totalmiFactura').val(sumTotal);
-      $('#total').html('$'+ parseFloat(sumTotal).toFixed(2));
-      $('#total').html('$'+sumTotal.toFixed(2));
+		$('#justo').html('$ '+sumTotal.toFixed(2));
+		$('#payButton').html('PAGAR');
+		$('#invoiceTotal').html(sumTotal.toFixed(2));
+		$('#changeFromPurchase').html(Math.abs(sumTotal).toFixed(2));
+		$('#totalmiFactura').val(sumTotal);
+		$('#total').html('$'+ parseFloat(sumTotal).toFixed(2));
+		$('#total').html('$'+sumTotal.toFixed(2));
 
-      if($('#total').html().toString().length==9)
-      	$('#divtotal').css('font-size','26px');
-      else if($('#total').html().toString().length>9)
-      	$('#divtotal').css('font-size','26px');
-      else
-      	$('#divtotal').css('font-size','30px');
+		if($('#total').html().toString().length==9)
+			$('#divtotal').css('font-size','26px');
+		else if($('#total').html().toString().length>9)
+			$('#divtotal').css('font-size','26px');
+		else
+			$('#divtotal').css('font-size','30px');
 
-      if($('#total').html().toString().length>7){
-      	$('.den').css('width',4.5*parseFloat($('.producto').css('height')));
-      }else{
-      	$('.den').css('width',3*parseFloat($('.producto').css('height')));
-      }
+		if($('#total').html().toString().length>7){
+			$('.den').css('width',4.5*parseFloat($('.producto').css('height')));
+		}
+		else{
+			$('.den').css('width',3*parseFloat($('.producto').css('height')));
+		}
 
-      if(localStorage.getItem("idioma")==1)
-      	//$('#btn_gpedidos').html('GUARDAR $'+ parseFloat(sumTotal).toFixed(2));
-      	$('#btn_gpedidos').html('GUARDAR');
-      else if(localStorage.getItem("idioma")==2)
-      	//$('#btn_gpedidos').html('SAVE $'+ parseFloat(sumTotal).toFixed(2));
-      	$('#btn_gpedidos').html('SAVE');
+		if(localStorage.getItem("idioma")==1)
+			//$('#btn_gpedidos').html('GUARDAR $'+ parseFloat(sumTotal).toFixed(2));
+			$('#btn_gpedidos').html('GUARDAR');
+		else if(localStorage.getItem("idioma")==2)
+			//$('#btn_gpedidos').html('SAVE $'+ parseFloat(sumTotal).toFixed(2));
+			$('#btn_gpedidos').html('SAVE');
 
-      $('#justo').html('$ '+sumTotal.toFixed(2));
-      $('#justo').attr('data-value',-1*sumTotal.toFixed(2));
-      $('#redondeado').html('$ '+Math.ceil(sumTotal).toFixed(2));
-      $('#redondeado').attr('data-value',-1*Math.ceil(sumTotal).toFixed(2));
-      var alta=0;
-      for( var t in misdenominaciones){
-      	if(misdenominaciones[t]>sumTotal)
-      	{
-      		alta=misdenominaciones[t];
-      		break;
-      	}
-      }
-      $('#altaden').html('$ '+alta.toFixed(2));
-      $('#altaden').attr('data-value',-1*alta.toFixed(2));
-      if(alta!=sumTotal&&alta!=Math.ceil(sumTotal)&&alta!=0)
-      	$('#altaden').parent().css('display','inline');
-      else
-      	$('#altaden').parent().css('display','none');
+		$('#justo').html('$ '+sumTotal.toFixed(2));
+		$('#justo').attr('data-value',-1*sumTotal.toFixed(2));
+		$('#redondeado').html('$ '+Math.ceil(sumTotal).toFixed(2));
+		$('#redondeado').attr('data-value',-1*Math.ceil(sumTotal).toFixed(2));
+		var alta=0;
+		for( var t in misdenominaciones){
+			if(misdenominaciones[t]>sumTotal){
+				alta=misdenominaciones[t];
+				break;
+			}
+		}
+		$('#altaden').html('$ '+alta.toFixed(2));
+		$('#altaden').attr('data-value',-1*alta.toFixed(2));
+		if(alta!=sumTotal&&alta!=Math.ceil(sumTotal)&&alta!=0)
+			$('#altaden').parent().css('display','inline');
+		else
+			$('#altaden').parent().css('display','none');
 
-      var prox10=0;
-      var iter=1;
-      var p10=iter*10;
-      while(p10<sumTotal){
-      	iter++;
-      	p10=iter*10;
-      }
-      $('#prox10').html('$ '+p10.toFixed(2));
-      $('#prox10').attr('data-value',-1*p10.toFixed(2));
-      //console.log(p10+'/'+alta);
-      if(p10>0&&p10!=alta)
-      	$('#prox10').parent().css('display','inline');
-      else
-      	$('#prox10').parent().css('display','none');
+		var prox10=0;
+		var iter=1;
+		var p10=iter*10;
+		while(p10<sumTotal){
+			iter++;
+			p10=iter*10;
+		}
+		$('#prox10').html('$ '+p10.toFixed(2));
+		$('#prox10').attr('data-value',-1*p10.toFixed(2));
+		//console.log(p10+'/'+alta);
+		if(p10>0&&p10!=alta)
+			$('#prox10').parent().css('display','inline');
+		else
+			$('#prox10').parent().css('display','none');
 
-      var prox20=0;
-      var iter=1;
-      var p20=iter*20;
-      while(p20<sumTotal){
-      	iter++;
-      	p20=iter*20;
-      }
-      $('#prox20').html('$ '+p20.toFixed(2));
-      $('#prox20').attr('data-value',-1*p20.toFixed(2));
-      if(p20>0&&p20!=p10)
-      	$('#prox20').parent().css('display','inline');
-      else
-      	$('#prox20').parent().css('display','none');
+		var prox20=0;
+		var iter=1;
+		var p20=iter*20;
+		while(p20<sumTotal){
+			iter++;
+			p20=iter*20;
+		}
+		$('#prox20').html('$ '+p20.toFixed(2));
+		$('#prox20').attr('data-value',-1*p20.toFixed(2));
+		if(p20>0&&p20!=p10)
+			$('#prox20').parent().css('display','inline');
+		else
+			$('#prox20').parent().css('display','none');
 
-      var subsinivanew=0;
-      var subconivanew=0;
-      var ivanew=0;
-      var servnew=0;
-      var impgenerales=new Array();
-      $('.productDetails').each(function(){
-      	var datosimp=$(this).val().split('|');
-      	var newsumaagregados=parseFloat(datosimp[8]);
-      	var vectorimp=datosimp[7].split('@');
+		var subsinivanew=0;
+		var subconivanew=0;
+		var ivanew=0;
+		var servnew=0;
+		var impgenerales=new Array();
+		$('.productDetails').each(function(){
+		var datosimp=$(this).val().split('|');
+		var newsumaagregados=parseFloat(datosimp[8]);
+		var vectorimp=datosimp[7].split('@');
 
-      	//alert(datosimp[7]);
-      	for(var x=0;x<vectorimp.length;x++){
+		//alert(datosimp[7]);
+		for(var x=0;x<vectorimp.length;x++){
       		var taxnow=vectorimp[x];
       		if(taxnow!=''&&taxnow!='undefined'&&taxnow!=null){
       			if('"'+taxnow+'"' in impgenerales){
@@ -1156,223 +1108,215 @@ function cambiarCantidad(){
 	var htmlprod=$(tdhtml).html();
 	
 	$('#cant_'+identificadorTr).remove();
-
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function(tx){
-		tx.executeSql('SELECT COUNT(id_local) as cuantos FROM PRODUCTOS WHERE id_local='+productoIDAcambiar+';',[],function(tx,res){
+	var apiURL='api.php';
+	$.post(apiURL,{
+		iddiseno : localStorage.getItem("diseno"),
+		idlocal :productoIDAcambiar,
+		fun : 'SacaProductos1'
+		}).done(function(response){
+			var results3=response.split("@@@");
+			var res=JSON.parse(results3[0]);
+			var result=JSON.parse(results3[1]);
 			var existen=res.rows.item(0).cuantos;
 			if(existen==0){
 				alert('no existe ese producto');
 				$('.cantidad').html('0.00');
-			}else{
+			}
+			else{
 				$('.cantidad').html('0.00');
-
-                if(localStorage.getItem("diseno")==1){
-                  var queryaux = 'SELECT p.*,m.timespan as timemenu FROM PRODUCTOS p,MENU m WHERE p.timespan=m.idproducto and m.activo="true" and p.id_local='+productoIDAcambiar+';';
-                }else{
-                  var queryaux = 'SELECT * FROM PRODUCTOS WHERE id_local='+productoIDAcambiar+';';
-                }
-
-                //alert(queryaux);
-
-                tx.executeSql(queryaux,[],function(tx,result){
-					//alert(result);
-					for (var i=0; i <= result.rows.length-1; i++){
-						var row = result.rows.item(i);
-						var productoNombre = row.formulado;
-						var productoCantidad = cantidadActual;
-						var cargaiva = row.cargaiva;
-						var servicio = row.servicio;
-						var productoImpuestosIndexes ='';
-						var productoImpuestos='';
-						var productomas=1;
-						if(row.tieneimpuestos=="true"){
-							productoImpuestos=$('#impuestosactivos').html();
-							productoImpuestosIndexes=$('#impuestosactivosid').html();
-							var porcentajes=productoImpuestos.split('@');
-							for(var l in porcentajes){
-								if(porcentajes[l]!=null&&porcentajes[l]!=""&&porcentajes[l]!='undefined')
-									productomas+=parseFloat(porcentajes[l]);
-							}
+				for (var i=0; i <= result.rows.length-1; i++){
+					var row = result.rows.item(i);
+					var productoNombre = row.formulado;
+					var productoCantidad = cantidadActual;
+					var cargaiva = row.cargaiva;
+					var servicio = row.servicio;
+					var productoImpuestosIndexes ='';
+					var productoImpuestos='';
+					var productomas=1;
+					if(row.tieneimpuestos=="true"){
+						productoImpuestos=$('#impuestosactivos').html();
+						productoImpuestosIndexes=$('#impuestosactivosid').html();
+						var porcentajes=productoImpuestos.split('@');
+						for(var l in porcentajes){
+							if(porcentajes[l]!=null&&porcentajes[l]!=""&&porcentajes[l]!='undefined')
+								productomas+=parseFloat(porcentajes[l]);
 						}
-						
-						var productoPrecio = row.precio;
-						var total = (((parseFloat(productoPrecio)+sumaagregados) * parseFloat(productoCantidad))*parseFloat(productomas));
-						console.log(productoPrecio);
-                        if(localStorage.getItem("diseno")==1){
-                          var productoID = row.timemenu;
-                        }else{
-						  var productoID = row.timespan;
-                        }
-						//console.log(formulado);
-					
-						var sumTotal = 0;
+					}						
+					var productoPrecio = row.precio;
+					var total = (((parseFloat(productoPrecio)+sumaagregados) * parseFloat(productoCantidad))*parseFloat(productomas));
+					console.log(productoPrecio);
+					if(localStorage.getItem("diseno")==1){
+					  var productoID = row.timemenu;
+					}
+					else{
+					  var productoID = row.timespan;
+					}
+					//console.log(formulado);				
+					var sumTotal = 0;
 						//YAESTA
-						$('#tablaCompra').append('<tr id="cant_'+identificadorTr+'"><td class="lineadetalle" data-borrarcantidad="'+ productoCantidad +'" data-borrarimpuesto="'+ productoImpuestos +'" data-borrarimpuestoindexes="'+ productoImpuestosIndexes +'" data-agregados="'+sumaagregados+'" data-borrarprecio="'+ productoPrecio +'" onclick="borrarCompra(this); return false;" style="width: 5%;"><button type="button" class="btn btn-danger btn-xs product_del"><span class="glyphicon glyphicon-remove" ></span></button><input type="hidden" class="totales" value="'+ total +'"/></td><td onclick="modificarCantidad('+identificadorTr+' , '+productoIDAcambiar+')" style="border-right:1px solid #909192; text-align: center; width:20%;" class="lineadetalle" "><input type="hidden" class="productDetails" value="'+ productoID +'|'+ productoNombre +'|'+ productoCantidad +'|'+ productoPrecio +'|'+ productoPrecio +'|'+ productoImpuestos +'|'+ total +'|'+productoImpuestosIndexes+'|'+sumaagregados+'" data-detagregados="'+detalleagregados+'" data-notes="'+detallenotas+'" data-id_real="'+productoIDAcambiar+'" /><input type="hidden" class="cantidadproductoscomandados" value="'+productoCantidad+'"/>'+ productoCantidad +'</td><td style="border-right:1px solid #909192; padding:5px;text-align: left; width:50%; text-transform:capitalize;" class="lineadetalle">'+htmlprod+'</td><td style="padding-right:20px; text-align: right;" class="lineadetalle">'+ parseFloat(total).toFixed(4) +'</td></tr>');
+					$('#tablaCompra').append('<tr id="cant_'+identificadorTr+'"><td class="lineadetalle" data-borrarcantidad="'+ productoCantidad +'" data-borrarimpuesto="'+ productoImpuestos +'" data-borrarimpuestoindexes="'+ productoImpuestosIndexes +'" data-agregados="'+sumaagregados+'" data-borrarprecio="'+ productoPrecio +'" onclick="borrarCompra(this); return false;" style="width: 5%;"><button type="button" class="btn btn-danger btn-xs product_del"><span class="glyphicon glyphicon-remove" ></span></button><input type="hidden" class="totales" value="'+ total +'"/></td><td onclick="modificarCantidad('+identificadorTr+' , '+productoIDAcambiar+')" style="border-right:1px solid #909192; text-align: center; width:20%;" class="lineadetalle" "><input type="hidden" class="productDetails" value="'+ productoID +'|'+ productoNombre +'|'+ productoCantidad +'|'+ productoPrecio +'|'+ productoPrecio +'|'+ productoImpuestos +'|'+ total +'|'+productoImpuestosIndexes+'|'+sumaagregados+'" data-detagregados="'+detalleagregados+'" data-notes="'+detallenotas+'" data-id_real="'+productoIDAcambiar+'" /><input type="hidden" class="cantidadproductoscomandados" value="'+productoCantidad+'"/>'+ productoCantidad +'</td><td style="border-right:1px solid #909192; padding:5px;text-align: left; width:50%; text-transform:capitalize;" class="lineadetalle">'+htmlprod+'</td><td style="padding-right:20px; text-align: right;" class="lineadetalle">'+ parseFloat(total).toFixed(4) +'</td></tr>');
 
-						$('#cant_'+identificadorTr+' .lineanota').attr('data-id',identificadorTr);
+					$('#cant_'+identificadorTr+' .lineanota').attr('data-id',identificadorTr);
 
-						$('.totales').each(function(){
-							sumTotal += parseFloat($.trim($(this).val()));
-						});
-						console.log('tu factura es de : ' + sumTotal);
-						var sumcantidadComandada = 0;
-						$('.cantidadproductoscomandados').each(function(){
-							sumcantidadComandada += parseFloat($.trim($(this).val()));
-						});
-						console.log('los items facturados son'+sumcantidadComandada);
-						$('#itemsVendidos').html(sumcantidadComandada);
-						$('#menuSubNew2').html("Total - Ver "+sumcantidadComandada+" pedidos");
+					$('.totales').each(function(){
+						sumTotal += parseFloat($.trim($(this).val()));
+					});
+					console.log('tu factura es de : ' + sumTotal);
+					var sumcantidadComandada = 0;
+					$('.cantidadproductoscomandados').each(function(){
+						sumcantidadComandada += parseFloat($.trim($(this).val()));
+					});
+					console.log('los items facturados son'+sumcantidadComandada);
+					$('#itemsVendidos').html(sumcantidadComandada);
+					$('#menuSubNew2').html("Total - Ver "+sumcantidadComandada+" pedidos");
 
-						/*$('#itemsVendidos').css('display','block');
-						$('#itemsVendidos').css('background-color','red');*/
-						
-						$('#justo').html('$ '+sumTotal.toFixed(2));
-						$('#payButton').html('PAGAR');
-						$('#invoiceTotal').html(sumTotal.toFixed(2));
-						$('#changeFromPurchase').html(Math.abs(sumTotal).toFixed(2));
-						$('#totalmiFactura').val(sumTotal);
-						$('#total').html('$'+ parseFloat(sumTotal).toFixed(2));
-						$('#total').html('$'+sumTotal.toFixed(2));
-						
-						if($('#total').html().toString().length==9)
-							$('#divtotal').css('font-size','26px');
-						else if($('#total').html().toString().length>9)
-							$('#divtotal').css('font-size','26px');
-						else
-							$('#divtotal').css('font-size','30px');
-						
-						if($('#total').html().toString().length>7){
-							$('.den').css('width',4.5*parseFloat($('.producto').css('height')));
-						}else{
-							$('.den').css('width',3*parseFloat($('.producto').css('height')));
+					/*$('#itemsVendidos').css('display','block');
+					$('#itemsVendidos').css('background-color','red');*/
+					
+					$('#justo').html('$ '+sumTotal.toFixed(2));
+					$('#payButton').html('PAGAR');
+					$('#invoiceTotal').html(sumTotal.toFixed(2));
+					$('#changeFromPurchase').html(Math.abs(sumTotal).toFixed(2));
+					$('#totalmiFactura').val(sumTotal);
+					$('#total').html('$'+ parseFloat(sumTotal).toFixed(2));
+					$('#total').html('$'+sumTotal.toFixed(2));
+					
+					if($('#total').html().toString().length==9)
+						$('#divtotal').css('font-size','26px');
+					else if($('#total').html().toString().length>9)
+						$('#divtotal').css('font-size','26px');
+					else
+						$('#divtotal').css('font-size','30px');
+					
+					if($('#total').html().toString().length>7){
+						$('.den').css('width',4.5*parseFloat($('.producto').css('height')));
+					}
+					else{
+						$('.den').css('width',3*parseFloat($('.producto').css('height')));
+					}
+
+					if(localStorage.getItem("idioma")==1)
+						//$('#btn_gpedidos').html('GUARDAR $'+ parseFloat(sumTotal).toFixed(2));
+						$('#btn_gpedidos').html('GUARDAR');
+					else if(localStorage.getItem("idioma")==2)
+						//$('#btn_gpedidos').html('SAVE $'+ parseFloat(sumTotal).toFixed(2));
+						$('#btn_gpedidos').html('SAVE');
+
+					$('#justo').html('$ '+sumTotal.toFixed(2));
+					$('#justo').attr('data-value',-1*sumTotal.toFixed(2));
+					$('#redondeado').html('$ '+Math.ceil(sumTotal).toFixed(2));
+					$('#redondeado').attr('data-value',-1*Math.ceil(sumTotal).toFixed(2));
+					var alta=0;
+					for( var t in misdenominaciones){
+						if(misdenominaciones[t]>sumTotal)
+						{
+							alta=misdenominaciones[t];
+							break;
 						}
+					}
+					$('#altaden').html('$ '+alta.toFixed(2));
+					$('#altaden').attr('data-value',-1*alta.toFixed(2));
+					if(alta!=sumTotal&&alta!=Math.ceil(sumTotal)&&alta!=0)
+						$('#altaden').parent().css('display','inline');
+					else
+						$('#altaden').parent().css('display','none');
+					
+					var prox10=0;
+					var iter=1;
+					var p10=iter*10;
+					while(p10<sumTotal){
+						iter++;
+						p10=iter*10;
+					}
+					$('#prox10').html('$ '+p10.toFixed(2));
+					$('#prox10').attr('data-value',-1*p10.toFixed(2));
+					//console.log(p10+'/'+alta);
+					if(p10>0&&p10!=alta)
+						$('#prox10').parent().css('display','inline');
+					else
+						$('#prox10').parent().css('display','none');
+					
+					var prox20=0;
+					var iter=1;
+					var p20=iter*20;
+					while(p20<sumTotal){
+						iter++;
+						p20=iter*20;
+					}
+					$('#prox20').html('$ '+p20.toFixed(2));
+					$('#prox20').attr('data-value',-1*p20.toFixed(2));
+					if(p20>0&&p20!=p10)
+						$('#prox20').parent().css('display','inline');
+					else
+						$('#prox20').parent().css('display','none');
 
-						if(localStorage.getItem("idioma")==1)
-							//$('#btn_gpedidos').html('GUARDAR $'+ parseFloat(sumTotal).toFixed(2));
-							$('#btn_gpedidos').html('GUARDAR');
-						else if(localStorage.getItem("idioma")==2)
-							//$('#btn_gpedidos').html('SAVE $'+ parseFloat(sumTotal).toFixed(2));
-							$('#btn_gpedidos').html('SAVE');
-
-						$('#justo').html('$ '+sumTotal.toFixed(2));
-						$('#justo').attr('data-value',-1*sumTotal.toFixed(2));
-						$('#redondeado').html('$ '+Math.ceil(sumTotal).toFixed(2));
-						$('#redondeado').attr('data-value',-1*Math.ceil(sumTotal).toFixed(2));
-						var alta=0;
-						for( var t in misdenominaciones){
-							if(misdenominaciones[t]>sumTotal)
-							{
-								alta=misdenominaciones[t];
-								break;
-							}
-						}
-						$('#altaden').html('$ '+alta.toFixed(2));
-						$('#altaden').attr('data-value',-1*alta.toFixed(2));
-						if(alta!=sumTotal&&alta!=Math.ceil(sumTotal)&&alta!=0)
-							$('#altaden').parent().css('display','inline');
-						else
-							$('#altaden').parent().css('display','none');
+					var subsinivanew=0;
+					var subconivanew=0;
+					var ivanew=0;
+					var servnew=0;
+					var impgenerales=new Array();
+					$('.productDetails').each(function(){
+						var datosimp=$(this).val().split('|');
+						var newsumaagregados=parseFloat(datosimp[8]);
+						var vectorimp=datosimp[7].split('@');
 						
-						var prox10=0;
-						var iter=1;
-						var p10=iter*10;
-						while(p10<sumTotal){
-							iter++;
-							p10=iter*10;
-						}
-						$('#prox10').html('$ '+p10.toFixed(2));
-						$('#prox10').attr('data-value',-1*p10.toFixed(2));
-						//console.log(p10+'/'+alta);
-						if(p10>0&&p10!=alta)
-							$('#prox10').parent().css('display','inline');
-						else
-							$('#prox10').parent().css('display','none');
-						
-						var prox20=0;
-						var iter=1;
-						var p20=iter*20;
-						while(p20<sumTotal){
-							iter++;
-							p20=iter*20;
-						}
-						$('#prox20').html('$ '+p20.toFixed(2));
-						$('#prox20').attr('data-value',-1*p20.toFixed(2));
-						if(p20>0&&p20!=p10)
-							$('#prox20').parent().css('display','inline');
-						else
-							$('#prox20').parent().css('display','none');
-
-						var subsinivanew=0;
-						var subconivanew=0;
-						var ivanew=0;
-						var servnew=0;
-						var impgenerales=new Array();
-						$('.productDetails').each(function(){
-							var datosimp=$(this).val().split('|');
-							var newsumaagregados=parseFloat(datosimp[8]);
-							var vectorimp=datosimp[7].split('@');
-							
-							//alert(datosimp[7]);
-							for(var x=0;x<vectorimp.length;x++){
-								var taxnow=vectorimp[x];
-								if(taxnow!=''&&taxnow!='undefined'&&taxnow!=null){
-									if('"'+taxnow+'"' in impgenerales){
-									var antes=impgenerales['"'+taxnow+'"'];
+						//alert(datosimp[7]);
+						for(var x=0;x<vectorimp.length;x++){
+							var taxnow=vectorimp[x];
+							if(taxnow!=''&&taxnow!='undefined'&&taxnow!=null){
+								if('"'+taxnow+'"' in impgenerales){
+								var antes=impgenerales['"'+taxnow+'"'];
+								var datosp=$('#impuesto-'+taxnow).val().split('|');
+								var porcent=parseFloat(datosp[2]);
+								impgenerales['"'+taxnow+'"']=antes+((parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2])*porcent);
+								}else{
+									//alert(taxnow);
 									var datosp=$('#impuesto-'+taxnow).val().split('|');
 									var porcent=parseFloat(datosp[2]);
-									impgenerales['"'+taxnow+'"']=antes+((parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2])*porcent);
-									}else{
-										//alert(taxnow);
-										var datosp=$('#impuesto-'+taxnow).val().split('|');
-										var porcent=parseFloat(datosp[2]);
-										impgenerales['"'+taxnow+'"']=((parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2])*porcent);
-									}
+									impgenerales['"'+taxnow+'"']=((parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2])*porcent);
 								}
 							}
-							
-
-							if(datosimp[7].indexOf($('#idiva').html())>=0&&$('#idiva').html()!=''){
-								subconivanew+=(parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2]);
-								var datosp=$('#impuesto-'+$('#idiva').html()).val().split('|');
-								var porcentiva=parseFloat(datosp[2]);
-								ivanew+=(parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2])*porcentiva;
-							}
-							else{
-								subsinivanew+=(parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2]);
-							}
-
-							//para servicio
-							//if(datosimp[7].indexOf('2')>=0){
-								servnew+=(parseFloat(datosimp[3])+newsumaagregados)*0.10*parseFloat(datosimp[2]);
-							//}
-						});
-
-						console.log(impgenerales);
-						for(var j in impgenerales){
-							$('#impuestoFactura-'+(j.replace(/"/g,''))).val(impgenerales[j]);
 						}
 						
 
-						$('#subtotalSinIva').val(subsinivanew);
-						$('#subtotalIva').val(subconivanew);
+						if(datosimp[7].indexOf($('#idiva').html())>=0&&$('#idiva').html()!=''){
+							subconivanew+=(parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2]);
+							var datosp=$('#impuesto-'+$('#idiva').html()).val().split('|');
+							var porcentiva=parseFloat(datosp[2]);
+							ivanew+=(parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2])*porcentiva;
+						}
+						else{
+							subsinivanew+=(parseFloat(datosimp[3])+newsumaagregados)*parseFloat(datosimp[2]);
+						}
 
+						//para servicio
+						//if(datosimp[7].indexOf('2')>=0){
+							servnew+=(parseFloat(datosimp[3])+newsumaagregados)*0.10*parseFloat(datosimp[2]);
+						//}
+					});
 
-						$('.cantidad').html('0');
-						$('#tableresults').html('');
-						$('#inputbusc').val('');
-						$('#contentdetalle').animate({
-							scrollTop: $('#contentdetalle')[0].scrollHeight
-							}, 1000).clearQueue();
-						$('#tablaCompra tr:last-child').effect('highlight',{},'normal')
-						celdaenfocada=-1;
-	
+					console.log(impgenerales);
+					for(var j in impgenerales){
+						$('#impuestoFactura-'+(j.replace(/"/g,''))).val(impgenerales[j]);
 					}
-				},errorCB,successCB);
+					
 
-			}
-		},errorCB,successCB);
-			});
+					$('#subtotalSinIva').val(subsinivanew);
+					$('#subtotalIva').val(subconivanew);
+
+
+					$('.cantidad').html('0');
+					$('#tableresults').html('');
+					$('#inputbusc').val('');
+					$('#contentdetalle').animate({
+						scrollTop: $('#contentdetalle')[0].scrollHeight
+						}, 1000).clearQueue();
+					$('#tablaCompra tr:last-child').effect('highlight',{},'normal')
+					celdaenfocada=-1;
+
+				}
+			}}).fail(function(){
+		});
 
     }
 
@@ -1380,17 +1324,17 @@ function cambiarCantidad(){
 }
 
 function formarCategorias(){
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 	var selected = '';
 	var categoriaSelected = 0;
 	var objcategoria='';
-	db.transaction(
-	function (tx){
-		tx.executeSql('SELECT c.* FROM CATEGORIAS c, PRODUCTOS p where c.timespan in (p.categoriaid) and p.productofinal=1 and p.estado=1 and p.timespan != "-14" group by categoria ORDER BY categoria asc',[],function(tx,res){
-        if(res.rows.length>0){
+	var apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'formarCategorias'
+		}).done(function(response){			
+			var res=JSON.parse(response);				
+			if(res.rows.length>0){
 				if(localStorage.getItem("con_mesas")=='false')
 					$('#menuSubNew1,#menuSubNew2').fadeIn();
-
 				for(m=0;m<res.rows.length;m++){
 					selected = 'categoria';
 					var row=res.rows.item(m);
@@ -1399,47 +1343,48 @@ function formarCategorias(){
 						categoriaSelected = row.timespan;
 					}
 					console.log("idc:"+row.timespan);
-
                     if(row.timespan != -14){
 					    $('#listacat').append('<li id="categoria_'+ row.timespan +'" class="esCategoria '+ selected +'" onclick="ActivarCategoria(this,'+"'"+ row.timespan +"'"+');" ontap="ActivarCategoria(this,'+"'"+ row.timespan +"'"+');" ><a>'+ (row.categoria).substring(0,20) +'</a></li>');
                     }
-
 				}
-
-                    if(localStorage.getItem("con_profesionales")=='true'){
-                      if(localStorage.getItem("idioma")==2){
-                        $('#listacat').append('<li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoria(this,-14);" ontap="ActivarCategoria(this,-14);" style="width: 248.364px; height: 44px;"><a style="height: 44px;">Custom</a></li>');
-                      }else{
-                        $('#listacat').append('<li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoria(this,-14);" ontap="ActivarCategoria(this,-14);" style="width: 248.364px; height: 44px;"><a style="height: 44px;">Personalizado</a></li>');
-                      }
-                    }
-
+				if(localStorage.getItem("con_profesionales")=='true'){
+					if(localStorage.getItem("idioma")==2){
+						$('#listacat').append('<li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoria(this,-14);" ontap="ActivarCategoria(this,-14);" style="width: 248.364px; height: 44px;"><a style="height: 44px;">Custom</a></li>');
+					}
+					else{
+					$('#listacat').append('<li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoria(this,-14);" ontap="ActivarCategoria(this,-14);" style="width: 248.364px; height: 44px;"><a style="height: 44px;">Personalizado</a></li>');
+					}
+				}
 				objcategoria=$('#categoria_'+categoriaSelected)[0];
 				console.log(objcategoria);
 				ActivarCategoria(objcategoria,categoriaSelected);
-			}else{
+			}
+			else{
 				$('#menuSubNew1,#menuSubNew2').css('display','none');
                 $('#listaProductos').hide();
                 $('#listaCategorias').hide();
 				if(localStorage.getItem("idioma")==1){
-				  if(localStorage.getItem("con_profesionales")=='true'){
-				    $('#menuSubNew1,#menuSubNew2').fadeIn();
-					$("#menuproductosaux").html('<br><ul role="tablist" id="listacat" class="nav nav-tabs" style="width: 350px;"><li id="categoria_1" class="categoriaActiva esCategoria active" onclick="ActivarCategoriasp(this,1);" ontap="ActivarCategoriasp(this,1);" style="width: 150px; height: 44px;"><a style="height: 44px;">Categoría 1</a></li><li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoriasp(this,-14);" ontap="ActivarCategoriasp(this,-14);" style="width: 150px; height: 44px;"><a style="height: 44px;">Personalizado</a></li></ul><div class="jumbotron"><h1>No hay productos</h1><p>Por favor, ingresa todos tus productos para empezar a facturar.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Ingresar Productos</button></p></div>');
-                  }else{
-                    $("#menuproductosaux").html('<div class="jumbotron"><h1>No hay productos</h1><p>Por favor, ingresa todos tus productos para empezar a facturar.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Ingresar Productos</button></p></div>');
-                  }
-                }else if(localStorage.getItem("idioma")==2){
-                    if(localStorage.getItem("con_profesionales")=='true'){
-                      $('#menuSubNew1,#menuSubNew2').fadeIn();
-  					  $("#menuproductosaux").html('<br><ul role="tablist" id="listacat" class="nav nav-tabs" style="width: 350px;"><li id="categoria_1" class="categoriaActiva esCategoria" onclick="ActivarCategoriasp(this,1);" ontap="ActivarCategoriasp(this,1);" style="width: 150px; height: 44px;"><a style="height: 44px;">Category 1</a></li><li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoriasp(this,-14);" ontap="ActivarCategoriasp(this,-14);" style="width: 150px; height: 44px;"><a style="height: 44px;">Custom</a></li></ul><div class="jumbotron"><h1>No Products yet</h1><p>Please, enter all your products to begin.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Enter Products</button></p></div>');
-                    }else{
-                      $("#menuproductosaux").html('<div class="jumbotron"><h1>No Products yet</h1><p>Please, enter all your products to begin.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Enter Products</button></p></div>');
-                    }
+					if(localStorage.getItem("con_profesionales")=='true'){
+						$('#menuSubNew1,#menuSubNew2').fadeIn();
+						$("#menuproductosaux").html('<br><ul role="tablist" id="listacat" class="nav nav-tabs" style="width: 350px;"><li id="categoria_1" class="categoriaActiva esCategoria active" onclick="ActivarCategoriasp(this,1);" ontap="ActivarCategoriasp(this,1);" style="width: 150px; height: 44px;"><a style="height: 44px;">Categoría 1</a></li><li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoriasp(this,-14);" ontap="ActivarCategoriasp(this,-14);" style="width: 150px; height: 44px;"><a style="height: 44px;">Personalizado</a></li></ul><div class="jumbotron"><h1>No hay productos</h1><p>Por favor, ingresa todos tus productos para empezar a facturar.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Ingresar Productos</button></p></div>');
+					}
+					else{
+						$("#menuproductosaux").html('<div class="jumbotron"><h1>No hay productos</h1><p>Por favor, ingresa todos tus productos para empezar a facturar.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Ingresar Productos</button></p></div>');
+					}
                 }
+				else if(localStorage.getItem("idioma")==2){
+                    if(localStorage.getItem("con_profesionales")=='true'){
+						$('#menuSubNew1,#menuSubNew2').fadeIn();
+						$("#menuproductosaux").html('<br><ul role="tablist" id="listacat" class="nav nav-tabs" style="width: 350px;"><li id="categoria_1" class="categoriaActiva esCategoria" onclick="ActivarCategoriasp(this,1);" ontap="ActivarCategoriasp(this,1);" style="width: 150px; height: 44px;"><a style="height: 44px;">Category 1</a></li><li id="profes" class="categoriaActiva esCategoria" onclick="ActivarCategoriasp(this,-14);" ontap="ActivarCategoriasp(this,-14);" style="width: 150px; height: 44px;"><a style="height: 44px;">Custom</a></li></ul><div class="jumbotron"><h1>No Products yet</h1><p>Please, enter all your products to begin.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Enter Products</button></p></div>');
+					}
+					else{
+						$("#menuproductosaux").html('<div class="jumbotron"><h1>No Products yet</h1><p>Please, enter all your products to begin.</p><p><button class="btn btn-primary btn-lg" type="button" onclick="editarProductoID=0; envia('+"'nuevoproducto'"+')">Enter Products</button></p></div>');
+					}
+				}
 			}
 
-		});
-	},errorCB,successCB);
+		}).fail(function(){
+	});
 }
 
 
@@ -1483,177 +1428,177 @@ function slider(direccion){
 function pagar(){
 	//alert('viene a pagar');
 	//$("#cuadroClientes,#opaco").fadeOut("fast");
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 	var serie='001';
 	var establecimiento='001';
 	var encabezado=0;
 	var largo=0;
-		db.transaction(function (tx){
-			tx.executeSql('SELECT establecimiento,serie,largo,encabezado,tiene_factura_electronica from config where id=1',[],function(tx,res2){
-				serie=res2.rows.item(0).serie;
-				establecimiento=res2.rows.item(0).establecimiento;
-				//alert(serie+'/'+establecimiento);
-				$('#seriesfact').html(establecimiento+'-'+serie+'-');
-				localStorage.setItem("encabezado",res2.rows.item(0).encabezado);
-				localStorage.setItem("largo",res2.rows.item(0).largo);
-				localStorage.setItem("factelectronica",res2.rows.item(0).tiene_factura_electronica);
-			});
+	var apiURL='api.php';
+	$.post(apiURL,{		
+		fun : 'VerConf'
+		}).done(function(response){
+			var res2=JSON.parse(response);
+			serie=res2.rows.item(0).serie;
+			establecimiento=res2.rows.item(0).establecimiento;
+			//alert(serie+'/'+establecimiento);
+			$('#seriesfact').html(establecimiento+'-'+serie+'-');
+			localStorage.setItem("encabezado",res2.rows.item(0).encabezado);
+			localStorage.setItem("largo",res2.rows.item(0).largo);
+			localStorage.setItem("factelectronica",res2.rows.item(0).tiene_factura_electronica);
+		}).fail(function(){
+	});	
+	if(localStorage.getItem("con_localhost") == 'true'){
+		apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+		$.post(apiURL,{
+		id_emp : localStorage.getItem("empresa"),
+		action : 'VerNumeroFactura',
+		id_barra : localStorage.getItem("idbarra"),
+		deviceid:$("#deviceid").html()
+		}).done(function(response){
+			if(response!='block' && response!='Desactivado'){
+				console.log(response);
+				var res = response.split("||");
+				$('#invoiceNr').val(res[0]);
+				$('#invoiceNrComplete').val(establecimiento+'-'+serie+'-'+res[0]);
 
-            if(localStorage.getItem("con_localhost") == 'true'){
-             var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-             $.post(apiURL,{
-        		id_emp : localStorage.getItem("empresa"),
-        		action : 'VerNumeroFactura',
-        		id_barra : localStorage.getItem("idbarra"),
-        		deviceid:$("#deviceid").html()
-        		}).done(function(response){
-        			if(response!='block' && response!='Desactivado'){
-        				console.log(response);
-                        var res = response.split("||");
-                        $('#invoiceNr').val(res[0]);
-				        $('#invoiceNrComplete').val(establecimiento+'-'+serie+'-'+res[0]);
 
+			}else if(response=='Desactivado'){
+				envia('cloud');
+				setTimeout(function(){
+					$('.navbar,#barraalternamovil').slideUp();
+					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+					$('#desactivo').fadeIn();
+				},100);
+			}else{
+				envia('cloud');
+				setTimeout(function(){
+					$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
+					$('.navbar,#barraalternamovil').slideUp();
+					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+					$('#bloqueo').fadeIn();
+				},100);
 
-        			}else if(response=='Desactivado'){
-        			    envia('cloud');
-        				setTimeout(function(){
-        					$('.navbar,#barraalternamovil').slideUp();
-        					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-        					$('#desactivo').fadeIn();
-        				},100);
-        			}else{
-        				envia('cloud');
-        				setTimeout(function(){
-        					$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
-        					$('.navbar,#barraalternamovil').slideUp();
-        					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-        					$('#bloqueo').fadeIn();
-        				},100);
+			}
 
-        			}
-
-        		}).fail(function(){
-        			updateOnlineStatus("OFFLINE");
-        			setTimeout(function(){SincronizadorNormal()},180000);
-        		});
-            }else{
-            //*******************************inicia normal********************************
-			tx.executeSql('SELECT MAX(aux)+1 as max FROM FACTURAS',[],
-			function(tx,res){
-				console.log(res);
-				var ceros='';
-				var coun=0;
-				var nfact='1';
-				if(res.rows.length>0){
-					var max=1;
-					if(res.rows.item(0).max!=null)
-						max=res.rows.item(0).max;
-					else{
-						if(localStorage.getItem("ultimafact")!=null&&localStorage.getItem("ultimafact")!="")
-							max=parseInt(localStorage.getItem("ultimafact"))+1;
-					}
-						
-					coun=max.toString().length;
-					nfact=max.toString();
-				}
-				
-				var ceroscount=0;
-				while(ceroscount<(9-coun)){
-					ceros+='0';
-					ceroscount++;
-				}
-				$('#invoiceNr').val(ceros+nfact);
-				$('#invoiceNrComplete').val(establecimiento+'-'+serie+'-'+ceros+nfact);
-			});
-            //******************************fin normal************************************
-            }
-		},errorCB,successCB);
-
-	var subtotalSinIva = $('#subtotalSinIva').val();
-	var subtotalIva = $('#subtotalIva').val();
-	var descuento = $('#descuentoFactura').val();
-    var total = $('#totalmiFactura').val();
-	var propina=parseFloat($('#invoiceprop').html());
-    var nofactura = $('#invoiceNrComplete').val();
-	var logo="";
-	if(localStorage.getItem("logo")!=''&&localStorage.getItem("logo")!=null){
-		if(localStorage.getItem("imprimelogo")=="true")
-		   logo=localStorage.getItem("logo");
-	}
-	
-	var mensajepie="";
-	if(localStorage.getItem("mensajefinal")!=''&&localStorage.getItem("mensajefinal")!=null){
-		if(!localStorage.getItem("paquete")=="1")
-		   mensajepie=localStorage.getItem("mensajefinal");
-	}
-		
-	
-	//if($('#timespanFactura').val()=='')
-	$('#timespanFactura').val(getTimeSpan());
-    var timefactura = $('#timespanFactura').val();
-	total=parseFloat(total);
-	
-	var pagado=0;
-	$('.paymentMethods').each(function(){
-		if($(this).val()!=''&&$(this).val()!=null)
-			pagado+=parseFloat($(this).val());
-	})
-	
-	/*$('#justo').html(total.toFixed(2));
-	$('#justo').attr('data-value',-1*total.toFixed(2));
-	$('#redondeado').html(Math.round(total).toFixed(2));
-	$('#redondeado').attr('data-value',-1*Math.round(total).toFixed(2));*/
-	var discount = parseFloat($('#descuentoFactura').val());
-	console.log(discount);
-	if(discount == 0){
-		$('#changeFromPurchase').html(Math.abs((total-pagado+propina)).toFixed(2));
-	}else{
-		$('#changeFromPurchase').html(Math.abs((total-discount-pagado+propina)).toFixed(2));
-	}
-	//$('#changeFromPurchase').html((total-discount).toFixed(2));
-	if((total-pagado)<=0){
-		$('#invoiceDebt').html('VUELTO');
-		if(localStorage.getItem("idioma")==2)
-			$('#invoiceDebt').html("CHANGE");
+		}).fail(function(){
+			updateOnlineStatus("OFFLINE");
+			setTimeout(function(){SincronizadorNormal()},180000);
+		});
 	}
 	else{
-		$('#invoiceDebt').html('FALTANTE');
-		if(localStorage.getItem("idioma")==2)
-			$('#invoiceDebt').html("TO PAY");
-	}
+		apiURL='api.php';
+		$.post(apiURL,{		
+		fun : 'NumFactura'
+		}).done(function(response){
+			var ceros='';
+			var coun=0;
+			var nfact='1';
+			var res=JSON.parse(response);
+			if(res.rows.length>0){
+				var max=1;
+				if(res.rows.item(0).max!=null)
+					max=res.rows.item(0).max;
+				else{
+					if(localStorage.getItem("ultimafact")!=null&&localStorage.getItem("ultimafact")!="")
+						max=parseInt(localStorage.getItem("ultimafact"))+1;
+				}
+					
+				coun=max.toString().length;
+				nfact=max.toString();
+			}				
+			var ceroscount=0;
+			while(ceroscount<(9-coun)){
+				ceros+='0';
+				ceroscount++;
+			}
+			$('#invoiceNr').val(ceros+nfact);
+			$('#invoiceNrComplete').val(establecimiento+'-'+serie+'-'+ceros+nfact);
+		}).fail(function(){
+		});	
+            //*******************************inicia normal********************************	
 
-	var idimpuestos = '';
-	var ivavalor=0;
-	var servalor=0;
-	var dataimpuestos="";
-	var c=0;
+		var subtotalSinIva = $('#subtotalSinIva').val();
+		var subtotalIva = $('#subtotalIva').val();
+		var descuento = $('#descuentoFactura').val();
+		var total = $('#totalmiFactura').val();
+		var propina=parseFloat($('#invoiceprop').html());
+		var nofactura = $('#invoiceNrComplete').val();
+		var logo="";
+		if(localStorage.getItem("logo")!=''&&localStorage.getItem("logo")!=null){
+			if(localStorage.getItem("imprimelogo")=="true")
+			   logo=localStorage.getItem("logo");
+		}		
+		var mensajepie="";
+		if(localStorage.getItem("mensajefinal")!=''&&localStorage.getItem("mensajefinal")!=null){
+			if(!localStorage.getItem("paquete")=="1")
+			   mensajepie=localStorage.getItem("mensajefinal");
+		}	
 	
-	$('.esImpuesto').each(function(){
-		var getName = $(this).data('nombre');
-		var getId = $(this).data('id');
-		var getValue = $(this).data('valor');
-		//idimpuestos += getName +'/'+ $(this).val() +'/'+ getId +'/'+ getValue +'@';
-		idimpuestos += getId+'@';
-		if(getId==parseInt($('#idiva').html()))
-			ivavalor=$(this).val();
+		//if($('#timespanFactura').val()=='')
+		$('#timespanFactura').val(getTimeSpan());
+		var timefactura = $('#timespanFactura').val();
+		total=parseFloat(total);
+		
+		var pagado=0;
+		$('.paymentMethods').each(function(){
+			if($(this).val()!=''&&$(this).val()!=null)
+				pagado+=parseFloat($(this).val());
+		})
+		
+		/*$('#justo').html(total.toFixed(2));
+		$('#justo').attr('data-value',-1*total.toFixed(2));
+		$('#redondeado').html(Math.round(total).toFixed(2));
+		$('#redondeado').attr('data-value',-1*Math.round(total).toFixed(2));*/
+		var discount = parseFloat($('#descuentoFactura').val());
+		console.log(discount);
+		if(discount == 0){
+			$('#changeFromPurchase').html(Math.abs((total-pagado+propina)).toFixed(2));
+		}else{
+			$('#changeFromPurchase').html(Math.abs((total-discount-pagado+propina)).toFixed(2));
+		}
+		//$('#changeFromPurchase').html((total-discount).toFixed(2));
+		if((total-pagado)<=0){
+			$('#invoiceDebt').html('VUELTO');
+			if(localStorage.getItem("idioma")==2)
+				$('#invoiceDebt').html("CHANGE");
+		}
+		else{
+			$('#invoiceDebt').html('FALTANTE');
+			if(localStorage.getItem("idioma")==2)
+				$('#invoiceDebt').html("TO PAY");
+		}
 
-        if(dataimpuestos.indexOf(getName) == -1){
-          if(c>0){
-			dataimpuestos+="@";
-		  }
-          //alert('si');
-          dataimpuestos+=getId+"|"+getName+"|"+getValue+"|"+$(this).val();
-          c++;
-        }
-	});
-	
-	idimpuestos = idimpuestos.substring(0,idimpuestos.length -1);
-	var linkelectronica='';
-	if(localStorage.getItem("factelectronica")=='true'){
-		var mipass=GenerarClaveElectronica($('#cedulaP').val());
-		linkelectronica='http://www.practifactura.com/clientes, user: '+$('#cedulaP').val()+', password: '+mipass;
-		//alert(linkelectronica);
-	}
+		var idimpuestos = '';
+		var ivavalor=0;
+		var servalor=0;
+		var dataimpuestos="";
+		var c=0;
+		
+		$('.esImpuesto').each(function(){
+			var getName = $(this).data('nombre');
+			var getId = $(this).data('id');
+			var getValue = $(this).data('valor');
+			//idimpuestos += getName +'/'+ $(this).val() +'/'+ getId +'/'+ getValue +'@';
+			idimpuestos += getId+'@';
+			if(getId==parseInt($('#idiva').html()))
+				ivavalor=$(this).val();
+
+			if(dataimpuestos.indexOf(getName) == -1){
+			  if(c>0){
+				dataimpuestos+="@";
+			  }
+			  //alert('si');
+			  dataimpuestos+=getId+"|"+getName+"|"+getValue+"|"+$(this).val();
+			  c++;
+			}
+		});
+		
+		idimpuestos = idimpuestos.substring(0,idimpuestos.length -1);
+		var linkelectronica='';
+		if(localStorage.getItem("factelectronica")=='true'){
+			var mipass=GenerarClaveElectronica($('#cedulaP').val());
+			linkelectronica='http://www.practifactura.com/clientes, user: '+$('#cedulaP').val()+', password: '+mipass;
+			//alert(linkelectronica);
+		}
 	
 
     //alert(subtotalSinIva+'**'+subtotalIva+'**'+descuento+'**'+impuestos);
@@ -1700,128 +1645,128 @@ function pagar(){
 		json += '},';
 		});
 		
-	var midevice='';
-	if($('#deviceid').html()!=''){
-		midevice=$('#deviceid').html();
-	}
-	
-	var propina=0;
-	if($('#propinaFactura').val()!='')
-		propina=parseFloat($('#propinaFactura').val());
-	var mesa="";
-	var mesa_name="";
-	var pax=0;
-	if(sessionStorage.getItem("mesa_activa")!=""&&localStorage.getItem("con_mesas")=="true"){
-		mesa=sessionStorage.getItem("mesa_activa");
-		mesa_name=sessionStorage.getItem("mesa_name");
-		pax=sessionStorage.getItem("mesa_pax");
-	}
-	
-	
-	//alert(device+'/'+device.model + '/' +'Device Cordova: '  + device.cordova  + '/' +'Device Platform: ' + device.platform + '/' +'Device UUID: '     + device.uuid     + '/' +'Device Version: '  + device.version);
-		
-	json = json.substring(0,json.length -1);	
-	json += '],'
-	json += '"factura" : {';
-		json += '"subtotal_sin_iva" : "'+ subtotalSinIva +'",';
-		json += '"timespanfactura" : "'+ timefactura +'",';
-		json += '"idbarrascajas" : "'+midevice+'",';
-		json += '"fecha" : "'+ new Date().getTime() +'",';
-		json += '"anulada" : "false",';
-		json += '"subtotal_iva" : "'+ subtotalIva +'",';
-		json += '"impuestos" : "'+ idimpuestos +'",';
-		json += '"iva" : "'+ ivavalor +'",';
-		json += '"servicio" : "'+ servalor +'",';
-		json += '"descuento" : "'+ descuento +'",';
-		json += '"total" : "'+ (total-descuento+propina) +'",';
-		json += '"numerofact" : "'+ nofactura +'",';
-		json += '"encabezado" : "'+ localStorage.getItem("encabezado") +'",';
-		json += '"largo" : "'+ localStorage.getItem("largo") +'",';
-		json += '"impuestosdata" : "'+ dataimpuestos +'",';
-		json += '"ordername" : "'+ localStorage.getItem("nameorder") +'",';
-		json += '"lang" : "'+ localStorage.getItem("idioma") +'",';
-		json += '"propina" : "'+propina+'",';
-		json += '"id_mesa" : "'+mesa+'",';
-		json += '"mesa" : "'+mesa_name+'",';
-		json += '"pax" : "'+pax+'"';
-		json += '},';
-		json +=$('#JSONempresaLocal').html()+'"pagos":[';
-		
-		var nformas=0;
-		var cadefectivo='';
-		var cadtarjetas='';
-		var cadcheques='';
-		var cadcxc='';
-		
-		if($('#paymentEfectivo').val()!=''&&parseFloat($('#paymentEfectivo').val())>0)
-		{	
-			cadefectivo+='{"forma":"efectivo","valor":"'+$('#paymentEfectivo').val()+'","tipotarjeta":"","lote":"","numerocheque":"","banco":""}';
-			nformas++;
+		var midevice='';
+		if($('#deviceid').html()!=''){
+			midevice=$('#deviceid').html();
 		}
 		
-		var count=0;
-		var mivuelto=parseFloat($('#invoicePaid').html())-parseFloat($('#total').html().substr(1));
-		//alert(mivuelto);
-		if(mivuelto>0)
-		{
-			if(nformas>0&&count==0)
-					cadefectivo+=',';
-			if(count>0)
-					cadefectivo+=',';
-				
-			cadefectivo+='{"forma":"efectivo","valor":"-'+mivuelto+'","tipotarjeta":"","lote":"","numerocheque":"","banco":""}';
-			nformas++;
-			count++;
+		var propina=0;
+		if($('#propinaFactura').val()!='')
+			propina=parseFloat($('#propinaFactura').val());
+		var mesa="";
+		var mesa_name="";
+		var pax=0;
+		if(sessionStorage.getItem("mesa_activa")!=""&&localStorage.getItem("con_mesas")=="true"){
+			mesa=sessionStorage.getItem("mesa_activa");
+			mesa_name=sessionStorage.getItem("mesa_name");
+			pax=sessionStorage.getItem("mesa_pax");
 		}
 		
-		
-		
-		$('.cardv').each(function(){
-			if($(this).html()!=''&&parseFloat($(this).parent().attr("data-value"))>0){
-				
-				if(nformas>0&&count==0)
-					cadtarjetas+=',';
-		
-				if(count>0)
-					cadtarjetas+=',';
-				
-				cadtarjetas+='{"forma":"tarjetas","valor":"'+parseFloat($(this).parent().attr("data-value"))+'","tipotarjeta":"'+parseFloat($(this).parent().attr("data-id"))+'","lote":"'+$('#order_id').val()+'","numerocheque":"","banco":""}';
-				count++;
+	
+		//alert(device+'/'+device.model + '/' +'Device Cordova: '  + device.cordova  + '/' +'Device Platform: ' + device.platform + '/' +'Device UUID: '     + device.uuid     + '/' +'Device Version: '  + device.version);
+			
+		json = json.substring(0,json.length -1);	
+		json += '],'
+		json += '"factura" : {';
+			json += '"subtotal_sin_iva" : "'+ subtotalSinIva +'",';
+			json += '"timespanfactura" : "'+ timefactura +'",';
+			json += '"idbarrascajas" : "'+midevice+'",';
+			json += '"fecha" : "'+ new Date().getTime() +'",';
+			json += '"anulada" : "false",';
+			json += '"subtotal_iva" : "'+ subtotalIva +'",';
+			json += '"impuestos" : "'+ idimpuestos +'",';
+			json += '"iva" : "'+ ivavalor +'",';
+			json += '"servicio" : "'+ servalor +'",';
+			json += '"descuento" : "'+ descuento +'",';
+			json += '"total" : "'+ (total-descuento+propina) +'",';
+			json += '"numerofact" : "'+ nofactura +'",';
+			json += '"encabezado" : "'+ localStorage.getItem("encabezado") +'",';
+			json += '"largo" : "'+ localStorage.getItem("largo") +'",';
+			json += '"impuestosdata" : "'+ dataimpuestos +'",';
+			json += '"ordername" : "'+ localStorage.getItem("nameorder") +'",';
+			json += '"lang" : "'+ localStorage.getItem("idioma") +'",';
+			json += '"propina" : "'+propina+'",';
+			json += '"id_mesa" : "'+mesa+'",';
+			json += '"mesa" : "'+mesa_name+'",';
+			json += '"pax" : "'+pax+'"';
+			json += '},';
+			json +=$('#JSONempresaLocal').html()+'"pagos":[';
+			
+			var nformas=0;
+			var cadefectivo='';
+			var cadtarjetas='';
+			var cadcheques='';
+			var cadcxc='';
+			
+			if($('#paymentEfectivo').val()!=''&&parseFloat($('#paymentEfectivo').val())>0)
+			{	
+				cadefectivo+='{"forma":"efectivo","valor":"'+$('#paymentEfectivo').val()+'","tipotarjeta":"","lote":"","numerocheque":"","banco":""}';
 				nformas++;
 			}
-				
-		});
-		
-		
-		var count=0;
-			if($('#valorcheque1').val()!=''&&parseFloat($('#valorcheque1').val())>0){
+			
+			var count=0;
+			var mivuelto=parseFloat($('#invoicePaid').html())-parseFloat($('#total').html().substr(1));
+			//alert(mivuelto);
+			if(mivuelto>0)
+			{
 				if(nformas>0&&count==0)
-					cadcheques+=',';
-				
+						cadefectivo+=',';
 				if(count>0)
-					cadcheques+=',';
-				cadcheques+='{"forma":"cheques","valor":"'+$('#valorcheque1').val()+'","tipotarjeta":"","lote":"","numerocheque":"'+$('#chequeno1').val()+'","banco":""}';
-				count++;
+						cadefectivo+=',';
+					
+				cadefectivo+='{"forma":"efectivo","valor":"-'+mivuelto+'","tipotarjeta":"","lote":"","numerocheque":"","banco":""}';
 				nformas++;
+				count++;
 			}
-				
-		//alert(cadtarjetas);
-		
-		if(cadefectivo!='') json+=cadefectivo;
-		if(cadtarjetas!='') json+=cadtarjetas;
-		if(cadcheques!='') json+=cadcheques;
-		if($('#valorcxc').val()!=''&&parseFloat($('#valorcxc').val())>0){
-			if(nformas>0)
-				json+=',';
-			json+='{"forma":"cxc","valor":"'+$('#valorcxc').val()+'","tipotarjeta":"","lote":"","numerocheque":"","banco":"'+$('#justcxc').val()+'"}';
-		} 	
-		json+=']}]}';
-		
-		$('#json').html(json);
-		//alert("Ana");
-		receiveJson();	
-	//$('#pay').show();
-}
+			
+			
+			
+			$('.cardv').each(function(){
+				if($(this).html()!=''&&parseFloat($(this).parent().attr("data-value"))>0){
+					
+					if(nformas>0&&count==0)
+						cadtarjetas+=',';
+			
+					if(count>0)
+						cadtarjetas+=',';
+					
+					cadtarjetas+='{"forma":"tarjetas","valor":"'+parseFloat($(this).parent().attr("data-value"))+'","tipotarjeta":"'+parseFloat($(this).parent().attr("data-id"))+'","lote":"'+$('#order_id').val()+'","numerocheque":"","banco":""}';
+					count++;
+					nformas++;
+				}
+					
+			});
+			
+			
+			var count=0;
+				if($('#valorcheque1').val()!=''&&parseFloat($('#valorcheque1').val())>0){
+					if(nformas>0&&count==0)
+						cadcheques+=',';
+					
+					if(count>0)
+						cadcheques+=',';
+					cadcheques+='{"forma":"cheques","valor":"'+$('#valorcheque1').val()+'","tipotarjeta":"","lote":"","numerocheque":"'+$('#chequeno1').val()+'","banco":""}';
+					count++;
+					nformas++;
+				}
+					
+			//alert(cadtarjetas);
+			
+			if(cadefectivo!='') json+=cadefectivo;
+			if(cadtarjetas!='') json+=cadtarjetas;
+			if(cadcheques!='') json+=cadcheques;
+			if($('#valorcxc').val()!=''&&parseFloat($('#valorcxc').val())>0){
+				if(nformas>0)
+					json+=',';
+				json+='{"forma":"cxc","valor":"'+$('#valorcxc').val()+'","tipotarjeta":"","lote":"","numerocheque":"","banco":"'+$('#justcxc').val()+'"}';
+			} 	
+			json+=']}]}';
+			
+			$('#json').html(json);
+			//alert("Ana");
+			receiveJson();	
+		//$('#pay').show();
+	}
 	
 function addDiscount(){
 	var discount = parseFloat($('#addDiscount').html());
@@ -2353,30 +2298,30 @@ function BuscarCliente(e){
 	var valor=$('#cedulaP').val();
 	if(e==13){
 		mostrarClientes();
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(
-		function (tx){
-			tx.executeSql('SELECT * FROM CLIENTES WHERE cedula=?;',[valor],
-			function(tx,res){
-				if(res.rows.length>0){
-					console.log(res);
-					var row=res.rows.item(0);
-					entro=true;
-					$('#idCliente').val(row.id);
-					$('#clientID').val(row.id);
-					$('#nombreP').val(row.nombre);
-					$('#clientefind').html(row.nombre);
-					$('#cedulaP').val(row.cedula);
-					$('#telefonoP').val(row.telefono);
-					$('#direccionP').val(row.direccion);
-					$('#emailP').val(row.email);
-					$('#payClientName').html(row.nombre);
-					$('.tipoClienteP').val(1);
-					if($('#insideShop').length > 0){
-						continueShopping(row.id);
-					}
-			}});	
-		},errorCB,successCB);
+		var apiURL='api.php';
+		$.post(apiURL,{
+			ced : valor,
+			fun : 'BuscarCliente'
+		}).done(function(response){
+			var res=JSON.parse(response);
+			if(res.rows.length>0){
+				console.log(res);
+				var row=res.rows.item(0);
+				entro=true;
+				$('#idCliente').val(row.id);
+				$('#clientID').val(row.id);
+				$('#nombreP').val(row.nombre);
+				$('#clientefind').html(row.nombre);
+				$('#cedulaP').val(row.cedula);
+				$('#telefonoP').val(row.telefono);
+				$('#direccionP').val(row.direccion);
+				$('#emailP').val(row.email);
+				$('#payClientName').html(row.nombre);
+				$('.tipoClienteP').val(1);
+				if($('#insideShop').length > 0){
+					continueShopping(row.id);
+				}
+		}});			
 	}
 }
 
@@ -2889,74 +2834,40 @@ function ClickNumeroM(numd){
 }
 
 function Ready(){
-	
-  /*$('#paymentModule').on("click",function(e){
-	  if ($(e.target).data('toggle') !== 'popover'&& $(e.target).parents('.popover.in').length === 0) {
-			if($('.popover.in').length>0){
-				//alert('se oculta');
-				//$('[data-toggle="popover"]').popover('hide');
-				var mipop=$('.popover.in')[0];
-				var id=$(mipop).attr('id');
-				var inp;
-				$('#pay input').each(function(){
-					if($(this).attr('aria-describedby')==id){
-						inp=$(this);
-					}
-				});
-				
-				if(inp!=null){
-					$(inp).change();
-					$(inp).popover('hide');
-				}
-				//ocultarTeclado();
-			}
-		}
-  });*/
-   $('body').css('min-height',$(window).height());
-  
-  $('#menuSubNew2').html("Total");
-  if($(window).width()<=900){
-	  $('#barraalternamovil').slideDown();
-	  $('#divmesas').css('min-height',$('body').height()-$('#barraalternamovil').height());
-	  $("#lapartedepagos").css("display","none");
-	  $('.navbar').css('display','none');
-  }else{
-	  $('.navbar').slideDown();
-	  $("#lapartedepagos").css("display","block");
-	  $('#divmesas').css('min-height',$('body').height()-$('.navbar').height());
-	  $('#barraalternamovil').css('display','none');
-  }
-  
-  //alert("hola");
- 
-  
-  $('#popupprecios').modal('hide');
-
-  $('.modal').on('shown.bs.modal',function(){
+	$('body').css('min-height',$(window).height());
+	$('#menuSubNew2').html("Total");
+	if($(window).width()<=900){
+		$('#barraalternamovil').slideDown();
+		$('#divmesas').css('min-height',$('body').height()-$('#barraalternamovil').height());
+		$("#lapartedepagos").css("display","none");
+		$('.navbar').css('display','none');
+	}
+	else{
+		$('.navbar').slideDown();
+		$("#lapartedepagos").css("display","block");
+		$('#divmesas').css('min-height',$('body').height()-$('.navbar').height());
+		$('#barraalternamovil').css('display','none');
+	}
+	$('#popupprecios').modal('hide');
+	$('.modal').on('shown.bs.modal',function(){
 		$('body').css('padding-right','0px');
 		$('body,html').css('overflow-y','hidden');
-  });
-			
-  $('.modal').on('hidden.bs.modal',function(){
+	});
+	$('.modal').on('hidden.bs.modal',function(){
 		$('body').css('padding-right','0px');
 		$('body,html').css('overflow-y','auto');
-  }); 
-  
-  if(localStorage.getItem("con_shop")=='true'){
-    /*$('#productos').fadeOut();
-    $('#productosnew').fadeIn();*/
-    document.getElementById('productos').style.display='none';
-    document.getElementById('productosnew').style.display='block';
-    document.getElementById('prodprofesionales').style.display='none';
-	$('#btn_descuento').attr("class","btn btn-default btn-lg");
-	$('#btn_pagar').attr("class","btn btn-default btn-block btn-lg");
-	$('#btn_pagar').show();
-	$('#spanaction').attr('class','trans_continue');
-	$('#btn_gpedidos').hide();
-  }else if(localStorage.getItem("con_mesas")=='true'){
-			/*if(sessionStorage.getItem("mesa_activa")==""){
-			$('#divmesas').show();
-  		}*/
+	});
+	if(localStorage.getItem("con_shop")=='true'){
+		document.getElementById('productos').style.display='none';
+		document.getElementById('productosnew').style.display='block';
+		document.getElementById('prodprofesionales').style.display='none';
+		$('#btn_descuento').attr("class","btn btn-default btn-lg");
+		$('#btn_pagar').attr("class","btn btn-default btn-block btn-lg");
+		$('#btn_pagar').show();
+		$('#spanaction').attr('class','trans_continue');
+		$('#btn_gpedidos').hide();
+	}
+	else if(localStorage.getItem("con_mesas")=='true'){
 		$('#menuSubNew1,#menuSubNew1').css('display','none');
 		$('#btn_descuento').attr("class","btn btn-default btn-lg");
 		$('#btn_pagar').attr("class","btn btn-success btn-lg btn-block");
@@ -2969,142 +2880,128 @@ function Ready(){
   		$('#btn_pagar').hide();
 		$('#spanaction').attr('class','trans_pay');
 		CargarMesas();
-
 		/**/
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx1){
-			tx1.executeSql("SELECT count(*) as cuantos from PRODUCTOS where estado=1 and id_local!=-1",[],function(tx1,results1){
-				console.log(results1);
-				if(results1.rows.length>0){
-					if(results1.rows.item(0)!=null){
-						if(results1.rows.item(0).cuantos>0)
-							$('#divmesas').show();
-							$('#menuSubNew1,#menuSubNew2').css('display','none');
-						
-						}
+		var apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'CuantosProductos'
+		}).done(function(response){
+			var results1=JSON.parse(response);		
+			console.log(results1);
+			if(results1.rows.length>0){
+				if(results1.rows.item(0)!=null){
+					if(results1.rows.item(0).cuantos>0)
+						$('#divmesas').show();
+						$('#menuSubNew1,#menuSubNew2').css('display','none');
+					
 					}
-			});
-		},errorCB,successCB);
-		
-  }else{
-    /*$('#productosnew').fadeOut();
-    $('#productos').fadeIn();*/
-    document.getElementById('productosnew').style.display='none';
-    document.getElementById('prodprofesionales').style.display='none';
-    document.getElementById('productos').style.display='block';
-	$('#btn_descuento').attr("class","btn btn-default btn-lg");
-	$('#btn_pagar').attr("class","btn btn-default btn-block btn-lg");
-	$('#btn_gpedidos').attr("class","btn btn-success trans_save btn-block");
-	$('#btn_pagar').show();
-	$('#btn_gpedidos').hide();
-	$('#spanaction').attr('class','trans_continue');
-
-  }
-	
+				}
+		});		
+	}
+	else{
+		/*$('#productosnew').fadeOut();
+		$('#productos').fadeIn();*/
+		document.getElementById('productosnew').style.display='none';
+		document.getElementById('prodprofesionales').style.display='none';
+		document.getElementById('productos').style.display='block';
+		$('#btn_descuento').attr("class","btn btn-default btn-lg");
+		$('#btn_pagar').attr("class","btn btn-default btn-block btn-lg");
+		$('#btn_gpedidos').attr("class","btn btn-success trans_save btn-block");
+		$('#btn_pagar').show();
+		$('#btn_gpedidos').hide();
+		$('#spanaction').attr('class','trans_continue');
+	}	
 	if(localStorage.getItem("propina")=='false'){
 		$('#invoiceprop').css("display","none");
 		$('#labelprop').css("display","none");
 	}
-	
-
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function(tx){
-		tx.executeSql('SELECT * FROM IMPUESTOS',[],function(tx,results){
-			for(var r=0;r<results.rows.length;r++){
-				var itemi=results.rows.item(r);
-				if($.trim(itemi.nombre.toLowerCase())=='iva')
-					$('#idiva').html(itemi.timespan);
-				if($('#impuesto-'+itemi.timespan).length==0){
-				    //alert('<input id="impuesto-'+itemi.timespan+'" type="text" value="'+itemi.timespan+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100)+'">');
-					$('#taxes').append('<input id="impuesto-'+itemi.timespan+'" type="text" value="'+itemi.timespan+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100)+'">');
-				}else{
-					$("impuesto-"+itemi.timespan).val(itemi.timespan+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100))
-				}
+	apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'SacaImpuestos'
+	}).done(function(response){
+		var results=JSON.parse(response);
+		for(var r=0;r<results.rows.length;r++){
+			var itemi=results.rows.item(r);
+			if($.trim(itemi.nombre.toLowerCase())=='iva')
+				$('#idiva').html(itemi.timespan);
+			if($('#impuesto-'+itemi.timespan).length==0){
+				//alert('<input id="impuesto-'+itemi.timespan+'" type="text" value="'+itemi.timespan+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100)+'">');
+				$('#taxes').append('<input id="impuesto-'+itemi.timespan+'" type="text" value="'+itemi.timespan+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100)+'">');
 			}
-		});
-		
-
-		tx.executeSql('SELECT printercom,printer FROM CONFIG where id=1',[],
-			function(tx,res){
-				if(res.rows.length>0){
-					var miprint=res.rows.item(0);
-					localStorage.setItem("print",miprint.printer);
-					localStorage.setItem("printc",miprint.printercom);
-					
-				}
-		});
-	},errorCB,successCB);
-	
+			else{
+				$("impuesto-"+itemi.timespan).val(itemi.timespan+"|"+itemi.nombre+"|"+parseFloat((itemi.porcentaje)/100))
+			}
+		}
+	});
+	apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'SacarImpresora'
+	}).done(function(response){
+		var res=JSON.parse(response);
+		if(res.rows.length>0){
+			var miprint=res.rows.item(0);
+			localStorage.setItem("print",miprint.printer);
+			localStorage.setItem("printc",miprint.printercom);
+			
+		}
+	});	
 	//idioma
 	var linklang="es";
-		if(localStorage.getItem("idioma")==2)
-			linklang="en";
-		
-		
-
-	
+	if(localStorage.getItem("idioma")==2)
+		linklang="en";	
 	var xmlidioma=$.get("lang/"+linklang+".html",function(datos){
-			d=JSON.parse(datos);
-			var itemestructura=d.estructura;
-			//console.log(itemestructura);
-			var itemmen=itemestructura.menu;
-			var itemplaceholder=itemestructura.placeholder;
-			var itemtitles=itemestructura.titles;
-			var itembuttons=itemestructura.botones;
-			var itemlabels=itemestructura.labels;
-			var todostitles=itemtitles.item;
-			var todosbuttons=itembuttons.item;
-			var todoslabels=itemlabels.item;
-			var todositems=itemmen.item;	
-			var todosplaceholder=itemplaceholder.item;
-			
-			for(var k=0;k<todosplaceholder.length;k++){
-				var miitemname=todosplaceholder[k].name;
-				//alert(miitemname);
-				$('.'+miitemname).attr("placeholder",todosplaceholder[k].text);
-			}
-			
-			for(var k=0;k<todositems.length;k++){
-					var miitem=todositems[k];
-					$('#lab_menu_'+(k+1)).html(miitem);
-			}
-					
-				for(var k=0;k<todostitles.length;k++){
-					var miitemname=todostitles[k].name;
-					//alert(miitemname);
-					$('.'+miitemname).html(todostitles[k].text);
-				}
-				
-				for(var k=0;k<todosbuttons.length;k++){
-					var miitemname=todosbuttons[k].name;
-					//alert(miitemname);
-					$('.'+miitemname).html(todosbuttons[k].text);
-				}
-				
-				for(var k=0;k<todoslabels.length;k++){
-					//console.log(todoslabels[k].name+"/"+todoslabels[k].name);
-					var miitemname=todoslabels[k].name;
-					$('#'+miitemname).html(todoslabels[k].text);
-				}
-				
-		});
-	
-	//idioma
-	
+		d=JSON.parse(datos);
+		var itemestructura=d.estructura;
+		//console.log(itemestructura);
+		var itemmen=itemestructura.menu;
+		var itemplaceholder=itemestructura.placeholder;
+		var itemtitles=itemestructura.titles;
+		var itembuttons=itemestructura.botones;
+		var itemlabels=itemestructura.labels;
+		var todostitles=itemtitles.item;
+		var todosbuttons=itembuttons.item;
+		var todoslabels=itemlabels.item;
+		var todositems=itemmen.item;	
+		var todosplaceholder=itemplaceholder.item;		
+		for(var k=0;k<todosplaceholder.length;k++){
+			var miitemname=todosplaceholder[k].name;
+			//alert(miitemname);
+			$('.'+miitemname).attr("placeholder",todosplaceholder[k].text);
+		}		
+		for(var k=0;k<todositems.length;k++){
+			var miitem=todositems[k];
+			$('#lab_menu_'+(k+1)).html(miitem);
+		}				
+		for(var k=0;k<todostitles.length;k++){
+			var miitemname=todostitles[k].name;
+			//alert(miitemname);
+			$('.'+miitemname).html(todostitles[k].text);
+		}		
+		for(var k=0;k<todosbuttons.length;k++){
+			var miitemname=todosbuttons[k].name;
+			//alert(miitemname);
+			$('.'+miitemname).html(todosbuttons[k].text);
+		}		
+		for(var k=0;k<todoslabels.length;k++){
+			//console.log(todoslabels[k].name+"/"+todoslabels[k].name);
+			var miitemname=todoslabels[k].name;
+			$('#'+miitemname).html(todoslabels[k].text);
+		}			
+	});	
+	//idioma	
 	if($(window).width()>900){
-			Init31();
-		}
-		else{
-			Init3();
-		}
+		Init31();
+	}
+	else{
+		Init3();
+	}
     botonesCalculadora();
 	ColocarFormasPago();
 	if(localStorage.getItem("diseno")==0||localStorage.getItem("diseno")==null||localStorage.getItem("diseno")==""){
 		formarCategorias();
-	}else{
-		formarCategoriasMenu();
 	}
-		
+	else{
+		formarCategoriasMenu();
+	}		
     $('.numero').on('click',function(){ClickNumero($(this));});
 	$('.numeroc').on('click',function(){ClickNumeroC($(this));});
 	$('.numerod').on('click',function(){ClickNumeroD($(this));});
@@ -3113,217 +3010,203 @@ function Ready(){
 	vertarjetas();
 }
 
-	function saberProducto(id , currentCantidad){
-			
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-				tx.executeSql('SELECT COUNT(codigo) as cuantos FROM PRODUCTOS WHERE codigo='+id+';',[],function(tx,res){
-					var existen=res.rows.item(0).cuantos;
-					if(existen==0){
-						alert('no existe ese producto');
-						$('.cantidad').html('0.00');
-					}else{
-						$('.cantidad').html('0.00');
-						//alert('hola')
-						tx.executeSql('SELECT * FROM PRODUCTOS WHERE codigo='+id+';',[],function(tx,result){
-							//alert(result);
-							for (var i=0; i <= result.rows.length-1; i++){
-								var row = result.rows.item(i);
-								var productoNombre = row.formulado;
-								var productoCantidad = 1;
-								var cargaiva = row.cargaiva;
-								var productoImpuestosIndexes = cargaiva;
-								if(cargaiva == 1){
-									var productoImpuestos = 0.12;
-								}
-								else{
-									var productoImpuestos = 0;
-								}
-								var productoPrecio = row.precio;
-								var total = ((parseFloat(productoPrecio) * parseFloat(productoImpuestos))+parseFloat(productoPrecio));
-								console.log(productoPrecio);
-								var productoID = row.id_local;
-								//console.log(formulado);
-								var taxTotal = 1;
-								var sumTotal;
-								 $('.cantidad').html('0.00')
-									$("#createHereCustomProduct").html('\
-										<div id="elProductoCustom" style="display:none;background-color:null; border:1px solid null" id="-1" data-precio="'+total+'" data-impuestos="" data-impuestosindexes="" data-id_local="'+row.id_local+'"  data-formulado="'+productoNombre+'" onclick="agregarCompra(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_-1">'+productoNombre+'</div>\
-										<script>$("#elProductoCustom").click();</script>\
-									');
-									//currentCantidad = 0;
-							}
-						},errorCB,successCB);
-
-					}
-				},errorCB,successCB);
-			});
-	}
-
-	function BuscarSugerencias2(filtro,e){
-
-		var buscar = $('#inputbusc').val();
-		//alert(buscar);
-
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-			tx.executeSql("SELECT * FROM PRODUCTOS WHERE formulado like '%"+buscar+"%' and productofinal=1 and estado=1",[],function(tx,results){
-				//console.log(results);
-				if(results.rows.length>0){
-					var res1=new Object();
-					for(var n=0;n<results.rows.length;n++){
-						var itemr=results.rows.item(n);
-						//console.log(itemr);
-						var productodata=new Object();
-						productodata.id_local=itemr.id_local;
-						productodata.formulado=itemr.formulado;
-						productodata.codigo=itemr.codigo;
-						productodata.precio=itemr.precio;
-						productodata.id=itemr.timespan;
-						productodata.categoria=itemr.categoriaid;
-                        var impuestos='';
-    					var impuestosid='';
-    					if(itemr.tieneimpuestos=="true"){
-    						impuestos=$('#impuestosactivos').html();
-    						impuestosid=$('#impuestosactivosid').html();
-    					}
-
-                        productodata.formulado_impuestos=impuestos;
-  						productodata.formulado_tax_id=impuestosid;
-                  		res1[n]=productodata;
-
-					}
-					/*var productodata=new Array();
-					productodata.formulado = results.rows.item(0);
-					var id = row.id*/
-                    $('#jsonproductos').html(JSON.stringify(res1));
-					//console.log(res1);
-
+function saberProducto(id , currentCantidad){
+	var apiURL='api.php';
+	$.post(apiURL,{
+		codigo : id,
+		fun : 'saberProducto'
+	}).done(function(response){
+		var resul= response.split('@@@');
+		var res=JSON.parse(resul[0]);
+		var result=JSON.parse(resul[1]);
+		var existen=res.rows.item(0).cuantos;
+		if(existen==0){
+			alert('no existe ese producto');
+			$('.cantidad').html('0.00');
+		}
+		else{
+			$('.cantidad').html('0.00');
+			for (var i=0; i <= result.rows.length-1; i++){
+				var row = result.rows.item(i);
+				var productoNombre = row.formulado;
+				var productoCantidad = 1;
+				var cargaiva = row.cargaiva;
+				var productoImpuestosIndexes = cargaiva;
+				if(cargaiva == 1){
+					var productoImpuestos = 0.12;
 				}
-			},errorCB,successCB);
-		});
-			if(filtro!=''){
-				$('#resultBuscador').fadeIn('slow');
-				$('#tableresults').html('');
-				var jsonf = $('#jsonproductos').html().toString();
-				//console.log(jsonf);
-				var mijson = JSON.parse(jsonf);
-				//console.log(mijson);
-				for(var j in mijson){
-					var item = mijson[j];
-					var suger='';
-					var lineaextra='';
-					if(item.formulado.toLowerCase().indexOf(filtro.toLowerCase())>-1){
-						suger=item.formulado;
-						lineaextra=item.codigo;
-					}
-					else if(item.codigo.toLowerCase().indexOf(filtro.toLowerCase())>-1){
-						 suger=item.codigo;
-						 lineaextra=item.formulado;
-					}
-								
-					if(suger!='')
-					{
-						if(document.getElementById('tableresults').rows.length<4){
-						$('#tableresults').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"' onclick='VerificarAgregados(this,2)'>"+(suger+"-"+lineaextra).toUpperCase()+"</div></td></tr>");
+				else{
+					var productoImpuestos = 0;
+				}
+				var productoPrecio = row.precio;
+				var total = ((parseFloat(productoPrecio) * parseFloat(productoImpuestos))+parseFloat(productoPrecio));
+				console.log(productoPrecio);
+				var productoID = row.id_local;
+				//console.log(formulado);
+				var taxTotal = 1;
+				var sumTotal;
+				$('.cantidad').html('0.00')
+				$("#createHereCustomProduct").html('\
+				<div id="elProductoCustom" style="display:none;background-color:null; border:1px solid null" id="-1" data-precio="'+total+'" data-impuestos="" data-impuestosindexes="" data-id_local="'+row.id_local+'"  data-formulado="'+productoNombre+'" onclick="agregarCompra(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_-1">'+productoNombre+'</div>\
+				<script>$("#elProductoCustom").click();</script>\
+				');
+			}
+		}
+	});	
+}
+
+function BuscarSugerencias2(filtro,e){
+	var buscar = $('#inputbusc').val();
+	var apiURL='api.php';
+	$.post(apiURL,{
+		nombre : buscar,
+		fun : 'BuscarSugerencias2'
+	}).done(function(response){
+		var results=JSON.parse(response);
+		//console.log(results);
+		if(results.rows.length>0){
+			var res1=new Object();
+			for(var n=0;n<results.rows.length;n++){
+				var itemr=results.rows.item(n);
+				//console.log(itemr);
+				var productodata=new Object();
+				productodata.id_local=itemr.id_local;
+				productodata.formulado=itemr.formulado;
+				productodata.codigo=itemr.codigo;
+				productodata.precio=itemr.precio;
+				productodata.id=itemr.timespan;
+				productodata.categoria=itemr.categoriaid;
+				var impuestos='';
+				var impuestosid='';
+				if(itemr.tieneimpuestos=="true"){
+					impuestos=$('#impuestosactivos').html();
+					impuestosid=$('#impuestosactivosid').html();
+				}
+				productodata.formulado_impuestos=impuestos;
+				productodata.formulado_tax_id=impuestosid;
+				res1[n]=productodata;
+			}
+			/*var productodata=new Array();
+			productodata.formulado = results.rows.item(0);
+			var id = row.id*/
+			$('#jsonproductos').html(JSON.stringify(res1));
+			//console.log(res1);
+		}			
+	});
+	if(filtro!=''){
+		$('#resultBuscador').fadeIn('slow');
+		$('#tableresults').html('');
+		var jsonf = $('#jsonproductos').html().toString();
+		//console.log(jsonf);
+		var mijson = JSON.parse(jsonf);
+		//console.log(mijson);
+		for(var j in mijson){
+			var item = mijson[j];
+			var suger='';
+			var lineaextra='';
+			if(item.formulado.toLowerCase().indexOf(filtro.toLowerCase())>-1){
+				suger=item.formulado;
+				lineaextra=item.codigo;
+			}
+			else if(item.codigo.toLowerCase().indexOf(filtro.toLowerCase())>-1){
+				 suger=item.codigo;
+				 lineaextra=item.formulado;
+			}						
+			if(suger!='')
+			{
+				if(document.getElementById('tableresults').rows.length<4){
+				$('#tableresults').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"' onclick='VerificarAgregados(this,2)'>"+(suger+"-"+lineaextra).toUpperCase()+"</div></td></tr>");
+				}
+			}
+		}
+		/*if(document.getElementById('tableresults').rows[0]!=null){
+			AclararSugerencia(document.getElementById('tableresults').rows[0].cells[0],true);
+		}*/
+	}
+		/*}*/
+}
+function BuscarSugerencias2new(filtro,e){
+	var buscar = $('#inputbuscnew').val();
+	var apiURL='api.php';
+	$.post(apiURL,{
+		nombre : buscar,
+		fun : 'BuscarSugerencias2new'
+	}).done(function(response){
+		var results=JSON.parse(response);
+		//alert(results.rows.length);
+		if(results.rows.length>0){
+			var res1=new Object();
+			for(var n=0;n<results.rows.length;n++){
+				var itemr=results.rows.item(n);
+				//console.log(itemr);
+				var productodata=new Object();
+				productodata.id_local=itemr.id_local;
+				productodata.formulado=itemr.formulado;
+				productodata.codigo=itemr.codigo;
+				productodata.precio=itemr.precio;
+				productodata.id=itemr.timespan;
+				productodata.categoria=itemr.categoriaid;
+				var impuestos='';
+				var impuestosid='';
+				if(itemr.tieneimpuestos=="true"){
+					impuestos=$('#impuestosactivos').html();
+					impuestosid=$('#impuestosactivosid').html();
+				}
+
+				productodata.formulado_impuestos=impuestos;
+				productodata.formulado_tax_id=impuestosid;
+				res1[n]=productodata;
+			}
+			/*var productodata=new Array();
+			productodata.formulado = results.rows.item(0);
+			var id = row.id*/
+			$('#jsonproductos').html(JSON.stringify(res1));
+			//console.log(res1);
+		}		
+	});
+	if(filtro!=''){
+		$('#resultBuscadornew').fadeIn('slow');
+		$('#tableresultsnew').html('');
+		var jsonf = $('#jsonproductos').html().toString();
+		console.log(jsonf);
+		if(jsonf != ''){
+			var mijson = JSON.parse(jsonf);
+			console.log(mijson);
+			var contaaux = 0;
+			for(var j in mijson){
+				var item = mijson[j];
+				var suger='';
+				if(item.formulado.toLowerCase().indexOf(filtro.toLowerCase())>-1)
+					suger=item.formulado;
+				else if(item.codigo.toLowerCase().indexOf(filtro.toLowerCase())>-1)
+					suger=item.codigo;
+				if(suger!=''){
+					contaaux++;
+					if(contaaux > 1){
+						if(document.getElementById('tableresultsnew').rows.length<4){
+							$('#tableresultsnew').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"' onclick='VerificarAgregadosnew(this,2)'>"+suger.toUpperCase()+"</div></td></tr>");
 						}
 					}
-
-				}
-				/*if(document.getElementById('tableresults').rows[0]!=null){
-					AclararSugerencia(document.getElementById('tableresults').rows[0].cells[0],true);
-				}*/
-			}
-		/*}*/
-	}
-
-function BuscarSugerencias2new(filtro,e){
-
-		var buscar = $('#inputbuscnew').val();
-		//alert(buscar);
-
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-			tx.executeSql("SELECT * FROM PRODUCTOS WHERE (formulado like '%"+buscar+"%' or codigo like '%"+buscar+"%') and productofinal=1 and estado=1",[],function(tx,results){
-				//alert(results.rows.length);
-				if(results.rows.length>0){
-					var res1=new Object();
-					for(var n=0;n<results.rows.length;n++){
-						var itemr=results.rows.item(n);
-						//console.log(itemr);
-						var productodata=new Object();
-						productodata.id_local=itemr.id_local;
-						productodata.formulado=itemr.formulado;
-						productodata.codigo=itemr.codigo;
-						productodata.precio=itemr.precio;
-						productodata.id=itemr.timespan;
-						productodata.categoria=itemr.categoriaid;
-						var impuestos='';
-    					var impuestosid='';
-    					if(itemr.tieneimpuestos=="true"){
-    						impuestos=$('#impuestosactivos').html();
-    						impuestosid=$('#impuestosactivosid').html();
-    					}
-
-                        productodata.formulado_impuestos=impuestos;
-  						productodata.formulado_tax_id=impuestosid;
-						res1[n]=productodata;
+					else{
+						if(buscar == suger){
+							//alert(buscar+'**'+suger);
+							if(document.getElementById('tableresultsnew').rows.length<4){
+								$('#tableresultsnew').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"'>"+suger.toUpperCase()+"</div></td></tr>");
+							}
+						}
+						else{
+							if(document.getElementById('tableresultsnew').rows.length<4){
+								$('#tableresultsnew').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"' onclick='VerificarAgregadosnew(this,2)'>"+suger.toUpperCase()+"</div></td></tr>");
+							}
+						}
 					}
-					/*var productodata=new Array();
-					productodata.formulado = results.rows.item(0);
-					var id = row.id*/
-					$('#jsonproductos').html(JSON.stringify(res1));
-					//console.log(res1);
-
 				}
-			},errorCB,successCB);
-		});
-			if(filtro!=''){
-				$('#resultBuscadornew').fadeIn('slow');
-				$('#tableresultsnew').html('');
-				var jsonf = $('#jsonproductos').html().toString();
-				console.log(jsonf);
-                if(jsonf != ''){
-    				var mijson = JSON.parse(jsonf);
-    				console.log(mijson);
-                    var contaaux = 0;
-    				for(var j in mijson){
-    					var item = mijson[j];
-    					var suger='';
-    					if(item.formulado.toLowerCase().indexOf(filtro.toLowerCase())>-1)
-    						suger=item.formulado;
-    					else if(item.codigo.toLowerCase().indexOf(filtro.toLowerCase())>-1)
-    						suger=item.codigo;
-
-    					if(suger!=''){
-    					  contaaux++;
-    					  if(contaaux > 1){
-    						if(document.getElementById('tableresultsnew').rows.length<4){
-    						    $('#tableresultsnew').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"' onclick='VerificarAgregadosnew(this,2)'>"+suger.toUpperCase()+"</div></td></tr>");
-    						}
-                          }else{
-                            if(buscar == suger){
-                              //alert(buscar+'**'+suger);
-                                if(document.getElementById('tableresultsnew').rows.length<4){
-        						    $('#tableresultsnew').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"'>"+suger.toUpperCase()+"</div></td></tr>");
-        						}
-                            }else{
-                                if(document.getElementById('tableresultsnew').rows.length<4){
-        						    $('#tableresultsnew').append("<tr id='busc_"+ item.id +"' data-id_local = '"+item.id_local+"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"'><td class='sugerencia' enfocada='0'><div id='busc_"+ item.id +"' data-precio='"+ item.precio +"' data-impuestos='"+ item.formulado_impuestos +"' data-impuestosindexes='"+ item.formulado_tax_id +"' data-formulado='"+ item.formulado+"' data-id_local = '"+item.id_local+"' onclick='VerificarAgregadosnew(this,2)'>"+suger.toUpperCase()+"</div></td></tr>");
-        						}
-                            }
-                          }
-
-    					}
-
-    				}
-                }
 			}
+		}
 	}
-	
+}
 
-function subirefectivo(boton){
-	
+function subirefectivo(boton){	
 	$('#paymentEfectivo').val('0.00');
 	var valor=$(boton).attr('data-value');
 	//console.log(valor);
@@ -3570,13 +3453,10 @@ function ResetPagos(cual){
 
 function VerificarNumero(valor){
 	//alert(valor);
-
     if(localStorage.getItem("con_localhost") == 'true'){
-    var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-    db.transaction(function (tx){
-     var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-     var numfact = $('#invoiceNr').val();
-     $.post(apiURL,{
+		var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+		var numfact = $('#invoiceNr').val();
+		$.post(apiURL,{
 		id_emp : localStorage.getItem("empresa"),
 		action : 'VerificarNumeroFactura',
 		id_barra : localStorage.getItem("idbarra"),
@@ -3633,75 +3513,67 @@ function VerificarNumero(valor){
 			updateOnlineStatus("OFFLINE");
 			setTimeout(function(){SincronizadorNormal()},180000);
 		});
-     });
-    }else{
-    //********************************inicio normal***************************************
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	var existe=false;
-	var serie='001';
-	var establecimiento='001';
-	db.transaction(function (tx){
-			tx.executeSql('SELECT id from FACTURAS where CAST(aux as integer) = CAST(? as integer)',[valor],
-			function(tx,res){
-				if(res.rows.length>0){
-					console.log(res);
-					showalert("Ya existe una factura con ese número.");
-					db.transaction(function (tx2){
-						tx2.executeSql('SELECT MAX(CAST(aux as integer))+1 as max FROM FACTURAS',[],
-						function(tx2,res2){
-							var ceros='';
-							var coun=0;
-							var nfact='1';
-							if(res2.rows.length>0){
-								coun=res2.rows.item(0).max.toString().length;
-								nfact=res2.rows.item(0).max.toString();
-							}
-							
-							var ceroscount=0;
-							while(ceroscount<(9-coun)){
-								ceros+='0';
-								ceroscount++;
-							}
-              	console.log(ceros);
-							$('#invoiceNr').val(ceros+nfact);
-							$('#invoiceNr').effect('highlight',{},'normal');
-						});
-						
-						tx2.executeSql('SELECT serie,establecimiento from config where id=1',[],function(tx2,results){
-							var miserie=results.rows.item(0).serie;
-							var miestablecimiento=results.rows.item(0).establecimiento;
-							var invoicenr=$('#invoiceNr').val();
-							$('#invoiceNrComplete').val(miestablecimiento+'-'+miserie+'-'+invoicenr);
-						});
-					});
-				}else{
-//console.log('admitido');
-					var invoicenr=$('#invoiceNr').val();
-					if(parseInt(localStorage.getItem('ultimafact'))>valor){
-						invoicenr=parseInt(parseInt(localStorage.getItem('ultimafact')))+1;
-					}
-					$('#invoiceNr').effect('highlight',{},'normal');
-					db.transaction(function (tx2){
-					tx2.executeSql('SELECT serie,establecimiento from config where id=1',[],function(tx2,results){
-							var miserie=results.rows.item(0).serie;
-							var miestablecimiento=results.rows.item(0).establecimiento;
-							
-							var ceros='';
-							var coun=invoicenr.toString().length;
-							var ceroscount=0;
-							while(ceroscount<(9-coun)){
-								ceros+='0';
-								ceroscount++;
-							}
-							console.log(ceros);
-							invoicenr=ceros.toString()+invoicenr.toString();
-							$('#invoiceNr').val(invoicenr);
-							$('#invoiceNrComplete').val(miestablecimiento+'-'+miserie+'-'+invoicenr);
-						});
-					});
+    }
+	else{
+		var existe=false;
+		var serie='001';
+		var establecimiento='001';
+		apiURL='api.php';
+		$.post(apiURL,{
+			valor : valor,
+			fun : 'VerificarNumero'
+		}).done(function(response){
+			var resulta=response.split('@@@');
+			var res = JSON.parse(resulta[0]);
+			var res2 = JSON.parse(resulta[1]);
+			var results=JSON.parse(resulta[2]);
+    //********************************inicio normal***************************************	
+			if(res.rows.length>0){
+				console.log(res);
+				showalert("Ya existe una factura con ese número.");					
+				var ceros='';
+				var coun=0;
+				var nfact='1';
+				if(res2.rows.length>0){
+					coun=res2.rows.item(0).max.toString().length;
+					nfact=res2.rows.item(0).max.toString();
+				}							
+				var ceroscount=0;
+				while(ceroscount<(9-coun)){
+					ceros+='0';
+					ceroscount++;
 				}
-			});
-	},errorCB,successCB);
+              	console.log(ceros);
+				$('#invoiceNr').val(ceros+nfact);
+				$('#invoiceNr').effect('highlight',{},'normal')															
+				var miserie=results.rows.item(0).serie;
+				var miestablecimiento=results.rows.item(0).establecimiento;
+				var invoicenr=$('#invoiceNr').val();
+				$('#invoiceNrComplete').val(miestablecimiento+'-'+miserie+'-'+invoicenr);
+						
+			}
+			else{
+				//console.log('admitido');
+				var invoicenr=$('#invoiceNr').val();
+				if(parseInt(localStorage.getItem('ultimafact'))>valor){
+					invoicenr=parseInt(parseInt(localStorage.getItem('ultimafact')))+1;
+				}
+				$('#invoiceNr').effect('highlight',{},'normal');					
+				var miserie=results.rows.item(0).serie;
+				var miestablecimiento=results.rows.item(0).establecimiento;				
+				var ceros='';
+				var coun=invoicenr.toString().length;
+				var ceroscount=0;
+				while(ceroscount<(9-coun)){
+					ceros+='0';
+					ceroscount++;
+				}
+				console.log(ceros);
+				invoicenr=ceros.toString()+invoicenr.toString();
+				$('#invoiceNr').val(invoicenr);
+				$('#invoiceNrComplete').val(miestablecimiento+'-'+miserie+'-'+invoicenr);					
+			}
+		});
     //************************************fin normal**************************************
     }
 }
@@ -3710,29 +3582,29 @@ function formarCategoriasMenu(){
 	var selected = '';
 	var categoriaSelected = 0;
 	var objcategoria='';
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function (tx){
-		tx.executeSql('SELECT * from MENU_CATEGORIAS where activo="true" order by orden',[],
-		function(tx,res){
-			if(res.rows.length>0){
-				for(m=0;m<res.rows.length;m++){
-					selected = 'categoria';
-					var row=res.rows.item(m);
-					if(m==0){
-						selected = 'categoriaActiva';
-						categoriaSelected = row.timespan;
-					}
-					console.log("idcmenu:"+row.timespan);
-					$('#listacat').append('<li id="categoria_'+ row.timespan +'" class="esCategoria '+ selected +'" onclick="ActivarCategoriaMenu(this,'+"'"+ row.timespan +"'"+'); PlaySound(5);"><a>'+ (row.nombre).substring(0,20) +'</a></li>');
+	var apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'formarCategoriasMenu'
+	}).done(function(response){
+		var res = JSON.parse(response);	
+		if(res.rows.length>0){
+			for(m=0;m<res.rows.length;m++){
+				selected = 'categoria';
+				var row=res.rows.item(m);
+				if(m==0){
+					selected = 'categoriaActiva';
+					categoriaSelected = row.timespan;
 				}
-				objcategoria=$('#categoria_'+categoriaSelected)[0];
-				console.log(objcategoria);
-				ActivarCategoriaMenu(objcategoria,categoriaSelected);
-			}else{
-				$("#menuproductos").html("<b>No se ha diseñado el menú todavía.</b>");
+				console.log("idcmenu:"+row.timespan);
+				$('#listacat').append('<li id="categoria_'+ row.timespan +'" class="esCategoria '+ selected +'" onclick="ActivarCategoriaMenu(this,'+"'"+ row.timespan +"'"+'); PlaySound(5);"><a>'+ (row.nombre).substring(0,20) +'</a></li>');
 			}
-		});
-	},errorCB,successCB);
+			objcategoria=$('#categoria_'+categoriaSelected)[0];
+			console.log(objcategoria);
+			ActivarCategoriaMenu(objcategoria,categoriaSelected);
+		}else{
+			$("#menuproductos").html("<b>No se ha diseñado el menú todavía.</b>");
+		}
+	});	
 }
 
 function ActivarCategoriaMenu(cual,categoria){
@@ -3753,97 +3625,102 @@ function ActivarCategoriaMenu(cual,categoria){
 			miscateg[k].className="categoria esCategoria ";
 	}
 	cual.className="categoriaActiva esCategoria active";
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(
-	function (tx){
-		
-		/*impuestos activos */
-		tx.executeSql("SELECT * FROM IMPUESTOS WHERE activo=? group by upper(nombre) order by id",["true"],function(tx,results3){
-							console.log(results3);
-							var impuestos='';
-							var impuestosid='';
-							if(results3.rows.length>0){
-								console.log("encuentra impuestos");
-								var cuan=0;
-								for(var r=0;r<results3.rows.length;r++){
-									var imp=results3.rows.item(r);
-										if(cuan>0){
-											impuestos+="@";
-											impuestosid+="@";
-										}
-									impuestos+=parseFloat(imp.porcentaje)/100;
-									impuestosid+=imp.timespan;
-									cuan++;
-								}
-								console.log(impuestos+'/'+impuestosid);
-								$('#impuestosactivos').html(impuestos);
-								$('#impuestosactivosid').html(impuestosid);
-								}
-		});
-		/**/
-		
-		tx.executeSql("SELECT MAX(fila) as max from menu where activo='true'",[],function(tx,res1){
-			var maxfilas=0;
-			if(res1.rows.length>0){
-				if(res1.rows.item(0).max!=null&&res1.rows.item(0).max>0){
-					maxfilas=res1.rows.item(0).max;
-					for(var r=1;r<=maxfilas;r++){
-						
-                        tx.executeSql('SELECT p.*, m.idcatmenu as idc,m.timespan as mtimespan,m.columna as col,m.fila as fila FROM PRODUCTOS p, MENU m WHERE m.idproducto=p.timespan and m.idcatmenu="'+categoria+'" and activo="true" and fila='+r+' ORDER BY m.columna asc',[],function(tx,res){
-							console.log(res);
-							if(res.rows.length>0){
-								//alert('prods');
-								var t=1;
-                            var vectorpos=['<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>','<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>','<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>'];
-							var todos=res.rows.length;
-								for(m=0;m<res.rows.length;m++){
-									var row=res.rows.item(m);
-									if(isNaN(row.precio)){row.precio = 0;}
-									var impuestos='';
-									var impuestosid='';
-									if(row.tieneimpuestos=="true"){
-										impuestos=$('#impuestosactivos').html();
-										impuestosid=$('#impuestosactivosid').html();
-									}
-									var lineHeight='';
-									if(row.formulado.length>12)
-										lineHeight='line-height:18px;';
-									
-                                    if(localStorage.getItem("con_localhost") == 'true'){
-                                      vectorpos[row.col-1]='<div style="background-color:'+row.color+'; border:1px solid '+row.color+'; '+lineHeight+' text-transform:capitalize; " id="'+ row.mtimespan+'" data-precio="'+ row.precio +'" data-impuestos="'+impuestos +'" data-impuestosindexes="'+impuestosid +'" data-id_local = "'+row.id_local+'" data-formulado="'+ row.formulado +'" onclick="VerificarAgregados(this); return false;" ontap="VerificarAgregados(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_'+row.idc +'">'+ row.formulado +'</div>';
-                                    }else{
-                                      vectorpos[row.col-1]='<div style="background-color:'+row.color+'; border:1px solid '+row.color+'; '+lineHeight+' text-transform:capitalize; " id="'+ row.timespan+'" data-precio="'+ row.precio +'" data-impuestos="'+impuestos +'" data-impuestosindexes="'+impuestosid +'" data-id_local = "'+row.id_local+'" data-formulado="'+ row.formulado +'" onclick="VerificarAgregados(this); return false;" ontap="VerificarAgregados(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_'+row.idc +'">'+ row.formulado +'</div>';
-                                    }
-									
-								}
-								for(var s=0;s<=vectorpos.length;s++){
-									$('#listaProductos').append(vectorpos[s]);
-								}
-								//$('.producto').hide();
-								//init2(categoria);
-							}else{
-								var agregar='<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div><div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div><div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>';
-								$('#listaProductos').append(agregar);
-							}
-							if($(window).width()>900){
-									Init31();
-								}
-								else{
-									Init3();
-								}
-
-							//$('#listaProductos').fadeIn();
-							$('#listaProductos').css("display","");
-							//para mostrar productos por pagina
-							showProducts(categoria);
-						});	
+	var apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'SacaImpuestos'
+	}).done(function(response){
+		var results3 = JSON.parse(response);	
+		console.log(results3);
+		var impuestos='';
+		var impuestosid='';
+		if(results3.rows.length>0){
+			console.log("encuentra impuestos");
+			var cuan=0;
+			for(var r=0;r<results3.rows.length;r++){
+				var imp=results3.rows.item(r);
+					if(cuan>0){
+						impuestos+="@";
+						impuestosid+="@";
 					}
-				}
+				impuestos+=parseFloat(imp.porcentaje)/100;
+				impuestosid+=imp.timespan;
+				cuan++;
 			}
-		});
-	},errorCB,successCB);
-	$('.producto').hide();
-	
+			console.log(impuestos+'/'+impuestosid);
+			$('#impuestosactivos').html(impuestos);
+			$('#impuestosactivosid').html(impuestosid);
+		}
+	});
+	apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'MaxMenu'
+	}).done(function(response){
+		var res1 = JSON.parse(response);
+		var maxfilas=0;
+		if(res1.rows.length>0){
+			if(res1.rows.item(0).max!=null&&res1.rows.item(0).max>0){
+				maxfilas=res1.rows.item(0).max;
+				for(var r=1;r<=maxfilas;r++){
+					apiURL='api.php';
+					$.post(apiURL,{
+						categoria : categoria,
+						fila : r,
+						fun : 'ProductosenCategoria'
+					}).done(function(response){
+						var res = JSON.parse(response);
+						console.log(res);
+						if(res.rows.length>0){
+							//alert('prods');
+							var t=1;
+							var vectorpos=['<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>','<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>','<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>'];
+							var todos=res.rows.length;
+							for(m=0;m<res.rows.length;m++){
+								var row=res.rows.item(m);
+								if(isNaN(row.precio)){row.precio = 0;}
+								var impuestos='';
+								var impuestosid='';
+								if(row.tieneimpuestos=="true"){
+									impuestos=$('#impuestosactivos').html();
+									impuestosid=$('#impuestosactivosid').html();
+								}
+								var lineHeight='';
+								if(row.formulado.length>12)
+									lineHeight='line-height:18px;';
+								
+								if(localStorage.getItem("con_localhost") == 'true'){
+								  vectorpos[row.col-1]='<div style="background-color:'+row.color+'; border:1px solid '+row.color+'; '+lineHeight+' text-transform:capitalize; " id="'+ row.mtimespan+'" data-precio="'+ row.precio +'" data-impuestos="'+impuestos +'" data-impuestosindexes="'+impuestosid +'" data-id_local = "'+row.id_local+'" data-formulado="'+ row.formulado +'" onclick="VerificarAgregados(this); return false;" ontap="VerificarAgregados(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_'+row.idc +'">'+ row.formulado +'</div>';
+								}else{
+								  vectorpos[row.col-1]='<div style="background-color:'+row.color+'; border:1px solid '+row.color+'; '+lineHeight+' text-transform:capitalize; " id="'+ row.timespan+'" data-precio="'+ row.precio +'" data-impuestos="'+impuestos +'" data-impuestosindexes="'+impuestosid +'" data-id_local = "'+row.id_local+'" data-formulado="'+ row.formulado +'" onclick="VerificarAgregados(this); return false;" ontap="VerificarAgregados(this); return false;" class="producto btn btn-lg btn-primary categoria_producto_'+row.idc +'">'+ row.formulado +'</div>';
+								}
+								
+							}
+							for(var s=0;s<=vectorpos.length;s++){
+								$('#listaProductos').append(vectorpos[s]);
+							}
+							//$('.producto').hide();
+							//init2(categoria);
+						}
+						else{
+							var agregar='<div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div><div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div><div style="background-color:white; border:1px solid white; border-radius:0px;" class="producto btn btn-lg btn-primary categoria_producto_'+categoria+'"></div>';
+							$('#listaProductos').append(agregar);
+						}
+						if($(window).width()>900){
+							Init31();
+						}
+						else{
+							Init3();
+						}
+
+						//$('#listaProductos').fadeIn();
+						$('#listaProductos').css("display","");
+						//para mostrar productos por pagina
+						showProducts(categoria);
+					});	
+				}				
+			}
+		}
+	});
+	$('.producto').hide();	
 	var maxw=0;
 	$('#listacat li').each(function(){
 		//alert(parseFloat($(this).css("height")));
@@ -3851,15 +3728,14 @@ function ActivarCategoriaMenu(cual,categoria){
 			maxw=parseFloat($(this).css("height"));
 	});
 	$('#listacat li').css("height",maxw);
-	$('#listacat li a').css("height",maxw);
-	
+	$('#listacat li a').css("height",maxw);	
 	//$('.categoria_producto_'+ categoria).show();
 	if($(window).width()>900){
-			Init31();
-		}
-		else{
-			Init3();
-		}
+		Init31();
+	}
+	else{
+		Init3();
+	}
 	showProducts(categoria);
 }
 
@@ -3911,15 +3787,15 @@ function PagoAvanzado(){
 var mitades=false;
 var contadormitades=0;
 function VerificarAgregados(btnprod,origen){
-  mitades=false;
-  var mitimespan=$(btnprod).attr("id");
+	mitades=false;
+	var mitimespan=$(btnprod).attr("id");
 	if(mitimespan.indexOf('busc_')>=0)
 		mitimespan=mitimespan.substring(5);
-  //alert(mitimespan+'**'+origen);
-
-  if(localStorage.getItem("con_localhost") == 'true'){
-       var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-       $.post(apiURL,{
+	//alert(mitimespan+'**'+origen);
+	var apiURL='';
+	if(localStorage.getItem("con_localhost") == 'true'){
+		apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+		$.post(apiURL,{
   		id_emp : localStorage.getItem("empresa"),
   		action : 'MenuPeticion',
   		id_barra : localStorage.getItem("idbarra"),
@@ -4017,15 +3893,17 @@ function VerificarAgregados(btnprod,origen){
   			updateOnlineStatus("OFFLINE");
   			setTimeout(function(){SincronizadorNormal()},180000);
   		});
-      }else{
-  //***************************************inicio normal**********************************
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(
-	function (tx){
-		tx.executeSql('SELECT * from MODIFICADORES WHERE id_formulado LIKE ? and activo=? order by no_modificador asc',[mitimespan,"true"],function(tx,res1){
+    }
+	else{
+		//***************************************inicio normal**********************************
+		apiURL='api.php';
+		$.post(apiURL,{
+			formualdo : mitimespan,
+			fun : 'Modificadores'
+		}).done(function(response){
+			var res1 = JSON.parse(response);		
 			var mods= new Array();
-			if(res1.rows.length>0){
-				
+			if(res1.rows.length>0){				
 				if(localStorage.getItem("idioma")==1)
 					$('#titlemodificador').html("Modificadores de "+$(btnprod).attr("data-formulado"));
 				else
@@ -4039,9 +3917,7 @@ function VerificarAgregados(btnprod,origen){
 						mods['"'+objmod+'"']= new Array();
 
 					mods['"'+objmod+'"'].push("<button style='margin:3px;' class='btn btn-primary btn-lg' id='btnmodif_"+miobj.id+"' data-valor='"+miobj.valor+"' data-time='"+miobj.timespan+"'  onclick='SiguienteModificador("+objmod+","+miobj.id+","+origen+");' type='button'>"+miobj.nombre+"</button>");
-
 				}
-
 				console.log(mods);
 				var c=1;
 				$('#divmodificadores').html('');
@@ -4049,9 +3925,7 @@ function VerificarAgregados(btnprod,origen){
 					var display='';
 					if(c>1)
 						display='display:none';
-
 					var inhtml="<div class='grupobotones' id='mod_"+s.replace(/"/g,'')+"' data-orden="+c+" style='margin:5px;"+display+"'>";
-
 					if(localStorage.getItem("idioma")==1)
 						inhtml+="<div><button id='mid_"+s.replace(/"/g,'')+"' type='button' style='margin:3px;' class='btn btn-default btn-lg' onclick='ActivarMitades("+s.replace(/"/g,'')+");'>Mitad</button>";
 					else if(localStorage.getItem("idioma")==2)
@@ -4062,92 +3936,77 @@ function VerificarAgregados(btnprod,origen){
 					else if(localStorage.getItem("idioma")==2)
 						inhtml+="<button style='margin:3px;' class='btn btn-default btn-lg' type='button' onclick='SiguienteModificador("+s.replace(/"/g,'')+",0,"+origen+");'>NONE</button></div>";
 					inhtml+="<hr></hr>";
-
 					for(var t in mods[s]){
 						inhtml+=mods[s][t];
 					}
-
-					inhtml+="</div>";
-					
+					inhtml+="</div>";					
 					$('#divmodificadores').append(inhtml);
 					c++;
-				}
-				
+				}				
 				$('#popupModificadores').modal("show");
 
-			}else{
+			}
+			else{
 				agregarCompra($(btnprod),origen);
 			}
 		});
-	},errorCB,successCB);
-    //*************************************fin normal*************************************
+	 //*************************************fin normal*************************************
     }
 }
 
 function VerificarAgregadosnew(btnprod,origen){
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
 	var mitimespan=$(btnprod).attr("id");
 	if(mitimespan.indexOf('busc_')>=0)
 		mitimespan=mitimespan.substring(5);
-	db.transaction(
-	function (tx){
-		tx.executeSql('SELECT * from MODIFICADORES WHERE id_formulado LIKE ? and activo=? order by no_modificador asc',[mitimespan,"true"],function(tx,res1){
+	var apiURL='api.php';
+	$.post(apiURL,{
+		formualdo : mitimespan,
+		fun : 'Modificadores'
+	}).done(function(response){
+		var res1 = JSON.parse(response);
 			var mods= new Array();
-			if(res1.rows.length>0){
-				$('#titlemodificador').html("Modificadores de "+$(btnprod).attr("data-formulado"));
-				$('#id_formulado_modificadores').val(mitimespan);
-				for(var m=0;m<res1.rows.length;m++){
-					var miobj=res1.rows.item(m);
-					var objmod=res1.rows.item(m).no_modificador;
-					if(!('"'+objmod+'"' in mods))
-						mods['"'+objmod+'"']= new Array();
-
-					mods['"'+objmod+'"'].push("<button style='margin:3px;' class='btn btn-primary btn-lg' id='btnmodif_"+miobj.id+"' data-valor='"+miobj.valor+"' data-time='"+miobj.timespan+"'  onclick='SiguienteModificador("+objmod+","+miobj.id+","+origen+");' type='button'>"+miobj.nombre+"</button>");
-
-				}
-
-				console.log(mods);
-				var c=1;
-				$('#divmodificadores').html('');
-				
-				for(var s in mods){
-					var display='';
-					if(c>1)
-						display='display:none';
-
-					var inhtml="<div class='grupobotones' id='mod_"+s.replace(/"/g,'')+"' data-orden="+c+" style='margin:5px;"+display+"'>";
-					
-					if(localStorage.getItem("idioma")==1)
-						inhtml+="<div><button id='mid_"+s.replace(/"/g,'')+"' type='button' style='margin:3px;' class='btn btn-default btn-lg' onclick='ActivarMitades("+s.replace(/"/g,'')+");'>Mitad</button>";
-					else if(localStorage.getItem("idioma")==1)
-						inhtml+="<div><button id='mid_"+s.replace(/"/g,'')+"' type='button' style='margin:3px;' class='btn btn-default btn-lg' onclick='ActivarMitades("+s.replace(/"/g,'')+");'>Half</button>";						
-					
-					if(localStorage.getItem("idioma")==1)
-						inhtml+="<button style='margin:3px;' class='btn btn-default btn-lg' type='button' onclick='SiguienteModificador("+s.replace(/"/g,'')+",0,"+origen+");'>Ninguno</button></div>";
-					else
-						inhtml+="<button style='margin:3px;' class='btn btn-default btn-lg' type='button' onclick='SiguienteModificador("+s.replace(/"/g,'')+",0,"+origen+");'>NONE</button></div>";
-					inhtml+="<hr></hr>";
-					
-					for(var t in mods[s]){
-						inhtml+=mods[s][t];
-					}
-					
-					inhtml+="</div>";
-					
-					$('#divmodificadores').append(inhtml);
-					c++;
-				}
-				
-				$('#popupModificadores').modal("show");
-
-			}else{
-				agregarCompranew($(btnprod),origen);
+		if(res1.rows.length>0){
+			$('#titlemodificador').html("Modificadores de "+$(btnprod).attr("data-formulado"));
+			$('#id_formulado_modificadores').val(mitimespan);
+			for(var m=0;m<res1.rows.length;m++){
+				var miobj=res1.rows.item(m);
+				var objmod=res1.rows.item(m).no_modificador;
+				if(!('"'+objmod+'"' in mods))
+					mods['"'+objmod+'"']= new Array();
+				mods['"'+objmod+'"'].push("<button style='margin:3px;' class='btn btn-primary btn-lg' id='btnmodif_"+miobj.id+"' data-valor='"+miobj.valor+"' data-time='"+miobj.timespan+"'  onclick='SiguienteModificador("+objmod+","+miobj.id+","+origen+");' type='button'>"+miobj.nombre+"</button>");
 			}
-		});
-	},errorCB,successCB);
+			console.log(mods);
+			var c=1;
+			$('#divmodificadores').html('');			
+			for(var s in mods){
+				var display='';
+				if(c>1)
+					display='display:none';
+				var inhtml="<div class='grupobotones' id='mod_"+s.replace(/"/g,'')+"' data-orden="+c+" style='margin:5px;"+display+"'>";				
+				if(localStorage.getItem("idioma")==1)
+					inhtml+="<div><button id='mid_"+s.replace(/"/g,'')+"' type='button' style='margin:3px;' class='btn btn-default btn-lg' onclick='ActivarMitades("+s.replace(/"/g,'')+");'>Mitad</button>";
+				else if(localStorage.getItem("idioma")==1)
+					inhtml+="<div><button id='mid_"+s.replace(/"/g,'')+"' type='button' style='margin:3px;' class='btn btn-default btn-lg' onclick='ActivarMitades("+s.replace(/"/g,'')+");'>Half</button>";			
+				if(localStorage.getItem("idioma")==1)
+					inhtml+="<button style='margin:3px;' class='btn btn-default btn-lg' type='button' onclick='SiguienteModificador("+s.replace(/"/g,'')+",0,"+origen+");'>Ninguno</button></div>";
+				else
+					inhtml+="<button style='margin:3px;' class='btn btn-default btn-lg' type='button' onclick='SiguienteModificador("+s.replace(/"/g,'')+",0,"+origen+");'>NONE</button></div>";
+				inhtml+="<hr></hr>";				
+				for(var t in mods[s]){
+					inhtml+=mods[s][t];
+				}				
+				inhtml+="</div>";				
+				$('#divmodificadores').append(inhtml);
+				c++;
+			}
+			$('#popupModificadores').modal("show");
+
+		}
+		else{
+			agregarCompranew($(btnprod),origen);
+		}
+	});	
 }
-
-
 function SiguienteModificador(divid,idmod,origen){
 	var div=$('#mod_'+divid);
 	var orden=div.attr("data-orden");
@@ -4175,8 +4034,7 @@ function SiguienteModificador(divid,idmod,origen){
 			}
 			
 		}
-	});
-	
+	});	
 	if(idmod>0){
 		var elbotonm=$('#btnmodif_'+idmod);
 		var valormas=elbotonm.attr("data-valor");
@@ -4220,127 +4078,134 @@ function AsignarNombre(){
 	$('#popupNameorder').modal("hide");
 }
 
-function VerPropinas(){
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
+function VerPropinas(){	
+	var apiURL='';
 	var mitot=parseFloat($('#total').html().replace('$',''));
 	if(localStorage.getItem("con_mesas")=="true"&&mitot==0){
+		if(localStorage.getItem("con_localhost") == 'true'){
+			var mesaactiva=sessionStorage.getItem("mesa_activa");
+			apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+			$.post(apiURL,{
+			id_emp : localStorage.getItem("empresa"),
+			action : 'DesactivarMesa',
+			id_barra : localStorage.getItem("idbarra"),
+			deviceid:$("#deviceid").html(),
+			idcli : '9999999999999',
+			nombrecli : '',
+			mitimespan : '0',
+			idmesa : mesaactiva
+			}).done(function(response){
+				if(response!='block' && response!='Desactivado'){
+					console.log(response);
+					var res = response.split("||");
+					if(res[0] == 'ok'){
+						sessionStorage.setItem("mesa_activa","");
+						sessionStorage.setItem("mesa_name","");
+						sessionStorage.setItem("mesa_pax",0);
+						$('#nombre_mesa').html('');
+						envia("puntodeventa");
+					}
+				}
+				else if(response=='Desactivado'){
+					envia('cloud');
+					setTimeout(function(){
+						$('.navbar,#barraalternamovil').slideUp();
+						$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+						$('#desactivo').fadeIn();
+					},100);
+				}
+				else{
+					envia('cloud');
+					setTimeout(function(){
+						$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
+						$('.navbar,#barraalternamovil').slideUp();
+						$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+						$('#bloqueo').fadeIn();
+					},100);
+				}
 
-    if(localStorage.getItem("con_localhost") == 'true'){
-       var mesaactiva=sessionStorage.getItem("mesa_activa");
-       var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-       $.post(apiURL,{
-  		id_emp : localStorage.getItem("empresa"),
-  		action : 'DesactivarMesa',
-  		id_barra : localStorage.getItem("idbarra"),
-  		deviceid:$("#deviceid").html(),
-        idcli : '9999999999999',
-        nombrecli : '',
-        mitimespan : '0',
-        idmesa : mesaactiva
-  		}).done(function(response){
-  			if(response!='block' && response!='Desactivado'){
-
-    			console.log(response);
-                var res = response.split("||");
-                if(res[0] == 'ok'){
-        			sessionStorage.setItem("mesa_activa","");
-        			sessionStorage.setItem("mesa_name","");
-        			sessionStorage.setItem("mesa_pax",0);
-        			$('#nombre_mesa').html('');
-        			envia("puntodeventa");
-                }
-
-  			}else if(response=='Desactivado'){
-  			    envia('cloud');
-  				setTimeout(function(){
-  					$('.navbar,#barraalternamovil').slideUp();
-  					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-  					$('#desactivo').fadeIn();
-  				},100);
-  			}else{
-  				envia('cloud');
-  				setTimeout(function(){
-  					$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
-  					$('.navbar,#barraalternamovil').slideUp();
-  					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-  					$('#bloqueo').fadeIn();
-  				},100);
-
-  			}
-
-  		}).fail(function(){
-  			updateOnlineStatus("OFFLINE");
-  			setTimeout(function(){SincronizadorNormal()},180000);
-  		});
-      }else{
-    //*******************************inicio normal****************************************
-			db.transaction(function (tx){
+			}).fail(function(){
+				updateOnlineStatus("OFFLINE");
+				setTimeout(function(){SincronizadorNormal()},180000);
+			});
+		}
+		else{
+			//*******************************inicio normal****************************************
 			var mesaactiva=sessionStorage.getItem("mesa_activa");
 			//var idfact=results.insertId;
 			var idcli="9999999999999";
 			var nombrecli="";
 			var mitimespan=0;
 			var now=new Date().getTime();
-
-			tx.executeSql("UPDATE MESAS_DATOS SET cliente=?,id_cliente=?,id_factura=?,hora_desactivacion=?,activo=? WHERE id_mesa=? and activo=?",[nombrecli,idcli,mitimespan,now,"false",mesaactiva,"true"]);
-			tx.executeSql("UPDATE MESAS SET enuso=? WHERE timespan=?",["false",mesaactiva]);
-			tx.executeSql("DELETE FROM MESAS_CONSUMOS WHERE id_mesa=?",[mesaactiva]);
-			sessionStorage.setItem("mesa_activa","");
-			sessionStorage.setItem("mesa_name","");
-			sessionStorage.setItem("mesa_pax","0");
-			$('#nombre_mesa').html('');
-			envia("puntodeventa");
+			apiURL='api.php';
+			$.post(apiURL,{
+				nombrecli : nombrecli,
+				idcli : idcli,
+				mitimespan : mitimespan,
+				now : now,
+				mesaactiva : mesaactiva,
+				fun : 'Mesas'
+			}).done(function(response){
+			
+				sessionStorage.setItem("mesa_activa","");
+				sessionStorage.setItem("mesa_name","");
+				sessionStorage.setItem("mesa_pax","0");
+				$('#nombre_mesa').html('');
+				envia("puntodeventa");
 			});
-    //*********************************fin normal*****************************************
-    }
+		//*********************************fin normal*****************************************
+		}
 		
 	}
 	else{
 		if(localStorage.getItem("propina")=="true"){
-		
-		db.transaction(
-		function (tx){
-			tx.executeSql('SELECT * from PROPINAS WHERE activo=? order by es_porcentaje,valor asc',["true"],function(tx,res1){
+			apiURL='api.php';
+			$.post(apiURL,{
+				fun : 'VerPropinas'
+			}).done(function(response){
+				var res1 = JSON.parse(response);			
 				$('#divpropinas').html('');
 				var readonly="readonly";
 				if(res1.rows.length>0){
 					if(res1.rows.item(0)!=null){
-					var primervalor=0;
-					for(var t=0;t<res1.rows.length;t++){
-						var item=res1.rows.item(t);
-						var htmlbut="";
-						if(item.es_porcentaje=="true"){
-							htmlbut="<button type='button' style='margin:10px; max-width:120px; min-width:150px;' onclick='PropinaValor("+item.valor+",1)' class='btn btn-success btn-lg'>"+parseFloat(item.valor).toFixed(2)+"%</button>";
-							if(t==0)
-								primervalor=parseFloat(item.valor)*(parseFloat($('#subtotalIva').val())+parseFloat($('#subtotalSinIva').val()))/100;
-						}else{
-							if(item.valor>0){
+						var primervalor=0;
+						for(var t=0;t<res1.rows.length;t++){
+							var item=res1.rows.item(t);
+							var htmlbut="";
+							if(item.es_porcentaje=="true"){
+								htmlbut="<button type='button' style='margin:10px; max-width:120px; min-width:150px;' onclick='PropinaValor("+item.valor+",1)' class='btn btn-success btn-lg'>"+parseFloat(item.valor).toFixed(2)+"%</button>";
+								if(t==0)
+									primervalor=parseFloat(item.valor)*(parseFloat($('#subtotalIva').val())+parseFloat($('#subtotalSinIva').val()))/100;
+							}
+							else{
+								if(item.valor>0){
 								htmlbut="<button type='button' style='margin:10px; max-width:120px; min-width:150px;' onclick='PropinaValor("+item.valor+",2)' class='btn btn-primary btn-lg'>$"+parseFloat(item.valor).toFixed(2)+"</button>";
 								if(t==0)
 									primervalor=parseFloat(item.valor);
-							}else{
-								if(item.valor==0){
-									htmlbut="<button type='button' style='margin:10px; max-width:120px; min-width:150px;' onclick='PropinaValor(0,2)' class='btn btn-default btn-lg'>NO</button>";
-									if(t==0)
-										primervalor=parseFloat(item.valor);
-								}else if(item.valor==-1){
+								}
+								else{
+									if(item.valor==0){
+										htmlbut="<button type='button' style='margin:10px; max-width:120px; min-width:150px;' onclick='PropinaValor(0,2)' class='btn btn-default btn-lg'>NO</button>";
+										if(t==0)
+											primervalor=parseFloat(item.valor);
+									}
+									else if(item.valor==-1){
 									//alert(item.valor);
-									readonly="";
-									if(t==0)
-										primervalor=0;
+										readonly="";
+										if(t==0)
+											primervalor=0;
+									}
 								}
 							}
-						}
-						$('#divpropinas').append(htmlbut);
-					}
-					$('#divpropinas').append('<div style="margin-top:10px;"><div class="input-group"><span class="input-group-addon" id="basic-addon1">USD</span><input onclick="this.select()" '+readonly+' id="valorpropina" type="text" class="form-control input-lg" value="'+primervalor.toFixed(2)+'" aria-describedby="basic-addon1"></div></div>');
-					$('#popupPropina').modal('show');
+							$('#divpropinas').append(htmlbut);
+						}	
+						$('#divpropinas').append('<div style="margin-top:10px;"><div class="input-group"><span class="input-group-addon" id="basic-addon1">USD</span><input onclick="this.select()" '+readonly+' id="valorpropina" type="text" class="form-control input-lg" value="'+primervalor.toFixed(2)+'" aria-describedby="basic-addon1"></div></div>');
+						$('#popupPropina').modal('show');
 					}
 				}
 			});
-		},errorCB,successCB);	
-			
-		}else{
+		}
+		else{
 			AntesDePagar(); 
 		}
 	}
@@ -4473,10 +4338,10 @@ function MostrarNota(span){
 
 function CargarMesas(){
 	$('#contentmesas').html("");
-
+	var apiURL='';
     if(localStorage.getItem("con_localhost") == 'true'){
-     var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-     $.post(apiURL,{
+		apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+		$.post(apiURL,{
 		id_emp : localStorage.getItem("empresa"),
 		action : 'VerMesas',
 		id_barra : localStorage.getItem("idbarra"),
@@ -4486,30 +4351,29 @@ function CargarMesas(){
 				//console.log(response);
                 var resp = response.split("||");
                 if(resp[0] != ''){
-                  var tab1 = resp[0].split("@@");
-                  for(var i=0;i<tab1.length;i++){
-                    $('#contentmesas_1').append(tab1[i]);
-                  }
+					var tab1 = resp[0].split("@@");
+					for(var i=0;i<tab1.length;i++){
+						$('#contentmesas_1').append(tab1[i]);
+					}
                 }
                 if(resp[1] != ''){
-                  var tab2 = resp[1].split("@@");
-                  for(var j=0;j<tab2.length;j++){
-                    $('#contentmesas_2').append(tab2[j]);
-                  }
+					var tab2 = resp[1].split("@@");
+					for(var j=0;j<tab2.length;j++){
+						$('#contentmesas_2').append(tab2[j]);
+					}
                 }
                 if(resp[2] != ''){
-                  var tab3 = resp[2].split("@@");
-                  for(var k=0;k<tab3.length;k++){
-                    $('#contentmesas_3').append(tab3[j]);
-                  }
+					var tab3 = resp[2].split("@@");
+					for(var k=0;k<tab3.length;k++){
+						$('#contentmesas_3').append(tab3[j]);
+					}
                 }
                 if(resp[3] != ''){
-                  var tab4 = resp[4].split("@@");
-                  for(var l=0;l<tab4.length;l++){
-                    $('#contentmesas_4').append(tab4[l]);
-                  }
+					var tab4 = resp[4].split("@@");
+					for(var l=0;l<tab4.length;l++){
+						$('#contentmesas_4').append(tab4[l]);
+					}
                 }
-
 			}else if(response=='Desactivado'){
 			    envia('cloud');
 				setTimeout(function(){
@@ -4525,43 +4389,41 @@ function CargarMesas(){
 					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
 					$('#bloqueo').fadeIn();
 				},100);
-
 			}
-
 		}).fail(function(){
 			updateOnlineStatus("OFFLINE");
 			setTimeout(function(){SincronizadorNormal()},180000);
 		});
-    }else{
-    //**********************************inicio normal*************************************
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(	function (tx){
-		tx.executeSql("SELECT m.top,m.left,m.nombre,m.timespan,t.imagen_activa as act,t.imagen_inactiva as inact,m.enuso,m.tab,t.es_mesa FROM MESAS m, TIPO_MESA t WHERE t.timespan=m.id_tipomesa and m.activo=?",["true"],function(tx,results3){
+    }
+	else{
+		apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'VerMesas'
+		}).done(function(response){
+			var results3 = JSON.parse(response);	
+    //**********************************inicio normal*************************************	
 			if(results3.rows.length>0){
 				for(var k=0;k<results3.rows.length;k++){
 					var item=results3.rows.item(k);
-					var img=item.act;
-					
+					var img=item.act;					
 					var clase="mesaactiva";
 					if(item.enuso=="false"){
 						img=item.inact;
 						clase="mesainactiva";
-					}else{
+					}
+					else{
 						$('#litab'+item.tab+' a').css('border-bottom','3px solid green');
 					}
-
 					var onclick="";
 					if(item.es_mesa=='true'){
 						onclick="AccionMesa(this);";
-					}
-					
+					}					
 					var mitop=item.top-96;
 					var mileft=item.left;
 					var proporcionw=1;
 					var proporcionh=1;
 					var anchomesas='';
-					var fontsize='';
-					
+					var fontsize='';					
 					var miancho=parseFloat($(window).width());
 					var mialto=parseFloat($(window).height());
 					if(miancho<800){
@@ -4569,35 +4431,34 @@ function CargarMesas(){
 						mileft=proporcionw*item.left;
 						anchomesas='width:40px;';
 						fontsize='font-size:11px;'
-					}
-					
+					}					
 					if(mialto<600){
 						proporcionh=mialto/600;
 						mitop=proporcionh*(item.top-96);
-					}
-					
+					}					
 					
 					var html="<div id='divmesa_"+item.timespan+"' style='position:absolute; top:"+(mitop)+"px; left:"+mileft+"px;' timespan='"+item.timespan+"' class='"+clase+"' onclick='"+onclick+"' ><div style='"+fontsize+"' id='mesaname_"+item.timespan+"'>"+item.nombre+"</div><img id='mesaimg_"+item.timespan+"' class='imgmesa' src='images/mesas/"+img+"' style='"+anchomesas+"'/></div>";
 					$('#contentmesas_'+item.tab).append(html);
 				}
 				
 			}
-		});
-	},errorCB,successCB);
-
-    db.transaction(	function (tx){
-	$('.mesaactiva').each(function(){
-		var id=$(this).attr("id");
-		var dataid=id.split("_");
-		tx.executeSql("SELECT pax from mesas_datos where id_mesa=? and activo=?",[dataid[1],"true"],function(tx,res2){
-			if(res2.rows.length>0){
-				var miitem=res2.rows.item(0);
-				var divpax="<div style='position:absolute; top:52%; width:100%; text-align:center; font-size:11px; color:white;'>PAX: "+miitem.pax+"</div>";
-				$('#divmesa_'+dataid[1]).append(divpax);
-			}
-		});
-	});
-	},errorCB,successCB);
+		});		 
+		$('.mesaactiva').each(function(){
+			var id=$(this).attr("id");
+			var dataid=id.split("_");
+			apiURL='api.php';
+			$.post(apiURL,{
+				id= dataid[1],
+				fun : 'VerPaxMesas'
+			}).done(function(response){
+				var res2 = JSON.parse(response);
+				if(res2.rows.length>0){
+					var miitem=res2.rows.item(0);
+					var divpax="<div style='position:absolute; top:52%; width:100%; text-align:center; font-size:11px; color:white;'>PAX: "+miitem.pax+"</div>";
+					$('#divmesa_'+dataid[1]).append(divpax);
+				}
+			});
+		});	
     //***********************************fin normal***************************************
     }
 }
@@ -4621,33 +4482,31 @@ function VerActivarMesa(cual){
 
 function ActivarMesa(){
 	//alert($('#mesaid').val());
-
 	var cant=parseInt($('.cantidadm').html());
+	var apiURL='';
 	if(cant==0) cant=1;
 	if(cant>=1){
 		var id=$('#mesaid').val();
 		//var cant=$('.cantidadm').html();
         if(localStorage.getItem("con_localhost") == 'true'){
-         var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-         $.post(apiURL,{
-    		id_emp : localStorage.getItem("empresa"),
-    		action : 'ActivaMesa',
-    		id_barra : localStorage.getItem("idbarra"),
-    		deviceid:$("#deviceid").html(),
-            cantidad : cant,
-            idmesa : id
+			apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+			$.post(apiURL,{
+				id_emp : localStorage.getItem("empresa"),
+				action : 'ActivaMesa',
+				id_barra : localStorage.getItem("idbarra"),
+				deviceid:$("#deviceid").html(),
+				cantidad : cant,
+				idmesa : id
     		}).done(function(response){
     			if(response!='block' && response!='Desactivado'){
     				console.log(response);
                     var resp = response.split("||");
                     if(resp[0] != '0'){
-                      console.log("Mesa Activada: "+resp[0]);
-
-                      $('#mesaimg_'+id).attr("src","images/mesas/"+resp[1]);
-  					  $('#divmesa_'+id).attr("class","mesaactiva");
-
-                      //$('#btn_mesas').html("PRECUENTA "+resp[2]);
-    				  //$('#btn_mesas').attr("class","btn btn-info");
+						console.log("Mesa Activada: "+resp[0]);
+						$('#mesaimg_'+id).attr("src","images/mesas/"+resp[1]);
+						$('#divmesa_'+id).attr("class","mesaactiva");
+						//$('#btn_mesas').html("PRECUENTA "+resp[2]);
+						//$('#btn_mesas').attr("class","btn btn-info");
     				    $('#btn_gpedidos,#btn_mesas').attr("title",resp[2]);
     					$('#nombre_mesa').html(resp[2]);
     					$('[data-toggle="tooltip"]').tooltip();
@@ -4660,22 +4519,20 @@ function ActivarMesa(){
     					sessionStorage.setItem("mesa_activa",id);
     					sessionStorage.setItem("mesa_name",resp[2]);
     					sessionStorage.setItem("mesa_pax",cant);
-
 						$('#popupActivarMesa').modal("hide");
 						$('#divmesas').hide();
-						$('#menuSubNew1,#menuSubNew2').fadeIn();
-						
-						
+						$('#menuSubNew1,#menuSubNew2').fadeIn();	
                     }
-
-    			}else if(response=='Desactivado'){
+    			}
+				else if(response=='Desactivado'){
     			    envia('config');
     				setTimeout(function(){
     					$('.navbar,#barraalternamovil').slideUp();
     					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
     					$('#desactivo').fadeIn();
     				},100);
-    			}else{
+    			}
+				else{
     				envia('config');
     				setTimeout(function(){
     					$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
@@ -4683,32 +4540,33 @@ function ActivarMesa(){
     					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
     					$('#bloqueo').fadeIn();
     				},100);
-
     			}
-
     		}).fail(function(){
     			updateOnlineStatus("OFFLINE");
     			setTimeout(function(){SincronizadorNormal()},180000);
     		});
-        }else{
-        //******************************inicio normal*************************************
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(	function (tx){
-			var fecha= new Date().getTime();
-			var timespan=getTimeSpan();
-			tx.executeSql("SELECT t.imagen_activa as act,m.* FROM TIPO_MESA t,MESAS m WHERE m.timespan=? and m.id_tipomesa=t.timespan",[id],function(tx,results){
-				
-					var item=results.rows.item(0);
+        }
+		else{
+			//******************************inicio normal*************************************
+			apiURL='api.php';
+			$.post(apiURL,{
+				id : id,
+				fun : 'VerMesasActivas'
+			}).done(function(response){
+				var results = JSON.parse(response);     
 					
-					tx.executeSql("INSERT INTO MESAS_DATOS (id_mesa,hora_activacion,pax,timespan) values (?,?,?,?);",[id,fecha,cant,timespan],function(tx,results1){
-						console.log("Mesa Activada: "+results1.insertId);
-					});
-				
-					tx.executeSql("UPDATE MESAS SET enuso=? WHERE timespan=?",["true",id],function(tx,results2){
+					var item=results.rows.item(0);
+					apiURL='api.php';
+					$.post(apiURL,{
+						id : id,
+						fecha : fecha,
+						cant : cant,
+						timespan : timespan,
+						fun : 'InsertaMesas'
+					}).done(function(response1){
 						$('#mesaimg_'+id).attr("src","images/mesas/"+item.act);
 						$('#divmesa_'+id).attr("class","mesaactiva");
-					});
-
+					});					
 					/*boton mesas*/
 					//$('#btn_mesas').html("PRECUENTA "+item.nombre);
 					//$('#btn_mesas').attr("class","btn btn-info");
@@ -4729,247 +4587,249 @@ function ActivarMesa(){
 			
 			$('#popupActivarMesa').modal("hide");
 			$('#divmesas').hide();
-			$('#menuSubNew1,#menuSubNew2').fadeIn();
-		},errorCB,successCB);
-      //********************************fin normal****************************************
-      }
+			$('#menuSubNew1,#menuSubNew2').fadeIn();		
+		//********************************fin normal****************************************
+		}
 	}
 }
 
 function VerConsumos(idmesa){
 	/*boton mesas*/
-		//$('#btn_mesas').html("PRECUENTA: "+$('#mesaname_'+idmesa).html());
-		//$('#btn_mesas').attr("class","btn btn-info");
-		$('#btn_gpedidos,#btn_mesas').attr("title",$('#mesaname_'+idmesa).html());
-		$('#nombre_mesa').html($('#mesaname_'+idmesa).html());
-		$('[data-toggle="tooltip"]').tooltip();
-		$('#subtotalIva').val('0');
-		$('#subtotalSinIva').val('0');
-		$('#totalmiFactura').val('0');
-		$('#descuentoFactura ').val('0');
-		$('.esImpuesto').val('0');
-		sessionStorage.setItem("mesa_activa",idmesa);
-		sessionStorage.setItem("mesa_name",$('#mesaname_'+idmesa).html());
-	    $('#tablaCompra').html('');
-		
-		if($(window).width()<=900)
-			$('#menuSubNew1,#menuSubNew2').fadeIn();
+	//$('#btn_mesas').html("PRECUENTA: "+$('#mesaname_'+idmesa).html());
+	//$('#btn_mesas').attr("class","btn btn-info");
+	$('#btn_gpedidos,#btn_mesas').attr("title",$('#mesaname_'+idmesa).html());
+	$('#nombre_mesa').html($('#mesaname_'+idmesa).html());
+	$('[data-toggle="tooltip"]').tooltip();
+	$('#subtotalIva').val('0');
+	$('#subtotalSinIva').val('0');
+	$('#totalmiFactura').val('0');
+	$('#descuentoFactura ').val('0');
+	$('.esImpuesto').val('0');
+	sessionStorage.setItem("mesa_activa",idmesa);
+	sessionStorage.setItem("mesa_name",$('#mesaname_'+idmesa).html());
+	$('#tablaCompra').html('');
+	 var apiURL='';
+	if($(window).width()<=900)
+		$('#menuSubNew1,#menuSubNew2').fadeIn();
 
     if(localStorage.getItem("con_localhost") == 'true'){
-      $('#btn_pagar').attr({onclick: ''});
-     var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-     var total = 0;
-     var sumTotal = 0;
-     var taxTotal = 0;
-     $.post(apiURL,{
-		id_emp : localStorage.getItem("empresa"),
-		action : 'BuscarConsumos',
-		id_barra : localStorage.getItem("idbarra"),
-		deviceid:$("#deviceid").html(),
-        con_notas : localStorage.getItem("con_notas"),
-        id_mesa : idmesa
-		}).done(function(response){
-			if(response!='block' && response!='Desactivado'){
-				console.log(response);
-                var resp = response.split("/@|");
+		$('#btn_pagar').attr({onclick: ''});
+		apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+		var total = 0;
+		var sumTotal = 0;
+		var taxTotal = 0;
+		$.post(apiURL,{
+			id_emp : localStorage.getItem("empresa"),
+			action : 'BuscarConsumos',
+			id_barra : localStorage.getItem("idbarra"),
+			deviceid:$("#deviceid").html(),
+			con_notas : localStorage.getItem("con_notas"),
+			id_mesa : idmesa
+			}).done(function(response){
+				if(response!='block' && response!='Desactivado'){
+					console.log(response);
+					var resp = response.split("/@|");
 
-                if(resp[0] != '0'){
+					if(resp[0] != '0'){
 
-                var cantidadcom=0;
+					var cantidadcom=0;
 
-					$('#tablaCompra').append(resp[1]);
+						$('#tablaCompra').append(resp[1]);
 
-                    var datos = resp[2].split("@@");
+						var datos = resp[2].split("@@");
 
-                    for(var k=0;k<datos.length-1;k++){
-                    var subtotalSinIva = $('#subtotalSinIva').val();
-					var subtotalIva = $('#subtotalIva').val();
-					var subtotalSinIvaCompra = 0;
-					var subtotalIvaCompra = 0;
-                      var datosin = datos[k].split("@|");
+						for(var k=0;k<datos.length-1;k++){
+						var subtotalSinIva = $('#subtotalSinIva').val();
+						var subtotalIva = $('#subtotalIva').val();
+						var subtotalSinIvaCompra = 0;
+						var subtotalIvaCompra = 0;
+						  var datosin = datos[k].split("@|");
 
-    					var productoImpuestosIndexes=datosin[0];
-    					var productoCantidad=datosin[1];
-    					var productoPrecio=datosin[2];
-    					var sumaagregados=parseFloat(datosin[3]);
+							var productoImpuestosIndexes=datosin[0];
+							var productoCantidad=datosin[1];
+							var productoPrecio=datosin[2];
+							var sumaagregados=parseFloat(datosin[3]);
 
-    					//alert(productoImpuestosIndexes+"/"+productoCantidad+"/"+productoPrecio+"/"+sumaagregados);
+							//alert(productoImpuestosIndexes+"/"+productoCantidad+"/"+productoPrecio+"/"+sumaagregados);
 
-    				if($.trim(productoImpuestosIndexes) != '' && $.trim(productoImpuestosIndexes) != 0){
+						if($.trim(productoImpuestosIndexes) != '' && $.trim(productoImpuestosIndexes) != 0){
 
-    					if($.trim(productoImpuestosIndexes).indexOf('@') !== -1){
-    						$.each(productoImpuestosIndexes.split('@'), function(index,value){
-    							if(productoImpuestosIndexes.indexOf(parseInt($('#idiva').html())) !== -1){
-    								subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
-    								}
-    							else{
-    								subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
-    								}
+							if($.trim(productoImpuestosIndexes).indexOf('@') !== -1){
+								$.each(productoImpuestosIndexes.split('@'), function(index,value){
+									if(productoImpuestosIndexes.indexOf(parseInt($('#idiva').html())) !== -1){
+										subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+										}
+									else{
+										subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+										}
 
-    							if($('#impuestoFactura-'+ value).length == 0){
+									if($('#impuestoFactura-'+ value).length == 0){
 
-    								var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
-    								var currentimp=(parseFloat(productoCantidad) *( parseFloat(productoPrecio)+sumaagregados) * parseFloat(impuestoDetalles[2]));
-    								taxTotal+= currentimp;
+										var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
+										var currentimp=(parseFloat(productoCantidad) *( parseFloat(productoPrecio)+sumaagregados) * parseFloat(impuestoDetalles[2]));
+										taxTotal+= currentimp;
 
-    								$('#factura').append('<input type="hidden" id="impuestoFactura-'+ value +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ currentimp +'"/>');
-    								}
-    							else{
-    								var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
-    								var currentTax = $('#impuestoFactura-'+ value).val();
-    								var calcimp=((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
-    								taxTotal += calcimp;
+										$('#factura').append('<input type="hidden" id="impuestoFactura-'+ value +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ currentimp +'"/>');
+										}
+									else{
+										var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
+										var currentTax = $('#impuestoFactura-'+ value).val();
+										var calcimp=((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
+										taxTotal += calcimp;
 
-    								$('#impuestoFactura-'+ value).val(parseFloat(currentTax) + parseFloat(calcimp));
-    								}
-    							});
-    						}
-    					else{
-    						productoImpuestosIndexes == parseInt($('#idiva').html()) ? subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) : subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
-    						if($('#impuestoFactura-'+productoImpuestosIndexes).length == 0){
-    							var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
-    							taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
-                                //alert('si'+taxTotal);
-    							$('#factura').append('<input type="hidden" id="impuestoFactura-'+ productoImpuestosIndexes +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ taxTotal +'"/>');
-    							}
-    						else{
-    							var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
-    							var currentTax = $('#impuestoFactura-'+ productoImpuestosIndexes).val();
-    							taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
-    							$('#impuestoFactura-'+ productoImpuestosIndexes).val(parseFloat(currentTax) + parseFloat(taxTotal));
-    							}
-    						}
-    					}else{
-    						subtotalSinIvaCompra=(parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
-    					}
-    				//impuestos end
-                    //alert(subtotalSinIvaCompra+'**'+subtotalIvaCompra);
-    					$('#subtotalSinIva').val(parseFloat(subtotalSinIva) + parseFloat(subtotalSinIvaCompra));
-    					$('#subtotalIva').val(parseFloat(subtotalIva) + parseFloat(subtotalIvaCompra));
+										$('#impuestoFactura-'+ value).val(parseFloat(currentTax) + parseFloat(calcimp));
+										}
+									});
+								}
+							else{
+								productoImpuestosIndexes == parseInt($('#idiva').html()) ? subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) : subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+								if($('#impuestoFactura-'+productoImpuestosIndexes).length == 0){
+									var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
+									taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
+									//alert('si'+taxTotal);
+									$('#factura').append('<input type="hidden" id="impuestoFactura-'+ productoImpuestosIndexes +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ taxTotal +'"/>');
+									}
+								else{
+									var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
+									var currentTax = $('#impuestoFactura-'+ productoImpuestosIndexes).val();
+									taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
+									$('#impuestoFactura-'+ productoImpuestosIndexes).val(parseFloat(currentTax) + parseFloat(taxTotal));
+									}
+								}
+							}else{
+								subtotalSinIvaCompra=(parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+							}
+						//impuestos end
+						//alert(subtotalSinIvaCompra+'**'+subtotalIvaCompra);
+							$('#subtotalSinIva').val(parseFloat(subtotalSinIva) + parseFloat(subtotalSinIvaCompra));
+							$('#subtotalIva').val(parseFloat(subtotalIva) + parseFloat(subtotalIvaCompra));
 
-                        $('#impuestoFactura-'+productoImpuestosIndexes).val(taxTotal);
-                        //alert($('#impuestoFactura-'+productoImpuestosIndexes).val()+'**'+$('#subtotalIva').val());
-    				}
+							$('#impuestoFactura-'+productoImpuestosIndexes).val(taxTotal);
+							//alert($('#impuestoFactura-'+productoImpuestosIndexes).val()+'**'+$('#subtotalIva').val());
+						}
 
-                /*Calculos*/
-				$('#itemsVendidos').html(cantidadcom);
-				$('.totales').each(function(){
-					sumTotal += parseFloat($.trim($(this).val()));
-				});
+					/*Calculos*/
+					$('#itemsVendidos').html(cantidadcom);
+					$('.totales').each(function(){
+						sumTotal += parseFloat($.trim($(this).val()));
+					});
 
-				$('#totalmiFactura').val(sumTotal);
-				$('#total').html('$'+ parseFloat(sumTotal).toFixed(2));
-				
-				if($('#total').html().toString().length==9)
-					$('#divtotal').css('font-size','26px');
-				else if($('#total').html().toString().length>9)
-					$('#divtotal').css('font-size','26px');
-				else
-					$('#divtotal').css('font-size','30px');
-				
-				if($('#total').html().toString().length>7){
-					$('.den').css('width',4.5*parseFloat($('.producto').css('height')));
-				}else{
-					$('.den').css('width',3*parseFloat($('.producto').css('height')));
-				}
-				
-				//$('#total').html('PAGAR $'+ parseFloat(sumTotal).toFixed(2))
-				$('#justo').html('$ '+sumTotal.toFixed(2));
-				$('#justo').attr('data-value',-1*sumTotal.toFixed(2));
-				$('#redondeado,#redondeado2').html(Math.ceil(sumTotal).toFixed(2));
-				$('#redondeado,#redondeado2').attr('data-value',-1*Math.ceil(sumTotal).toFixed(2));
-				var alta=0;
-				for( var t in misdenominaciones){
-					if(misdenominaciones[t]>sumTotal)
-					{
-						alta=misdenominaciones[t];
-						break;
+					$('#totalmiFactura').val(sumTotal);
+					$('#total').html('$'+ parseFloat(sumTotal).toFixed(2));
+					
+					if($('#total').html().toString().length==9)
+						$('#divtotal').css('font-size','26px');
+					else if($('#total').html().toString().length>9)
+						$('#divtotal').css('font-size','26px');
+					else
+						$('#divtotal').css('font-size','30px');
+					
+					if($('#total').html().toString().length>7){
+						$('.den').css('width',4.5*parseFloat($('.producto').css('height')));
+					}else{
+						$('.den').css('width',3*parseFloat($('.producto').css('height')));
 					}
+					
+					//$('#total').html('PAGAR $'+ parseFloat(sumTotal).toFixed(2))
+					$('#justo').html('$ '+sumTotal.toFixed(2));
+					$('#justo').attr('data-value',-1*sumTotal.toFixed(2));
+					$('#redondeado,#redondeado2').html(Math.ceil(sumTotal).toFixed(2));
+					$('#redondeado,#redondeado2').attr('data-value',-1*Math.ceil(sumTotal).toFixed(2));
+					var alta=0;
+					for( var t in misdenominaciones){
+						if(misdenominaciones[t]>sumTotal)
+						{
+							alta=misdenominaciones[t];
+							break;
+						}
+					}
+					
+					$('#altaden').html('$ '+alta.toFixed(2));
+					$('#altaden').attr('data-value',-1*alta.toFixed(2));
+					if(alta!=sumTotal&&alta!=Math.ceil(sumTotal)&&alta!=0)
+						$('#altaden').parent().css('display','inline');
+					else
+						$('#altaden,#altaden').parent().css('display','none');
+
+					var prox10=0;
+					var iter=1;
+					var p10=iter*10;
+					while(p10<sumTotal){
+						iter++;
+						p10=iter*10;
+					}
+					$('#prox10').html('$ '+p10.toFixed(2));
+					$('#prox10').attr('data-value',-1*p10.toFixed(2));
+					//console.log(p10+'/'+alta);
+					if(p10>0&&p10!=alta)
+						$('#prox10').parent().css('display','inline');
+					else
+						$('#prox10').parent().css('display','none');
+
+					var prox20=0;
+					var iter=1;
+					var p20=iter*20;
+					while(p20<sumTotal){
+						iter++;
+						p20=iter*20;
+					}
+					$('#prox20').html('$ '+p20.toFixed(2));
+					$('#prox20').attr('data-value',-1*p20.toFixed(2));
+					if(p20>0&&p20!=p10)
+						$('#prox20').parent().css('display','inline');
+					else
+						$('#prox20').parent().css('display','none');
+
+					//alert(subtotalSinIva+"/"+subtotalSinIvaCompra);
+
+					$('.cantidad').html('0');
+					$('#tableresults').html('');
+					$('#inputbusc').val('');
+					$('.cantidadnew').html('0');
+					$('#tableresultsnew').html('');
+					$('#inputbuscnew').val('');
+					$('#contentdetalle').animate({
+						scrollTop: $('#contentdetalle')[0].scrollHeight
+					}, 1000).clearQueue();
+
+					}
+
+
+				}else if(response=='Desactivado'){
+					envia('cloud');
+					setTimeout(function(){
+						$('.navbar,#barraalternamovil').slideUp();
+						$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+						$('#desactivo').fadeIn();
+					},100);
+				}else{
+					envia('cloud');
+					setTimeout(function(){
+						$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
+						$('.navbar,#barraalternamovil').slideUp();
+						$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
+						$('#bloqueo').fadeIn();
+					},100);
+
 				}
-				
-				$('#altaden').html('$ '+alta.toFixed(2));
-				$('#altaden').attr('data-value',-1*alta.toFixed(2));
-				if(alta!=sumTotal&&alta!=Math.ceil(sumTotal)&&alta!=0)
-					$('#altaden').parent().css('display','inline');
-				else
-					$('#altaden,#altaden').parent().css('display','none');
 
-				var prox10=0;
-				var iter=1;
-				var p10=iter*10;
-				while(p10<sumTotal){
-					iter++;
-					p10=iter*10;
-				}
-				$('#prox10').html('$ '+p10.toFixed(2));
-				$('#prox10').attr('data-value',-1*p10.toFixed(2));
-				//console.log(p10+'/'+alta);
-				if(p10>0&&p10!=alta)
-					$('#prox10').parent().css('display','inline');
-				else
-					$('#prox10').parent().css('display','none');
-
-				var prox20=0;
-				var iter=1;
-				var p20=iter*20;
-				while(p20<sumTotal){
-					iter++;
-					p20=iter*20;
-				}
-				$('#prox20').html('$ '+p20.toFixed(2));
-				$('#prox20').attr('data-value',-1*p20.toFixed(2));
-				if(p20>0&&p20!=p10)
-					$('#prox20').parent().css('display','inline');
-				else
-					$('#prox20').parent().css('display','none');
-
-				//alert(subtotalSinIva+"/"+subtotalSinIvaCompra);
-
-				$('.cantidad').html('0');
-				$('#tableresults').html('');
-				$('#inputbusc').val('');
-				$('.cantidadnew').html('0');
-				$('#tableresultsnew').html('');
-				$('#inputbuscnew').val('');
-				$('#contentdetalle').animate({
-					scrollTop: $('#contentdetalle')[0].scrollHeight
-				}, 1000).clearQueue();
-
-                }
-
-
-			}else if(response=='Desactivado'){
-			    envia('cloud');
-				setTimeout(function(){
-					$('.navbar,#barraalternamovil').slideUp();
-					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-					$('#desactivo').fadeIn();
-				},100);
-			}else{
-				envia('cloud');
-				setTimeout(function(){
-					$('#linklogin,#linkloginb').attr("href","https://www.practisis.net/index3.php?rvpas="+localStorage.getItem("userPasswod")+"&rvus="+localStorage.getItem("userRegister"));
-					$('.navbar,#barraalternamovil').slideUp();
-					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
-					$('#bloqueo').fadeIn();
-				},100);
-
-			}
-
-		}).fail(function(){
-			updateOnlineStatus("OFFLINE");
-			setTimeout(function(){SincronizadorNormal()},180000);
-		});
-    }else{
-    //**********************************inicio normal*************************************
-	//Leo los consumos guardados para esa mesa
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(	function (tx){
-			tx.executeSql("SELECT * FROM MESAS_CONSUMOS WHERE id_mesa=?",[idmesa],function(tx,results1){
-				var total = 0;
-				var sumTotal = 0;
-				var taxTotal = 0;
-				
+			}).fail(function(){
+				updateOnlineStatus("OFFLINE");
+				setTimeout(function(){SincronizadorNormal()},180000);
+			});
+	}
+	else{
+		apiURL='api.php';
+		$.post(apiURL,{
+			id : idmesa,
+			fun : 'VerConsumosMesas'
+		}).done(function(response){
+			var results1 = JSON.parse(response);  
+			//**********************************inicio normal*************************************
+			//Leo los consumos guardados para esa mesa	
+			var total = 0;
+			var sumTotal = 0;
+			var taxTotal = 0;				
 			if(results1.rows.length>0){
 				var cantidadcom=0;
 				for(var k=0;k<results1.rows.length;k++){
@@ -5018,63 +4878,59 @@ function VerConsumos(idmesa){
 					
 					//alert(productoImpuestosIndexes+"/"+productoCantidad+"/"+productoPrecio+"/"+sumaagregados);
 
-				if($.trim(productoImpuestosIndexes) != '' && $.trim(productoImpuestosIndexes) != 0){
-					if($.trim(productoImpuestosIndexes).indexOf('@') !== -1){
-						$.each(productoImpuestosIndexes.split('@'), function(index,value){
-							if(productoImpuestosIndexes.indexOf(parseInt($('#idiva').html())) !== -1){
-								subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+					if($.trim(productoImpuestosIndexes) != '' && $.trim(productoImpuestosIndexes) != 0){
+						if($.trim(productoImpuestosIndexes).indexOf('@') !== -1){
+							$.each(productoImpuestosIndexes.split('@'), function(index,value){
+								if(productoImpuestosIndexes.indexOf(parseInt($('#idiva').html())) !== -1){
+									subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
 								}
-							else{
-								subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+								else{
+									subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
 								}
-
-							if($('#impuestoFactura-'+ value).length == 0){
-
-								var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
-								var currentimp=(parseFloat(productoCantidad) *( parseFloat(productoPrecio)+sumaagregados) * parseFloat(impuestoDetalles[2]));
-								taxTotal+= currentimp;
-
-								$('#factura').append('<input type="hidden" id="impuestoFactura-'+ value +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ currentimp +'"/>');
+								if($('#impuestoFactura-'+ value).length == 0){
+									var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
+									var currentimp=(parseFloat(productoCantidad) *( parseFloat(productoPrecio)+sumaagregados) * parseFloat(impuestoDetalles[2]));
+									taxTotal+= currentimp;
+									$('#factura').append('<input type="hidden" id="impuestoFactura-'+ value +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ currentimp +'"/>');
 								}
-							else{
-								var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
-								var currentTax = $('#impuestoFactura-'+ value).val();
-								var calcimp=((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
-								taxTotal += calcimp;
+								else{
+									var impuestoDetalles = $('#impuesto-'+ value).val().split('|');
+									var currentTax = $('#impuestoFactura-'+ value).val();
+									var calcimp=((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
+									taxTotal += calcimp;
 
-								$('#impuestoFactura-'+ value).val(parseFloat(currentTax) + parseFloat(calcimp));
+									$('#impuestoFactura-'+ value).val(parseFloat(currentTax) + parseFloat(calcimp));
 								}
 							});
 						}
-					else{
-						productoImpuestosIndexes == parseInt($('#idiva').html()) ? subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) : subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
-
-						if($('#impuestoFactura-'+productoImpuestosIndexes).length == 0){
-							var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
-							taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
-							$('#factura').append('<input type="hidden" id="impuestoFactura-'+ productoImpuestosIndexes +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ taxTotal +'"/>');
-							}
 						else{
-							var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
-							var currentTax = $('#impuestoFactura-'+ productoImpuestosIndexes).val();
-							taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
-							$('#impuestoFactura-'+ productoImpuestosIndexes).val(parseFloat(currentTax) + parseFloat(taxTotal));
+							productoImpuestosIndexes == parseInt($('#idiva').html()) ? subtotalIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) : subtotalSinIvaCompra = (parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
+
+							if($('#impuestoFactura-'+productoImpuestosIndexes).length == 0){
+								var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
+								taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
+								$('#factura').append('<input type="hidden" id="impuestoFactura-'+ productoImpuestosIndexes +'" class="esImpuesto" data-id="'+ impuestoDetalles[0] +'" data-nombre="'+ impuestoDetalles[1] +'" data-valor="'+ impuestoDetalles[2] +'" value="'+ taxTotal +'"/>');
+							}
+							else{
+								var impuestoDetalles = $('#impuesto-'+ productoImpuestosIndexes).val().split('|');
+								var currentTax = $('#impuestoFactura-'+ productoImpuestosIndexes).val();
+								taxTotal+= ((parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados)) * parseFloat(impuestoDetalles[2]));
+								$('#impuestoFactura-'+ productoImpuestosIndexes).val(parseFloat(currentTax) + parseFloat(taxTotal));
 							}
 						}
-					}else{
+					}
+					else{
 						subtotalSinIvaCompra=(parseFloat(productoCantidad) * (parseFloat(productoPrecio)+sumaagregados));
 					}
 				//impuestos end
 					$('#subtotalSinIva').val(parseFloat(subtotalSinIva) + parseFloat(subtotalSinIvaCompra));
 					$('#subtotalIva').val(parseFloat(subtotalIva) + parseFloat(subtotalIvaCompra));
 				}
-
 				/*Calculos*/
 				$('#itemsVendidos').html(cantidadcom);
 				$('.totales').each(function(){
 					sumTotal += parseFloat($.trim($(this).val()));
 				});
-
 				$('#totalmiFactura').val(sumTotal);
 				$('#total').html('$'+ parseFloat(sumTotal).toFixed(2));
 				if($('#total').html().toString().length==9)
@@ -5088,8 +4944,7 @@ function VerConsumos(idmesa){
 					$('.den').css('width',4.5*parseFloat($('.producto').css('height')));
 				}else{
 					$('.den').css('width',3*parseFloat($('.producto').css('height')));
-				}
-				
+				}				
 				$('#payButton').html('PAGAR');
 				$('#invoiceTotal').html(parseFloat(sumTotal).toFixed(2));
 				//$('#total').html('PAGAR $'+ parseFloat(sumTotal).toFixed(2))
@@ -5155,33 +5010,32 @@ function VerConsumos(idmesa){
 				}, 1000).clearQueue();
 				/**/
 			}
-		});
-	},errorCB,successCB);
-    //*********************************fin normal*****************************************
+		});	
+		//*********************************fin normal*****************************************
     }
 	$('#divmesas').hide();
 	$('#btn_pagar').show();
 }
 
 function SaveMesa(){
-  var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-    if(localStorage.getItem("con_localhost") == 'true'){
-      var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-      $.post(apiURL,{
+	var apiURL='';
+	if(localStorage.getItem("con_localhost") == 'true'){
+		apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+		$.post(apiURL,{
 		id_emp : localStorage.getItem("empresa"),
 		action : 'ListaEmpleados',
 		id_barra : localStorage.getItem("idbarra"),
 		deviceid:$("#deviceid").html(),
-        id_locales : localStorage.getItem("id_locales")
+		id_locales : localStorage.getItem("id_locales")
 		}).done(function(response){
 			if(response!='block' && response!='Desactivado'){
 				//console.log(response);
-                //var resp = response.split("||");
-                $('#listaempleados').html(response);
-                $('#popupEmpleados').modal("show");
+				//var resp = response.split("||");
+				$('#listaempleados').html(response);
+				$('#popupEmpleados').modal("show");
 
 			}else if(response=='Desactivado'){
-			    envia('cloud');
+				envia('cloud');
 				setTimeout(function(){
 					$('.navbar,#barraalternamovil').slideUp();
 					$("#demoGratis,#fadeRow,#finalizado,#contentStepSincro,#cuentaactiva").css("display","none");
@@ -5202,36 +5056,47 @@ function SaveMesa(){
 			updateOnlineStatus("OFFLINE");
 			setTimeout(function(){SincronizadorNormal()},180000);
 		});
-      return false;
-    }else{
-    //*********************************inicio normal**************************************
-	var mesaactiva=sessionStorage.getItem("mesa_activa");
-	db.transaction(	function (tx){
-		tx.executeSql("DELETE FROM MESAS_CONSUMOS WHERE id_mesa=?",[mesaactiva],function(tx,results){});
-	},errorCB,successCB);
-		
-	$('#tablaCompra>tbody>tr').each(function(){
-		var inputdata=$(this).find('.productDetails');
-		if(inputdata!=null){
-			var details=inputdata.val();
-			var agreg=""
-			if(inputdata.attr('data-detagregados')!=null&&inputdata.attr('data-detagregados')!=""&&inputdata.attr('data-detagregados')!="undefined")
-				agreg=inputdata.attr('data-detagregados');
-			var notes="";
-			if(inputdata.attr('data-notes')!=null&&inputdata.attr('data-notes')!=""&&inputdata.attr('data-notes')!="undefined")
-				notes=inputdata.attr('data-notes');
-			var idreal="";
-			if(inputdata.attr('data-id_real')!=null&&inputdata.attr('data-id_real')!=""&&inputdata.attr('data-id_real')!="undefined")
-				idreal=inputdata.attr('data-id_real');
-			var fecha= new Date().getTime();
-			db.transaction(	function (tx){
-				tx.executeSql("INSERT INTO MESAS_CONSUMOS (id_mesa,hora,details,agregados,notas,id_real) values (?,?,?,?,?,?);",[mesaactiva,fecha,details,agreg,notes,idreal],function(tx,results1){
-					console.log("consumo insertado"+results1.insertId);
-				});
-			},errorCB,successCB);
-		}
-	});
-    //*******************************fin normal*******************************************
+		return false;
+    }
+	else{
+		//*********************************inicio normal**************************************
+		var mesaactiva=sessionStorage.getItem("mesa_activa");
+		apiURL='api.php';
+		$.post(apiURL,{
+			id : mesaactiva,
+			fun : 'EliminarMesas'
+		}).done(function(response){
+			
+		});		
+		$('#tablaCompra>tbody>tr').each(function(){
+			var inputdata=$(this).find('.productDetails');
+			if(inputdata!=null){
+				var details=inputdata.val();
+				var agreg=""
+				if(inputdata.attr('data-detagregados')!=null&&inputdata.attr('data-detagregados')!=""&&inputdata.attr('data-detagregados')!="undefined")
+					agreg=inputdata.attr('data-detagregados');
+				var notes="";
+				if(inputdata.attr('data-notes')!=null&&inputdata.attr('data-notes')!=""&&inputdata.attr('data-notes')!="undefined")
+					notes=inputdata.attr('data-notes');
+				var idreal="";
+				if(inputdata.attr('data-id_real')!=null&&inputdata.attr('data-id_real')!=""&&inputdata.attr('data-id_real')!="undefined")
+					idreal=inputdata.attr('data-id_real');
+				var fecha= new Date().getTime();
+				apiURL='api.php';
+				$.post(apiURL,{
+					mesaactiva : mesaactiva,
+					fecha : fecha,
+					details : details,
+					agreg : agreg,
+					agreg : agreg,
+					idreal : idreal,
+					fun : 'InsertaMesasConsumos'
+				}).done(function(response){
+					
+				});					
+			}
+		});
+		//*******************************fin normal*******************************************
     }
 	
 	/*imprimir comandas*/
@@ -5294,10 +5159,12 @@ function SaveMesa(){
 		showalert("Order Saved Successfully");
 
 	if(cuan>0){
-		//comanderas
-		db.transaction(function (tx){
-		tx.executeSql('SELECT printercom FROM CONFIG where id=1',[],
-		function(tx,res){
+		apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'SacarImpresora'
+		}).done(function(response){
+			var res=JSON.parse(response);		
+			//comanderas		
 			if(res.rows.length>0){
 				var miprint=res.rows.item(0);
 				if(localStorage.getItem("con_mesas")=="true"){
@@ -5316,23 +5183,17 @@ function SaveMesa(){
 				}
 			}
 		});
-		},errorCB,successCB);
-				//fin comanderas
+		//fin comanderas
 	}
 	/*imprimir comandas no comandadas*/
-
 	setTimeout(function(){envia("puntodeventa")},2500);
 }
-
 function  ImprimirPrecuenta(){
-	
-	
 	var mensajepie="";
 	if(localStorage.getItem("mensajefinal")!=''&&localStorage.getItem("mensajefinal")!=null){
 		if(!localStorage.getItem("paquete")=="1")
 		   mensajepie=localStorage.getItem("mensajefinal");
-	}
-	
+	}	
 	var mesaactiva=sessionStorage.getItem("mesa_activa");
     //alert(mesaactiva);
 	if(mesaactiva!=null&&mesaactiva!=""){
@@ -5438,16 +5299,15 @@ function  ImprimirPrecuenta(){
 			json += '"mesa" : "'+mesaname+'",';
 			json += '"pax" : "'+pax+'",';
 			json += '"mensajefinal" : "'+mensajepie+'"';
-		json += '}}]}';
-		
+		json += '}}]}';		
 		console.log(json);
-		
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function (tx){		
-		tx.executeSql('SELECT printer,printercom FROM CONFIG where id=1',[],
-		function(tx,res){
+		var apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'SacarImpresora'
+		}).done(function(response){
+			var res=JSON.parse(response);		
 			if(res.rows.length>0){
-				var miprint=res.rows.item(0);
+				var miprint=res.rows.item(1);
 				if(miprint.printer!=null){
 					if(localStorage.getItem("printtrade")==2){
 						StarIOAdapter.rawprint(json,miprint.printer, function() {
@@ -5467,7 +5327,6 @@ function  ImprimirPrecuenta(){
 				}
 			}
 		});
-		},errorCB,successCB);
 	}
 }
 
@@ -5478,49 +5337,50 @@ function ActivarMitades(id){
 }
 
 function SaveMesaLocal(){
-  var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-  var id_empleado = $('#idempleado').val();
-  if(id_empleado == '0'){
-    if(localStorage.getItem("idioma")==1){
-      alert('Para continuar debe escoger el mesero.');
-    }else{
-      alert('To continue you must choose the waiter.');
-    }
-  }else{
-
-    $('#popupEmpleados').modal("hide");
-    var apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
-     var query = '';
-     var datos = '';
-     var mesaactiva=sessionStorage.getItem("mesa_activa");
-     $('#tablaCompra>tbody>tr').each(function(){
-		var inputdata=$(this).find('.productDetails');
-		if(inputdata!=null){
-			var details=inputdata.val();
-			var agreg=""
-			if(inputdata.attr('data-detagregados')!=null&&inputdata.attr('data-detagregados')!=""&&inputdata.attr('data-detagregados')!="undefined")
-				agreg=inputdata.attr('data-detagregados');
-			var notes="";
-			if(inputdata.attr('data-notes')!=null&&inputdata.attr('data-notes')!=""&&inputdata.attr('data-notes')!="undefined")
-				notes=inputdata.attr('data-notes');
-			var idreal="";
-			if(inputdata.attr('data-id_real')!=null&&inputdata.attr('data-id_real')!=""&&inputdata.attr('data-id_real')!="undefined")
-				idreal=inputdata.attr('data-id_real');
-			var fecha= new Date().getTime();
-            query += "INSERT INTO mesas_consumos (id_mesa,hora,details,agregados,notas,id_real) values ('"+mesaactiva+"','"+fecha+"','"+details+"','"+agreg+"','"+notes+"','"+idreal+"')||@";
-
-            if( $(this).find('.product_del').is(':visible') ){
-                datos += details+'|@|'+agreg+'|@|'+notes+'|@|'+idreal+'|@|'+fecha+'|/@';
-            }else{
-                //alert('Elemento oculto');
-            }
-
+	var apiURL='';
+	var id_empleado = $('#idempleado').val();
+	if(id_empleado == '0'){
+		if(localStorage.getItem("idioma")==1){
+			alert('Para continuar debe escoger el mesero.');
 		}
-	});
+		else{
+			alert('To continue you must choose the waiter.');
+		}
+	}
+	else{
+		$('#popupEmpleados').modal("hide");
+		apiURL='http://'+localStorage.getItem("ip_servidor")+'/connectnubepos/api2.php';
+		var query = '';
+		var datos = '';
+		var mesaactiva=sessionStorage.getItem("mesa_activa");
+		$('#tablaCompra>tbody>tr').each(function(){
+			var inputdata=$(this).find('.productDetails');
+			if(inputdata!=null){
+				var details=inputdata.val();
+				var agreg=""
+				if(inputdata.attr('data-detagregados')!=null&&inputdata.attr('data-detagregados')!=""&&inputdata.attr('data-detagregados')!="undefined")
+					agreg=inputdata.attr('data-detagregados');
+				var notes="";
+				if(inputdata.attr('data-notes')!=null&&inputdata.attr('data-notes')!=""&&inputdata.attr('data-notes')!="undefined")
+					notes=inputdata.attr('data-notes');
+				var idreal="";
+				if(inputdata.attr('data-id_real')!=null&&inputdata.attr('data-id_real')!=""&&inputdata.attr('data-id_real')!="undefined")
+					idreal=inputdata.attr('data-id_real');
+				var fecha= new Date().getTime();
+				query += "INSERT INTO mesas_consumos (id_mesa,hora,details,agregados,notas,id_real) values ('"+mesaactiva+"','"+fecha+"','"+details+"','"+agreg+"','"+notes+"','"+idreal+"')||@";
 
-    //alert(query);
+				if( $(this).find('.product_del').is(':visible') ){
+					datos += details+'|@|'+agreg+'|@|'+notes+'|@|'+idreal+'|@|'+fecha+'|/@';
+				}
+				else{
+					//alert('Elemento oculto');
+				}
 
-     $.post(apiURL,{
+			}
+		});
+		//alert(query);
+
+		$.post(apiURL,{
 		id_emp : localStorage.getItem("empresa"),
 		action : 'GuardaPedido',
 		id_barra : localStorage.getItem("idbarra"),
@@ -5624,11 +5484,13 @@ function SaveMesaLocal(){
 
 	if(cuan>0){
 		//comanderas
-		db.transaction(function (tx){
-		tx.executeSql('SELECT printercom FROM CONFIG where id=1',[],
-		function(tx,res){
+		apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'SacarImpresora'
+		}).done(function(response){
+			var res=JSON.parse(response);
 			if(res.rows.length>0){
-				var miprint=res.rows.item(0);
+				var miprint=res.rows.item(1);
 				if(localStorage.getItem("con_mesas")=="true"){
 					if(miprint.printercom!=null){
 						if(localStorage.getItem("printtrade")==2){
@@ -5644,8 +5506,7 @@ function SaveMesaLocal(){
 					}
 				}
 			}
-		});
-		},errorCB,successCB);
+		});		
 				//fin comanderas
 	}
 	/*imprimir comandas no comandadas*/

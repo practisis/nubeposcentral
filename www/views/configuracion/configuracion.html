@@ -1249,6 +1249,7 @@
 </div>
 <script>
 $(document).ready(function(){
+	var apiURL='';
 	if(localStorage.getItem("id_version_nube") == '0'||localStorage.getItem("id_version_nube") == null){
 		//envia('config');
 		if(localStorage.getItem('idbarra')!=null){
@@ -1320,7 +1321,8 @@ $(document).ready(function(){
         $('#grabaFac').attr({onclick:'ActivarFirma();'});
         $('#msjFac').attr({onclick:'ActivarMsjFactura();'});
         localStorage.setItem("diseno",0);
-	}else if(paquete=="36"){
+	}
+	else if(paquete=="36"){
 		$('#linklogin29es,#linklogin29en').attr("link","https://www.practisis.net/index33.php?rvpas="+btoa(localStorage.getItem("userPasswod"))+"&rvus="+btoa(localStorage.getItem("userRegister")));
 		$('#linklogin29es').html('<div style="font-size:11px;">Tu plan Actual</div> Ir a la Nube');
 		$('#linklogin29en').html('<div style="font-size:11px;">Your current plan</div> Access Cloud');
@@ -1346,7 +1348,8 @@ $(document).ready(function(){
         $('#grabaFac').attr({onclick:'ActivarFirma();'});
         $('#msjFac').attr({onclick:'ActivarMsjFactura();'});
         localStorage.setItem("diseno",0);
-	}else if(paquete=="37"){
+	}
+	else if(paquete=="37"){
 		$('#linklogin69es,#linklogin69en').attr("link","https://www.practisis.net/index33.php?rvpas="+btoa(localStorage.getItem("userPasswod"))+"&rvus="+btoa(localStorage.getItem("userRegister")));
 		$('#linklogin69es').html('<div style="font-size:11px;">Tu plan Actual</div> Ir a la Nube');
 		$('#linklogin69en').html('<div style="font-size:11px;">Your current plan</div> Access Cloud');
@@ -1479,7 +1482,8 @@ $(document).ready(function(){
 			$('#demoGratis').css("display","none");
             $('#escojeIdioma').css("display","none");
 		}
-	}else{
+	}
+	else{
 		$('#finalizado,#demoGratis,#fadeRow,#escojeIdioma').css("display","none");
 		$('#contentStepSincro,#cuentaactiva,#mensajeperso,#pestanasconfig').fadeIn();
 	}
@@ -1490,312 +1494,316 @@ $(document).ready(function(){
 	
 	
 		//paquete
-		var paquete=localStorage.getItem("paquete");
-		//idioma
-		var linklang="es";
-		if(localStorage.getItem("idioma")==2)
-			linklang="en";
+	var paquete=localStorage.getItem("paquete");
+	//idioma
+	var linklang="es";
+	if(localStorage.getItem("idioma")==2)
+		linklang="en";
 		
 		//alert(linklang);
 			var xmlidioma=$.get("lang/"+linklang+".html",function(datos){
-			d=JSON.parse(datos);
-			var itemestructura=d.estructura;
-			//console.log(itemestructura);
-			var itemtitles=itemestructura.titles;
-			var itembuttons=itemestructura.botones;
-			var itemlabels=itemestructura.labels;
-            var itemplaceholder=itemestructura.placeholder;
-			var todostitles=itemtitles.item;
-			var todosbuttons=itembuttons.item;
-			var todoslabels=itemlabels.item;
-            var todosplaceholder=itemplaceholder.item;
+		d=JSON.parse(datos);
+		var itemestructura=d.estructura;
+		//console.log(itemestructura);
+		var itemtitles=itemestructura.titles;
+		var itembuttons=itemestructura.botones;
+		var itemlabels=itemestructura.labels;
+		var itemplaceholder=itemestructura.placeholder;
+		var todostitles=itemtitles.item;
+		var todosbuttons=itembuttons.item;
+		var todoslabels=itemlabels.item;
+		var todosplaceholder=itemplaceholder.item;
 
-			for(var k=0;k<todosplaceholder.length;k++){
-				var miitemname=todosplaceholder[k].name;
+		for(var k=0;k<todosplaceholder.length;k++){
+			var miitemname=todosplaceholder[k].name;
+			//alert(miitemname);
+			$('.'+miitemname).prop("placeholder",todosplaceholder[k].text);
+		}
+
+			for(var k=0;k<todostitles.length;k++){
+				var miitemname=todostitles[k].name;
 				//alert(miitemname);
-				$('.'+miitemname).prop("placeholder",todosplaceholder[k].text);
+				$('.'+miitemname).html(todostitles[k].text);
 			}
-
-				for(var k=0;k<todostitles.length;k++){
-					var miitemname=todostitles[k].name;
-					//alert(miitemname);
-					$('.'+miitemname).html(todostitles[k].text);
-				}
-				
-				for(var k=0;k<todosbuttons.length;k++){
-					var miitemname=todosbuttons[k].name;
-					//alert(miitemname);
-					$('.'+miitemname).html(todosbuttons[k].text);
-				}
-				
-				for(var k=0;k<todoslabels.length;k++){
-					//console.log(todoslabels[k].name+"/"+todoslabels[k].name);
-					var miitemname=todoslabels[k].name;
-					$('#'+miitemname).html(todoslabels[k].text);
-				}
-				
-		});
-		
-		if(localStorage.getItem("con_comandas")=="true")
-			$('#divcomandas').fadeIn();
-		else
-			$('#divcomandas').css("display","none");
-		
-		//si ya existe impresora determinada
-		var extrade=localStorage.getItem("printtrade");
-		var extype=localStorage.getItem("printtype");
-		if(extrade!=null)
-			$('#marca').val(extrade);
-		
-		if(extype!=null)
-			$('#tipo').val(extype);
 			
-		//BuscarImpresoras();
-	
-		if(localStorage.getItem("logo")!=''&&localStorage.getItem("logo")!=null&&localStorage.getItem("logo").logo!=''){
-			$('#logofull,#cambiarlogo').fadeIn();
-			$('#logofull').attr('src','file:///data/data/com.practisis.practipos/files//'+localStorage.getItem("logo"));
-		}else{
-			//$('#logofull,#cambiarlogo').css("display","none");
-			$('#cambiarlogo').fadeIn();
-			$('#logofull').attr('src','img/nologo.png');
-		}
-		
-		$('#cambiarlogo').attr("href","https://www.practisis.net/indexredirect.php?rvpas="+btoa(localStorage.getItem("userPasswod"))+"&rvus="+btoa(localStorage.getItem("userRegister"))+"&mod=logo");
-		
-		$('#irdisenomesas').attr("href","https://www.practisis.net/indexredirect.php?rvpas="+btoa(localStorage.getItem("userPasswod"))+"&rvus="+btoa(localStorage.getItem("userRegister"))+"&mod=mesas");
+			for(var k=0;k<todosbuttons.length;k++){
+				var miitemname=todosbuttons[k].name;
+				//alert(miitemname);
+				$('.'+miitemname).html(todosbuttons[k].text);
+			}
 			
-		$('#tablet_emp').val(localStorage.getItem("empresa"));
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx1){
-				tx1.executeSql("SELECT nombreterminal as c,id_idioma,id_version_nube,sin_documento,con_nombre_orden,con_propina,con_tarjeta,con_shop,con_notasorden,con_comanderas,con_localhost,con_mesas,pais,mensajefinal,respaldar from CONFIG where id=1",[],function(tx1,results1){
-					if(results1.rows.length>0){
-						if(results1.rows.item(0).c!=''){
-							$('#tablet_name').val(results1.rows.item(0).c);
-							$('#tablet_pais').val(results1.rows.item(0).pais);
-							$('#custommsg').val(results1.rows.item(0).mensajefinal);
-
-							if(paquete==22||paquete==null){
-								$('#custommsg').prop("readonly","readonly");
-							}
-							
-							if(results1.rows.item(0).id_version_nube==3)
-								$('#irdisenomesas').fadeIn();
-							
-                            //alert(results1.rows.item(0).con_nombre_orden);
-                            $('#idioma > option[value="'+results1.rows.item(0).id_idioma+'"]').attr('selected', 'selected');
-                            $('#version_nub > option[value="'+results1.rows.item(0).id_version_nube+'"]').attr('selected', 'selected');
-                            if(results1.rows.item(0).sin_documento=='true'){
-                                $('#sin_documento').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#sin_documento').bootstrapSwitch('state', false);
-                    		}
-                            if(results1.rows.item(0).con_nombre_orden=='true'){
-                                $('#con_orden').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#con_orden').bootstrapSwitch('state', false);
-                    		}
-                            if(results1.rows.item(0).con_propina=='true'){
-                                $('#con_propina').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#con_propina').bootstrapSwitch('state', false);
-							}
-                            if(results1.rows.item(0).con_tarjeta=='true'){
-                                $('#con_tarjeta').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#con_tarjeta').bootstrapSwitch('state', false);
-                    		}
-                            if(results1.rows.item(0).con_shop=='true'){
-                                $('#con_shop').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#con_shop').bootstrapSwitch('state', false);
-                    		}
-                            if(results1.rows.item(0).con_notasorden=='true'){
-                                $('#con_notas').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#con_notas').bootstrapSwitch('state', false);
-                    		}
-                            if(results1.rows.item(0).con_comanderas=='true'){
-                                $('#con_comanderas').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#con_comanderas').bootstrapSwitch('state', false);
-                    		}
-							if(results1.rows.item(0).con_mesas=='true'){
-                                $('#con_mesas').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#con_mesas').bootstrapSwitch('state', false);
-                    		}
-							//$('#con_mesas').bootstrapSwitch('readonly',true);
-							//$('#con_shop').bootstrapSwitch('readonly',true);
-							
-                            //alert(results1.rows.item(0).con_localhost);
-                            $('#con_localhost').val(results1.rows.item(0).con_localhost);
-
-                            if(results1.rows.item(0).respaldar=='true'){
-                                $('#backupinf').bootstrapSwitch('state', true);
-                            }else{
-                    			$('#backupinf').bootstrapSwitch('state', false);
-                    		}
-
-						}
-					}
-				});
-				
-				///consulta impuestostab
-				if(localStorage.getItem('con_localhost')=="false"){
-					$('#confimpuestos tbody').html('');
-					tx1.executeSql("SELECT * FROM IMPUESTOS GROUP BY NOMBRE",[],function(tx1,results3){
-						if(results3.rows.length>0){
-							for(var t=0;t<results3.rows.length;t++){
-								var itemimp=results3.rows.item(t);
-								var esactivo=itemimp.activo;
-								var porcen=itemimp.porcentaje;
-								var nombreimp=itemimp.nombre;
-								var timespanimp=itemimp.timespan;
-								var checked='';
-								if(esactivo=='true')
-									checked='checked';
-								var mifila='<tr><td style="text-align:left;">'+nombreimp.toUpperCase()+'</td><td  style="text-align:left;"><input id="impval_'+timespanimp+'" style="display:inline; width:60%;" type="text" class="input form-control imporcent" value="'+porcen+'"/><span style="display:inline;"> %</span></td><td  style="text-align:left;"><input id="impact_'+timespanimp+'" type="checkbox" '+checked+' data-size="mini"; /></td></tr>';
-								$('#confimpuestos tbody').append(mifila);
-
-								if(esactivo=='true'){
-									$('#impact_'+timespanimp).bootstrapSwitch('state', true);
-								}else{
-									$('#impact_'+timespanimp).bootstrapSwitch('state', false);
-								}
-							}
-						}
-					});
-				}else{
-					$('#tabclickimpuestos').css("display","none");
-				}
-				
-				///consulta impuestos
-				
-				}
-			,errorCB,successCB);
-
-        $('#permisoscheck').bootstrapSwitch();
-		$('#tablet_menu').bootstrapSwitch();
-        $('#sin_documento').bootstrapSwitch();
-        $('#con_orden').bootstrapSwitch();
-        $('#con_propina').bootstrapSwitch();
-        $('#con_tarjeta').bootstrapSwitch();
-        $('#con_shop').bootstrapSwitch();
-        $('#con_notas').bootstrapSwitch();
-        $('#con_comanderas').bootstrapSwitch();
-        $('#con_mesas').bootstrapSwitch();
-		$('#backupinf').bootstrapSwitch();
-		$('#printlogo').bootstrapSwitch();
-        $('#multitablet').bootstrapSwitch();
-        $('#obligado').bootstrapSwitch();
-        $('#produccion').bootstrapSwitch();
-        $('#activafacturacionelectronica').bootstrapSwitch();
-
-		if(localStorage.getItem("diseno")==1){
-			$('#tablet_menu').bootstrapSwitch('state', true, true);
-		}else{
-			$('#tablet_menu').bootstrapSwitch('state', false, true);
-		}
-		
-		$('#tablet_menu').on('switchChange.bootstrapSwitch', function(event, state) {
-		  if(state){
-			localStorage.setItem("diseno",1);
-		  }else{
-			localStorage.setItem("diseno",0);
-		  }
-		});
-		
-		$('#tablet_cuenta').val(localStorage.getItem("userRegister"));
-
-		var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
-		if ( app ) {
-			cordova.getAppVersion.getVersionNumber().then(function (version) {
-				$('#tablet_version').val(version);
-			});
-		}
-		
-		//$('#console').css("height",parseInt($(window).height())*80/100);
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-			var today = new Date();
-			var m = today.getMonth()+1; // 0-11
-			var y = today.getFullYear();
-			var d = today.getDate();
-			var diahoy=y+"-"+m+"-"+d+" 00:00:00";
-			var timehoy=new Date(diahoy).getTime();
-			tx.executeSql("DELETE FROM LOGACTIONS WHERE time <'"+timehoy+"'");
-			tx.executeSql("SELECT * FROM LOGACTIONS WHERE time>=? ORDER BY time desc",[timehoy],function(tx,results){
-				if(results.rows.length>0){
-					var mihtml='';
-					for(var n=0;n<results.rows.length;n++){
-						var item=results.rows.item(n);
-						var fec=FechaNormal(item.time);
-						mihtml+="<tr><td>"+fec+"</td><td>"+item.descripcion+"</td><td>"+item.datos+"</td></tr>";
-					}
-					$('#tableconsole tbody').html(mihtml);
-				}
-		});	},errorCB,function(){console.log("Leyendo Registros de Log")});
-		
-		saberDatosEmpresa();
-
-        $("[name='activo']").bootstrapSwitch('state',true);
-
-        $('#activafacturacionelectronica').on('switchChange.bootstrapSwitch', function(event, state) {
-		  if(state){
-			$('#paso1').fadeOut('fast');
-            $('#paso2').fadeIn('slow');
-		  }else{
-			$('#paso1').fadeIn();
-            $('#paso2').fadeOut();
-		  }
-		});
-
-        $('#produccion').on('switchChange.bootstrapSwitch', function(event, state) {
-          var produccionaux = state;
-          if(produccionaux == false){
-            produccion = true;
-          }else{
-            produccion = false;
-          }
-          var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-        	db.transaction(function (tx){
-        		tx.executeSql('update CONFIG set prueba_produccion="'+produccion+'",sincronizar="true" where id=1');
-
-               /* if(localStorage.getItem("idioma")==1){
-            		 $('#msjOkFac').html('Información Ingresada con Éxito');
-            	}else{
-            		 $('#msjOkFac').html('Information entered Success.');
-            	}
-
-        		$('#msjOkFac').fadeIn('slow');
-        		$('#camposFac').css('display','none');
-        		setTimeout(function() {
-        			$('#msjOkFac').fadeOut('slow');
-        		}, 3000);*/
-        	},errorCB,successCB);
-		});
+			for(var k=0;k<todoslabels.length;k++){
+				//console.log(todoslabels[k].name+"/"+todoslabels[k].name);
+				var miitemname=todoslabels[k].name;
+				$('#'+miitemname).html(todoslabels[k].text);
+			}
 			
 	});
+		
+	if(localStorage.getItem("con_comandas")=="true")
+		$('#divcomandas').fadeIn();
+	else
+		$('#divcomandas').css("display","none");
 	
+	//si ya existe impresora determinada
+	var extrade=localStorage.getItem("printtrade");
+	var extype=localStorage.getItem("printtype");
+	if(extrade!=null)
+		$('#marca').val(extrade);
+	
+	if(extype!=null)
+		$('#tipo').val(extype);
+		
+	//BuscarImpresoras();
+
+	if(localStorage.getItem("logo")!=''&&localStorage.getItem("logo")!=null&&localStorage.getItem("logo").logo!=''){
+		$('#logofull,#cambiarlogo').fadeIn();
+		$('#logofull').attr('src','file:///data/data/com.practisis.practipos/files//'+localStorage.getItem("logo"));
+	}else{
+		//$('#logofull,#cambiarlogo').css("display","none");
+		$('#cambiarlogo').fadeIn();
+		$('#logofull').attr('src','img/nologo.png');
+	}
+	
+	$('#cambiarlogo').attr("href","https://www.practisis.net/indexredirect.php?rvpas="+btoa(localStorage.getItem("userPasswod"))+"&rvus="+btoa(localStorage.getItem("userRegister"))+"&mod=logo");
+	
+	$('#irdisenomesas').attr("href","https://www.practisis.net/indexredirect.php?rvpas="+btoa(localStorage.getItem("userPasswod"))+"&rvus="+btoa(localStorage.getItem("userRegister"))+"&mod=mesas");
+		
+	$('#tablet_emp').val(localStorage.getItem("empresa"));
+	apiURL='api.php';
+	$.post(apiURL,{
+		fun : 'VerConfiguracion'
+	}).done(function(response){
+		var results1=JSON.parse(response);
+		if(results1.rows.length>0){
+			if(results1.rows.item(0).c!=''){
+				$('#tablet_name').val(results1.rows.item(0).c);
+				$('#tablet_pais').val(results1.rows.item(0).pais);
+				$('#custommsg').val(results1.rows.item(0).mensajefinal);
+
+				if(paquete==22||paquete==null){
+					$('#custommsg').prop("readonly","readonly");
+				}
+				
+				if(results1.rows.item(0).id_version_nube==3)
+					$('#irdisenomesas').fadeIn();
+				
+				//alert(results1.rows.item(0).con_nombre_orden);
+				$('#idioma > option[value="'+results1.rows.item(0).id_idioma+'"]').attr('selected', 'selected');
+				$('#version_nub > option[value="'+results1.rows.item(0).id_version_nube+'"]').attr('selected', 'selected');
+				if(results1.rows.item(0).sin_documento=='true'){
+					$('#sin_documento').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#sin_documento').bootstrapSwitch('state', false);
+				}
+				if(results1.rows.item(0).con_nombre_orden=='true'){
+					$('#con_orden').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#con_orden').bootstrapSwitch('state', false);
+				}
+				if(results1.rows.item(0).con_propina=='true'){
+					$('#con_propina').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#con_propina').bootstrapSwitch('state', false);
+				}
+				if(results1.rows.item(0).con_tarjeta=='true'){
+					$('#con_tarjeta').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#con_tarjeta').bootstrapSwitch('state', false);
+				}
+				if(results1.rows.item(0).con_shop=='true'){
+					$('#con_shop').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#con_shop').bootstrapSwitch('state', false);
+				}
+				if(results1.rows.item(0).con_notasorden=='true'){
+					$('#con_notas').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#con_notas').bootstrapSwitch('state', false);
+				}
+				if(results1.rows.item(0).con_comanderas=='true'){
+					$('#con_comanderas').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#con_comanderas').bootstrapSwitch('state', false);
+				}
+				if(results1.rows.item(0).con_mesas=='true'){
+					$('#con_mesas').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#con_mesas').bootstrapSwitch('state', false);
+				}
+				//$('#con_mesas').bootstrapSwitch('readonly',true);
+				//$('#con_shop').bootstrapSwitch('readonly',true);
+				
+				//alert(results1.rows.item(0).con_localhost);
+				$('#con_localhost').val(results1.rows.item(0).con_localhost);
+
+				if(results1.rows.item(0).respaldar=='true'){
+					$('#backupinf').bootstrapSwitch('state', true);
+				}
+				else{
+					$('#backupinf').bootstrapSwitch('state', false);
+				}
+			}
+		}
+	});			
+			///consulta impuestostab
+	if(localStorage.getItem('con_localhost')=="false"){
+		$('#confimpuestos tbody').html('');
+		apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'SacaImpuestos'
+		}).done(function(response){
+			var results3=JSON.parse(response);
+			if(results3.rows.length>0){
+				for(var t=0;t<results3.rows.length;t++){
+					var itemimp=results3.rows.item(t);
+					var esactivo=itemimp.activo;
+					var porcen=itemimp.porcentaje;
+					var nombreimp=itemimp.nombre;
+					var timespanimp=itemimp.timespan;
+					var checked='';
+					if(esactivo=='true')
+						checked='checked';
+					var mifila='<tr><td style="text-align:left;">'+nombreimp.toUpperCase()+'</td><td  style="text-align:left;"><input id="impval_'+timespanimp+'" style="display:inline; width:60%;" type="text" class="input form-control imporcent" value="'+porcen+'"/><span style="display:inline;"> %</span></td><td  style="text-align:left;"><input id="impact_'+timespanimp+'" type="checkbox" '+checked+' data-size="mini"; /></td></tr>';
+					$('#confimpuestos tbody').append(mifila);
+
+					if(esactivo=='true'){
+						$('#impact_'+timespanimp).bootstrapSwitch('state', true);
+					}else{
+						$('#impact_'+timespanimp).bootstrapSwitch('state', false);
+					}
+				}
+			}
+		});
+	}
+	else{
+		$('#tabclickimpuestos').css("display","none");
+	}		
+		///consulta impuestos		
+	$('#permisoscheck').bootstrapSwitch();
+	$('#tablet_menu').bootstrapSwitch();
+	$('#sin_documento').bootstrapSwitch();
+	$('#con_orden').bootstrapSwitch();
+	$('#con_propina').bootstrapSwitch();
+	$('#con_tarjeta').bootstrapSwitch();
+	$('#con_shop').bootstrapSwitch();
+	$('#con_notas').bootstrapSwitch();
+	$('#con_comanderas').bootstrapSwitch();
+	$('#con_mesas').bootstrapSwitch();
+	$('#backupinf').bootstrapSwitch();
+	$('#printlogo').bootstrapSwitch();
+	$('#multitablet').bootstrapSwitch();
+	$('#obligado').bootstrapSwitch();
+	$('#produccion').bootstrapSwitch();
+	$('#activafacturacionelectronica').bootstrapSwitch();
+
+	if(localStorage.getItem("diseno")==1){
+		$('#tablet_menu').bootstrapSwitch('state', true, true);
+	}
+	else{
+		$('#tablet_menu').bootstrapSwitch('state', false, true);
+	}
+	
+	$('#tablet_menu').on('switchChange.bootstrapSwitch', function(event, state) {
+		if(state){
+			localStorage.setItem("diseno",1);
+		}
+		else{
+			localStorage.setItem("diseno",0);
+		}
+	});
+	
+	$('#tablet_cuenta').val(localStorage.getItem("userRegister"));
+
+	var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+	if ( app ) {
+		cordova.getAppVersion.getVersionNumber().then(function (version) {
+			$('#tablet_version').val(version);
+		});
+	}
+	
+	//$('#console').css("height",parseInt($(window).height())*80/100);
+	var today = new Date();
+	var m = today.getMonth()+1; // 0-11
+	var y = today.getFullYear();
+	var d = today.getDate();
+	var diahoy=y+"-"+m+"-"+d+" 00:00:00";
+	var timehoy=new Date(diahoy).getTime();
+	var apiURL='api.php';
+	$.post(apiURL,{
+		timehoy : timehoy,
+		fun : 'EliminarLogactions'
+	}).done(function(response){
+		var results=JSON.parse(response);
+		if(results.rows.length>0){
+			var mihtml='';
+			for(var n=0;n<results.rows.length;n++){
+				var item=results.rows.item(n);
+				var fec=FechaNormal(item.time);
+				mihtml+="<tr><td>"+fec+"</td><td>"+item.descripcion+"</td><td>"+item.datos+"</td></tr>";
+			}
+			$('#tableconsole tbody').html(mihtml);
+		}
+	});	
+	
+	saberDatosEmpresa();
+
+	$("[name='activo']").bootstrapSwitch('state',true);
+
+	$('#activafacturacionelectronica').on('switchChange.bootstrapSwitch', function(event, state) {
+		if(state){
+			$('#paso1').fadeOut('fast');
+			$('#paso2').fadeIn('slow');
+		}
+		else{
+			$('#paso1').fadeIn();
+			$('#paso2').fadeOut();
+		}
+	});
+
+	$('#produccion').on('switchChange.bootstrapSwitch', function(event, state) {
+		var produccionaux = state;
+		if(produccionaux == false){
+			produccion = true;
+		}
+		else{
+			produccion = false;
+		}
+		apiURL='api.php';
+		$.post(apiURL,{
+			produccion : produccion,
+			fun : 'GuardarConfiguracion'
+		}).done(function(response){
+			
+		});
+		
+	});
+}
+
 	function BuscarImpresoras(){
 		//alert("hola impresora");
-		var marca=$('#marca').val();
-		
+		var marca=$('#marca').val();		
 		$('#listaimpresoras tbody').html('');
 		$('#listaimpresorascomandas tbody').html('');
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(
-		function (tx){
-			tx.executeSql('SELECT encabezado,largo FROM CONFIG WHERE id=1;',[],
-			function(tx,res){
-				if(res.rows.length>0){
-					$('#encabezado').val(res.rows.item(0).encabezado);
-					$('#largo').val(res.rows.item(0).largo);
-				}
-			});				
-		},errorCB,successCB);
-		
+		var apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'VerConf'
+		}).done(function(response){
+			var res=JSON.parse(response);		
+			if(res.rows.length>0){
+				$('#encabezado').val(res.rows.item(0).encabezado);
+				$('#largo').val(res.rows.item(0).largo);
+			}
+		});			
+				
 		var linea1="<tr><td style='vertical-align:middle;' onclick='$("+'"#print_0"'+").click();' >No print</td><td><input style='width:35px; height:35px;' class='printerradio' data-value='0' type='radio' name='printer' value='0' id='print_0' checked /></td></tr>";
 			
 		var linea1c="<tr><td style='vertical-align:middle;' onclick='$("+'"#printc_0"'+").click();'>No print</td><td><input style='width:35px; height:35px;' class='printerradioc' data-value='0' type='radio' name='printerc' value='0' id='printc_0' checked /></td></tr>";
@@ -1813,61 +1821,52 @@ $(document).ready(function(){
 		//StarIOAdapter.searchall("USB:SN:00123456",function(dataprint){
 		var appn = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
 		if ( appn ) {
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx){
-				tx.executeSql("SELECT printer,printercom,marcaprint,modelprint,addressprint,typeprint FROM CONFIG where id=1",[],function(tx,results){
-					console.log(results);
-					var idprinter='';
-					if(results.rows.length>0){
-						var idprinter=results.rows.item(0);
-						if(idprinter.printer!=null){
-							localStorage.setItem("print",idprinter.printer);
-							localStorage.setItem("printc",idprinter.printercom);
-							localStorage.setItem("printtrade",idprinter.marcaprint);
-							localStorage.setItem("printtype",idprinter.typeprint);
-							
-							var midir=null;
-							var mimodel=null;
-							var mitype=null;
-							
-							if(idprinter.addressprint!=null){
-								var datadir=idprinter.addressprint;
-								midir=datadir.split("||");
-							}
-							
-							if(midir!=null){
-								localStorage.setItem("printaddress",midir[0]);
-								localStorage.setItem("comaddress",midir[1]);
-							}
-								
-							if(idprinter.modelprint!=null){
-								var datamod=idprinter.modelprint;
-								mimodel=datamod.split("||");
-							}
-							
-							if(mimodel!=null){
-								localStorage.setItem("printmodel",mimodel[0]);
-								localStorage.setItem("commodel",mimodel[1]);
-							}
-							
-							if(idprinter.typeprint!=null){
-								var datatyp=idprinter.typeprint;
-								mitype=datatyp.split("||");
-							}
-							
-							if(mitype!=null){
-								localStorage.setItem("printtype",mitype[0]);
-								localStorage.setItem("comtype",mitype[1]);
-							}
-							
-						}
-						
-						if(idprinter.printercom!=null){
-							localStorage.setItem("printc",idprinter.printercom);
-						}
+			apiURL='api.php';
+			$.post(apiURL,{
+				fun : 'VerConf1'
+			}).done(function(response){
+				var results=JSON.parse(response);			
+				var idprinter='';
+				if(results.rows.length>0){
+					var idprinter=results.rows.item(0);
+					if(idprinter.printer!=null){
+						localStorage.setItem("print",idprinter.printer);
+						localStorage.setItem("printc",idprinter.printercom);
+						localStorage.setItem("printtrade",idprinter.marcaprint);
+						localStorage.setItem("printtype",idprinter.typeprint);						
+						var midir=null;
+						var mimodel=null;
+						var mitype=null;						
+						if(idprinter.addressprint!=null){
+							var datadir=idprinter.addressprint;
+							midir=datadir.split("||");
+						}							
+						if(midir!=null){
+							localStorage.setItem("printaddress",midir[0]);
+							localStorage.setItem("comaddress",midir[1]);
+						}								
+						if(idprinter.modelprint!=null){
+							var datamod=idprinter.modelprint;
+							mimodel=datamod.split("||");
+						}							
+						if(mimodel!=null){
+							localStorage.setItem("printmodel",mimodel[0]);
+							localStorage.setItem("commodel",mimodel[1]);
+						}							
+						if(idprinter.typeprint!=null){
+							var datatyp=idprinter.typeprint;
+							mitype=datatyp.split("||");
+						}							
+						if(mitype!=null){
+							localStorage.setItem("printtype",mitype[0]);
+							localStorage.setItem("comtype",mitype[1]);
+						}							
+					}						
+					if(idprinter.printercom!=null){
+						localStorage.setItem("printc",idprinter.printercom);
 					}
-			});},errorCB,successCB);
-			
+				}
+			});			
 			if(marca==2){
 				var $btn = $('#btnbuscarimp').button('loading');
 				StarIOAdapter.searchall("",function(dataprint){
@@ -1913,7 +1912,8 @@ $(document).ready(function(){
 						console.log("There is a problem with the printer, go to configuration: " + error);
 					
 				});
-			}else if(marca==1){
+			}
+			else if(marca==1){
 				var $btn = $('#btnbuscarimp').button('loading');
 				//buscar epson
 				var mitipo=$('#tipo').val();
@@ -1948,17 +1948,17 @@ $(document).ready(function(){
 						console.log("There is a problem with the printer, go to configuration: " + error);
 					
 				});
-		}
-		if($('.printerradio').length==0){
-			$('#btnbuscarimp').button('reset');
-			//$('#btnprobar').css("display","none");
-			var linea="<tr><td>No print</td><td><input class='printerradio' data-value='0' type='radio' name='printer' value='0' id='print_0' checked /></td></tr>";
-			
-			var lineac="<tr><td>No print</td><td><input class='printerradioc' data-value='0' type='radio' name='printerc' value='0' id='print_0' checked /></td></tr>";
-			
-			$('#listaimpresoras tbody').append(linea);
-			$('#listaimpresorascomandas tbody').append(lineac);
-		}
+			}
+			if($('.printerradio').length==0){
+				$('#btnbuscarimp').button('reset');
+				//$('#btnprobar').css("display","none");
+				var linea="<tr><td>No print</td><td><input class='printerradio' data-value='0' type='radio' name='printer' value='0' id='print_0' checked /></td></tr>";
+				
+				var lineac="<tr><td>No print</td><td><input class='printerradioc' data-value='0' type='radio' name='printerc' value='0' id='print_0' checked /></td></tr>";
+				
+				$('#listaimpresoras tbody').append(linea);
+				$('#listaimpresorascomandas tbody').append(lineac);
+			}
 		}
 	}
 	
@@ -2007,47 +2007,34 @@ $(document).ready(function(){
 				
 			if(laprinterc==0)
 				laprinterc='';
-				
-			db.transaction(function(tx1){
-				tx1.executeSql("SELECT count(*) as c from CONFIG",[],
-				function(tx1,results1){
-					if(results1.rows.length>0){
-						if(results1.rows.item(0).c>0){
-							tx1.executeSql("UPDATE CONFIG SET printer=?,printercom=?,marcaprint=?,modelprint=?,addressprint=?,typeprint=?  where id=1",[laprinter,laprinterc,$('#marca').val(),modelprint+"||"+modelprintc,directionprint+"||"+directionprintc,typeprint+"||"+typeprintc],function(tx1,results2){
-									if(localStorage.getItem("idioma")==1)
-										showalert("Se ha vinculado las impresoras: "+laprinter+","+laprinterc);
-									else if(localStorage.getItem("idioma")==2)
-										showalert("Linked printers: "+laprinter+","+laprinterc);			
-							});
-						}else{
-							tx1.executeSql("INSERT INTO CONFIG (printer,printercom,marcaprint,modelprint,addressprint,typeprint) VALUES (?,?,?,?,?,?)",[laprinter,laprinterc,$('#marca').val(),modelprint+"||"+modelprintc,directionprint+"||"+directionprintc,typeprint+"||"+typeprintc],function(tx1,results3){
-								if(localStorage.getItem("idioma")==1)
-									showalert("Se ha vinculado las impresoras: "+laprinter+","+laprinterc);
-								else if(localStorage.getItem("idioma")==2)
-									showalert("Linked printers: "+laprinter+","+laprinterc);
-								
-							});
-							
-						}
-						
-						if(directionprint!=null)
-							localStorage.setItem("printaddress",directionprint);
-						if(modelprint!=null)
-							localStorage.setItem("printmodel",modelprint);
-						if(typeprint!=null)
-							localStorage.setItem("printtype",typeprint);
-							
-						if(directionprintc!=null)
-							localStorage.setItem("comaddress",directionprintc);
-						if(modelprintc!=null)
-							localStorage.setItem("commodel",modelprintc);
-						if(typeprintc!=null)
-							localStorage.setItem("comtype",typeprintc);
-					}
-				});}
-			,errorCB,successCB);
-				
 			
+			var apiURL='api.php';
+			$.post(apiURL,{
+				laprinter : laprinter,
+				marca : $('#marca').val(),
+				model : modelprint+"||"+modelprintc,
+				direction : directionprint+"||"+directionprintc,
+				type : typeprint+"||"+typeprintc,
+				fun : 'ActualizarConfiguracion'
+			}).done(function(response){
+				if(localStorage.getItem("idioma")==1)
+					showalert("Se ha vinculado las impresoras: "+laprinter+","+laprinterc);
+				else if(localStorage.getItem("idioma")==2)
+					showalert("Linked printers: "+laprinter+","+laprinterc);				
+				if(directionprint!=null)
+					localStorage.setItem("printaddress",directionprint);
+				if(modelprint!=null)
+					localStorage.setItem("printmodel",modelprint);
+				if(typeprint!=null)
+					localStorage.setItem("printtype",typeprint);
+					
+				if(directionprintc!=null)
+					localStorage.setItem("comaddress",directionprintc);
+				if(modelprintc!=null)
+					localStorage.setItem("commodel",modelprintc);
+				if(typeprintc!=null)
+					localStorage.setItem("comtype",typeprintc);					
+			});			
 			/*if(cuantos==1){
 				db.transaction(function(tx){
 					tx.executeSql("UPDATE CONFIG SET printer=? where id=1",[laprinter],function(tx,results){
@@ -2066,8 +2053,7 @@ $(document).ready(function(){
 		}
 	}
 	
-	function ImprimirTest(){
-	
+	function ImprimirTest(){	
 		/*StarIOAdapter.printepson($('#jsonprint').html(),"",function() {
 			alert("imprimiendo");
 		},function(error){
@@ -2075,9 +2061,11 @@ $(document).ready(function(){
 		});*/
 		
 		//alert("test");
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);		
-		db.transaction(function(tx){
-			tx.executeSql("SELECT printer,printercom,marcaprint,modelprint,addressprint,typeprint FROM CONFIG where id=1",[],function(tx,results){
+		var apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'VerConf1'
+		}).done(function(response){
+			var results=JSON.parse(response);
 			//console.log(results);
 			if(results.rows.length>0){
 				//alert(results.rows.item(0).printer);
@@ -2094,7 +2082,8 @@ $(document).ready(function(){
 							else if(localStorage.getItem("idioma")==2)
 								showalert("Printing Invoice Test");
 						});
-					}else if(idprinter.marcaprint==1){
+					}
+					else if(idprinter.marcaprint==1){
 						var modeldata=idprinter.modelprint;
 						var mimodel=modeldata.split('||');
 						var addressdata=idprinter.addressprint;
@@ -2109,13 +2098,13 @@ $(document).ready(function(){
 								showalert("Printing Invoice Test");
 						})
 					}
-				}else{
+				}
+				else{
 					if(localStorage.getItem("idioma")==1)
 						showalert("No se ha configurado una impresora.");
 					else if(localStorage.getItem("idioma")==2)
 						showalert("There is no configured printer.");
-				}
-				
+				}				
 				if(idprinter.printercom!=null){
 					if(idprinter.marcaprint==2){
 						StarIOAdapter.rawprint($('#jsonprint').html(),idprinter.printercom, function() {
@@ -2124,7 +2113,8 @@ $(document).ready(function(){
 							else if(localStorage.getItem("idioma")==2)
 								showalert("Printing Command Test");
 						});
-					}else if(idprinter.marcaprint==1){
+					}
+					else if(idprinter.marcaprint==1){
 						var modeldata=idprinter.modelprint;
 						var mimodel=modeldata.split('||');
 						var addressdata=idprinter.addressprint;
@@ -2138,447 +2128,409 @@ $(document).ready(function(){
 								showalert("Printing Command Test");
 						});
 					}
-				}else{
+				}
+				else{
 					if(localStorage.getItem("idioma")==1)
 						showalert("No se ha configurado una impresora.");
 					else if(localStorage.getItem("idioma")==2)
 						showalert("There is no configured printer.");
 				}
 			}
-			});
-		},errorCB,successCB);
-	}
-	
+		});		
+	}	
 	function ActualizarMedidas(){
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(
-		function (tx){
-			var encab=3;
-			if(parseInt($('#encabezado').val())>0)
-				encab=$('#encabezado').val();
-			var largo=18;
-			if(parseInt($('#largo').val())>0)
-				largo=$('#largo').val();
-				
-			tx.executeSql('UPDATE CONFIG set encabezado=?,largo=? WHERE id=1;',[encab,largo],
-			function(tx,res){
-				localStorage.setItem("encabezado",encab);
-				localStorage.setItem("largo",largo);
-				if(localStorage.getItem("idioma")==1)
-						showalert("Datos Actualizados con éxito.");
-					else if(localStorage.getItem("idioma")==2)
-						showalert("Successfully Updated");
-			});				
-		},errorCB,successCB);
+		var encab=3;
+		if(parseInt($('#encabezado').val())>0)
+			encab=$('#encabezado').val();
+		var largo=18;
+		if(parseInt($('#largo').val())>0)
+			largo=$('#largo').val();
+		var apiURL='api.php';
+		$.post(apiURL,{
+			encabezado : encab,
+			largo : largo,
+			fun : 'ActualizarMedidas'
+		}).done(function(response){		
+			localStorage.setItem("encabezado",encab);
+			localStorage.setItem("largo",largo);
+			if(localStorage.getItem("idioma")==1)
+				showalert("Datos Actualizados con éxito.");
+			else if(localStorage.getItem("idioma")==2)
+				showalert("Successfully Updated");
+		});						
 	}
 	
 	function GuardarNombre(){
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function(tx1){
-				var tabname=$('#tablet_name').val();
-
-				if(tabname=='')
-					tabname="Tablet "+$('#devicemodel').html();
-					
-				//tx1.executeSql("UPDATE CONFIG SET nombreterminal=?,sincronizar=? where id=1",[tabname,true],function(){
-                var idioma = $('#idioma').val();
-                var version_nub = $('#version_nub').val();
-                var sin_documento = $('#sin_documento').bootstrapSwitch('state');
-				localStorage.setItem('sin_documento',sin_documento);
-                var con_orden = $('#con_orden').bootstrapSwitch('state');
-                localStorage.setItem('con_nombre_orden',con_orden);
-                var con_propina = $('#con_propina').bootstrapSwitch('state');
-                var con_tarjeta = $('#con_tarjeta').bootstrapSwitch('state');
-                localStorage.setItem("con_tarjeta",con_tarjeta);
-                var con_shop = $('#con_shop').bootstrapSwitch('state');
-                localStorage.setItem('con_shop',con_shop);
-                localStorage.setItem('idioma',idioma);
-                localStorage.setItem('propina',con_propina);
-                var con_notas = $('#con_notas').bootstrapSwitch('state');
-                var con_comanderas = $('#con_comanderas').bootstrapSwitch('state');
-                var con_mesas = $('#con_mesas').bootstrapSwitch('state');
-                localStorage.setItem('con_notas',con_notas);
-                localStorage.setItem('con_comandas',con_comanderas);
-                localStorage.setItem('con_mesas',con_mesas);
-                var con_backup = $('#backupinf').bootstrapSwitch('state');
-
-				if(tabname=='')
-					tabname="Tablet "+$('#devicemodel').html();
-					
-				tx1.executeSql("UPDATE CONFIG SET nombreterminal=?,sincronizar=?,id_idioma=?,sin_documento=?,con_nombre_orden=?,con_propina=?,con_tarjeta=?,con_shop=?,con_notasorden=?,con_comanderas=?,con_mesas=?,id_version_nube=?,respaldar=? where id=1",[tabname,true,idioma,sin_documento,con_orden,con_propina,con_tarjeta,con_shop,con_notas,con_comanderas,con_mesas,version_nub,con_backup],
-				function(tx1,results1){
-					
-					var linklang="es";
-					if(localStorage.getItem("idioma")==2)
-						linklang="en";
-								
-					if(localStorage.getItem("idioma")==1)
-						showalert("Datos Guardados con exito.");
-					else if(localStorage.getItem("idioma")==2)
-						showalert("Successfully Saved.");
-							
-					var xmlidioma=$.get("lang/"+linklang+".html",function(datos){
-					d=JSON.parse(datos);
-					var itemestructura=d.estructura;
-					//console.log(itemestructura);
-					var itemmen=itemestructura.menu;
-					var itemtitles=itemestructura.titles;
-					var itembuttons=itemestructura.botones;
-					var itemlabels=itemestructura.labels;
-					var todostitles=itemtitles.item;
-					var todosbuttons=itembuttons.item;
-					var todoslabels=itemlabels.item;
-					var todositems=itemmen.item;	
-					
-						for(var k=0;k<todositems.length;k++){
-							var miitem=todositems[k];
-							$('#lab_menu_'+parseInt(k+1)).html(miitem);
-						}
-							
-						for(var k=0;k<todostitles.length;k++){
-							var miitemname=todostitles[k].name;
-							//alert(miitemname);
-							$('.'+miitemname).html(todostitles[k].text);
-						}
+		var tabname=$('#tablet_name').val();
+		if(tabname=='')
+			tabname="Tablet "+$('#devicemodel').html();			
+		//tx1.executeSql("UPDATE CONFIG SET nombreterminal=?,sincronizar=? where id=1",[tabname,true],function(){
+		var idioma = $('#idioma').val();
+		var version_nub = $('#version_nub').val();
+		var sin_documento = $('#sin_documento').bootstrapSwitch('state');
+		localStorage.setItem('sin_documento',sin_documento);
+		var con_orden = $('#con_orden').bootstrapSwitch('state');
+		localStorage.setItem('con_nombre_orden',con_orden);
+		var con_propina = $('#con_propina').bootstrapSwitch('state');
+		var con_tarjeta = $('#con_tarjeta').bootstrapSwitch('state');
+		localStorage.setItem("con_tarjeta",con_tarjeta);
+		var con_shop = $('#con_shop').bootstrapSwitch('state');
+		localStorage.setItem('con_shop',con_shop);
+		localStorage.setItem('idioma',idioma);
+		localStorage.setItem('propina',con_propina);
+		var con_notas = $('#con_notas').bootstrapSwitch('state');
+		var con_comanderas = $('#con_comanderas').bootstrapSwitch('state');
+		var con_mesas = $('#con_mesas').bootstrapSwitch('state');
+		localStorage.setItem('con_notas',con_notas);
+		localStorage.setItem('con_comandas',con_comanderas);
+		localStorage.setItem('con_mesas',con_mesas);
+		var con_backup = $('#backupinf').bootstrapSwitch('state');
+		if(tabname=='')
+			tabname="Tablet "+$('#devicemodel').html();	
+		var apiURL='api.php';
+		$.post(apiURL,{
+			tabname : tabname,
+			idioma : idioma,
+			sin_documento : sin_documento,
+			con_orden : con_orden,
+			con_propina : con_propina,
+			con_tarjeta : con_tarjeta,
+			con_shop : con_shop,
+			con_notas : con_notas,
+			con_comanderas : con_comanderas,
+			con_mesas : con_mesas,
+			version_nub : version_nub,
+			con_backup : con_backup,
+			fun : 'GuardarNombre'
+		}).done(function(response){						
+			var linklang="es";
+			if(localStorage.getItem("idioma")==2)
+				linklang="en";
 						
-						for(var k=0;k<todosbuttons.length;k++){
-							var miitemname=todosbuttons[k].name;
-							//alert(miitemname);
-							$('.'+miitemname).html(todosbuttons[k].text);
+			if(localStorage.getItem("idioma")==1)
+				showalert("Datos Guardados con exito.");
+			else if(localStorage.getItem("idioma")==2)
+				showalert("Successfully Saved.");
+					
+			var xmlidioma=$.get("lang/"+linklang+".html",function(datos){
+				d=JSON.parse(datos);
+				var itemestructura=d.estructura;
+				//console.log(itemestructura);
+				var itemmen=itemestructura.menu;
+				var itemtitles=itemestructura.titles;
+				var itembuttons=itemestructura.botones;
+				var itemlabels=itemestructura.labels;
+				var todostitles=itemtitles.item;
+				var todosbuttons=itembuttons.item;
+				var todoslabels=itemlabels.item;
+				var todositems=itemmen.item;						
+				for(var k=0;k<todositems.length;k++){
+					var miitem=todositems[k];
+					$('#lab_menu_'+parseInt(k+1)).html(miitem);
+				}						
+				for(var k=0;k<todostitles.length;k++){
+					var miitemname=todostitles[k].name;
+					//alert(miitemname);
+					$('.'+miitemname).html(todostitles[k].text);
+				}					
+				for(var k=0;k<todosbuttons.length;k++){
+					var miitemname=todosbuttons[k].name;
+					//alert(miitemname);
+					$('.'+miitemname).html(todosbuttons[k].text);
+				}					
+				for(var k=0;k<todoslabels.length;k++){
+					//console.log(todoslabels[k].name+"/"+todoslabels[k].name);
+					var miitemname=todoslabels[k].name;
+					$('#'+miitemname).html(todoslabels[k].text);
+				}						
+			});
+		});
+				
+		$('.imporcent').each(function(){
+			var porcen=$(this).val();
+			var idinp=$(this).attr('id');
+			var datinp=idinp.split("_");
+			var active=$('#impact_'+datinp[1]).bootstrapSwitch('state');
+			apiURL='api.php';
+			$.post(apiURL,{
+				porcentaje : porcen,
+				activo : active,
+				timespan : datinp[1],
+				fun : 'GuardaImpuestos'
+			}).done(function(response){			
+				console.log("impuesto actualizado");
+			});
+		});
+		
+		apiURL='api.php';
+		$.post(apiURL,{
+			fun : 'SacaImpuestos'
+		}).done(function(response){
+			var results3=JSON.parse(response);							
+			$('#taxes').html('');
+			console.log(results3);
+			var impuestos='';
+			var impuestosid='';
+			if(results3.rows.length>0){
+				console.log("encuentra impuestos");
+				var cuan=0;
+				for(var r=0;r<results3.rows.length;r++){
+					var imp=results3.rows.item(r);
+						if(cuan>0){
+							impuestos+="@";
+							impuestosid+="@";
 						}
-						
-						for(var k=0;k<todoslabels.length;k++){
-							//console.log(todoslabels[k].name+"/"+todoslabels[k].name);
-							var miitemname=todoslabels[k].name;
-							$('#'+miitemname).html(todoslabels[k].text);
-						}
-						
-				});
-				});
-				
-				$('.imporcent').each(function(){
-					var porcen=$(this).val();
-					var idinp=$(this).attr('id');
-					var datinp=idinp.split("_");
-					var active=$('#impact_'+datinp[1]).bootstrapSwitch('state');
-					tx1.executeSql("UPDATE IMPUESTOS set porcentaje=?,activo=?,sincronizar=? where timespan=?",[porcen,active,"true",datinp[1]],function(tx1,res2){
-						console.log("impuesto actualizado");
-					});
-				});
-				
-				
-				/*impuestos activos */
-				tx1.executeSql("SELECT * FROM IMPUESTOS WHERE activo=? group by upper(nombre) order by id",["true"],function(tx,results3){
-					$('#taxes').html('');
-					console.log(results3);
-					var impuestos='';
-					var impuestosid='';
-					if(results3.rows.length>0){
-						console.log("encuentra impuestos");
-						var cuan=0;
-						for(var r=0;r<results3.rows.length;r++){
-							var imp=results3.rows.item(r);
-								if(cuan>0){
-									impuestos+="@";
-									impuestosid+="@";
-								}
-								impuestos+=parseFloat(imp.porcentaje)/100;
-								impuestosid+=imp.timespan;
-								$('#taxes').append('<input id="impuesto-'+imp.id+'" type="text" value="'+imp.id+"|"+imp.nombre+"|"+parseFloat((imp.porcentaje)/100)+'">');
-								cuan++;
-						}
-						console.log(impuestos+'/'+impuestosid);
-						$('#impuestosactivos').html(impuestos);
-						$('#impuestosactivosid').html(impuestosid);
-						
-					}
-				});
-				/**/
-				
-				
+						impuestos+=parseFloat(imp.porcentaje)/100;
+						impuestosid+=imp.timespan;
+						$('#taxes').append('<input id="impuesto-'+imp.id+'" type="text" value="'+imp.id+"|"+imp.nombre+"|"+parseFloat((imp.porcentaje)/100)+'">');
+						cuan++;
 				}
-			,errorCB,successCB);
+				console.log(impuestos+'/'+impuestosid);
+				$('#impuestosactivos').html(impuestos);
+				$('#impuestosactivosid').html(impuestosid);
+				
+			}
+		});
+				/**/							
+	}	
+	function fail() {
+		alert("failed to get filesystem");
+	}
+	function gotFS(fileSystem) {
+		alert("got filesystem");
+			// save the file system for later access
+	   
+		window.rootFS = fileSystem.root;
+		alert(fileSystem.root.fullPath);
+		alert( cordova.file.dataDirectory);
+	}
+	function ImprimirLogo(){
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22||paquete==null){
+			alert("Necesita Premium");
+		}
+	}
+	function CambiarMensaje(){
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22||paquete=="22"){
+			msjcloud=1;
+			envia('config');	
+		}
+	}
+	function IrCloud(){
+	 var url=$('#cambiarlogo').attr('href');
+	 window.open(url);
+	}	
+	function ver_version(){
+		var version_nub = document.getElementById('version_nub').value;
+		if(version_nub == '1'){
+			localStorage.setItem("con_shop","true");
+			localStorage.setItem("con_mesas","false");
+			localStorage.setItem("con_profesionales","false");
+			$('#con_shop').bootstrapSwitch('state', true);
+			$('#con_mesas').bootstrapSwitch('state', false);
+			$('#irdisenomesas').fadeOut();
+		}
+		else if(version_nub == '2'){
+			localStorage.setItem("con_shop","false");
+			localStorage.setItem("con_mesas","false");
+			localStorage.setItem("con_profesionales","false");
+			$('#con_shop').bootstrapSwitch('state', false);
+			$('#con_mesas').bootstrapSwitch('state', false);
+			$('#irdisenomesas').fadeOut();
+		}
+		else if(version_nub == '3'){
+			localStorage.setItem("con_shop","false");
+			localStorage.setItem("con_mesas","true");
+			localStorage.setItem("con_profesionales","false");
+			$('#con_shop').bootstrapSwitch('state', false);
+			$('#con_mesas').bootstrapSwitch('state', true);
+			$('#irdisenomesas').fadeIn();
+		}
+		else if(version_nub == '4'){
+			var apiURL='api.php';
+			$.post(apiURL,{
+			fun : 'GuardarProductosCategorias'
+			}).done(function(response){
+				console.log("insertado producto personalizado"+results.insertId);
+			});			
+			localStorage.setItem("con_shop","false");
+			localStorage.setItem("con_mesas","false");
+			localStorage.setItem("con_profesionales","true");
+			$('#con_shop').bootstrapSwitch('state', false);
+			$('#con_mesas').bootstrapSwitch('state', false);
+			$('#irdisenomesas').fadeOut();
+		}
+		else{
+		localStorage.setItem("con_shop","false");
+		localStorage.setItem("con_mesas","false");
+		localStorage.setItem("con_profesionales","false");
+		$('#con_shop').bootstrapSwitch('state', false);
+		$('#con_mesas').bootstrapSwitch('state', false);
+		$('#irdisenomesas').fadeOut();
+		}
+	}
+
+	function IrDisenoMesas(){
+		var url=$('#irdisenomesas').attr('href')
+		window.open(url);
+	}
+
+	function ActivarMultitablet(){
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22){
+			msjcloud=2;
+			envia('config');
+		}
+	}
+
+	function ActivarImprimirLogo(){
+		//alert('entra imprlogo');
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22){
+			msjcloud=3;
+			envia('config');
+		}
+	}
+
+	function FechaNormal(fecha){
+		var today = new Date(fecha);
+		var m = today.getMonth()+1; // 0-11
+		if(m.toString().length<2)
+			m="0"+m.toString();
+
+		var y = today.getFullYear();
+
+		var d = today.getDate();
+		if(d.toString().length<2)
+			d="0"+d.toString();
+		
+		var h = today.getHours();
+		if(h.toString().length<2)
+			h="0"+h.toString();
+
+		var min = today.getMinutes();
+		if(min.toString().length<2)
+			min="0"+min.toString();
+
+		var s = today.getSeconds();
+		if(s.toString().length<2)
+			s="0"+s.toString();
+
+		var ml = today.getMilliseconds();
+		return y+"-"+m+"-"+d+" "+h+":"+min+":"+s+":"+ml;
 	}
 	
-function fail() {
-    alert("failed to get filesystem");
-}
-
-function gotFS(fileSystem) {
-    alert("got filesystem");
-        // save the file system for later access
-   
-    window.rootFS = fileSystem.root;
-	alert(fileSystem.root.fullPath);
-	alert( cordova.file.dataDirectory);
-}
-
-
-function ImprimirLogo(){
-	var paquete=localStorage.getItem("paquete");
-	if(paquete==22||paquete==null){
-		alert("Necesita Premium");
+	function backupbdd(){
+	  backupContent();
+	  $('#myModalbdd').modal('show');
 	}
-}
-
-function CambiarMensaje(){
-	var paquete=localStorage.getItem("paquete");
-	if(paquete==22||paquete=="22"){
-		msjcloud=1;
-		envia('config');	
-	}
-}
-
-function IrCloud(){
- var url=$('#cambiarlogo').attr('href');
- window.open(url);
-}
-	
-	
-function ver_version(){
-  var version_nub = document.getElementById('version_nub').value;
-  if(version_nub == '1'){
-    localStorage.setItem("con_shop","true");
-    localStorage.setItem("con_mesas","false");
-    localStorage.setItem("con_profesionales","false");
-    $('#con_shop').bootstrapSwitch('state', true);
-    $('#con_mesas').bootstrapSwitch('state', false);
-	$('#irdisenomesas').fadeOut();
-  }else if(version_nub == '2'){
-    localStorage.setItem("con_shop","false");
-    localStorage.setItem("con_mesas","false");
-    localStorage.setItem("con_profesionales","false");
-    $('#con_shop').bootstrapSwitch('state', false);
-    $('#con_mesas').bootstrapSwitch('state', false);
-	$('#irdisenomesas').fadeOut();
-  }else if(version_nub == '3'){
-    localStorage.setItem("con_shop","false");
-    localStorage.setItem("con_mesas","true");
-    localStorage.setItem("con_profesionales","false");
-    $('#con_shop').bootstrapSwitch('state', false);
-    $('#con_mesas').bootstrapSwitch('state', true);
-	$('#irdisenomesas').fadeIn();
-  }else if(version_nub == '4'){
-  	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function(tx){
-
-      tx.executeSql("INSERT OR IGNORE INTO CATEGORIAS(categoria,activo,existe,timespan,sincronizar)values('Personalizada','1','1','-14','true');",[],function(tx,results){
-      	console.log("insertada categ:"+results.insertId);
-      });
-
-      tx.executeSql('INSERT OR IGNORE INTO PRODUCTOS(formulado,codigo,precio,categoriaid,cargaiva,productofinal,materiaprima,timespan,servicio,sincronizar,color,estado,tieneimpuestos) VALUES("Personalizado", "1414" ,0,-14,0,1,0,"-14",0,"true","",1,"true");',[],function(tx,results){
-        console.log("insertado producto personalizado"+results.insertId);
-      });
-    },errorCB,function(){
-	});
-    localStorage.setItem("con_shop","false");
-    localStorage.setItem("con_mesas","false");
-    localStorage.setItem("con_profesionales","true");
-    $('#con_shop').bootstrapSwitch('state', false);
-    $('#con_mesas').bootstrapSwitch('state', false);
-	$('#irdisenomesas').fadeOut();
-  }else{
-    localStorage.setItem("con_shop","false");
-    localStorage.setItem("con_mesas","false");
-    localStorage.setItem("con_profesionales","false");
-    $('#con_shop').bootstrapSwitch('state', false);
-    $('#con_mesas').bootstrapSwitch('state', false);
-	$('#irdisenomesas').fadeOut();
-  }
-}
-
-function IrDisenoMesas(){
-	var url=$('#irdisenomesas').attr('href')
-	window.open(url);
-}
-
-function ActivarMultitablet(){
-	var paquete=localStorage.getItem("paquete");
-	if(paquete==22){
-		msjcloud=2;
-		envia('config');
-	}
-}
-
-function ActivarImprimirLogo(){
-	//alert('entra imprlogo');
-	var paquete=localStorage.getItem("paquete");
-	if(paquete==22){
-		msjcloud=3;
-		envia('config');
-	}
-}
-
-function FechaNormal(fecha){
-	var today = new Date(fecha);
-	var m = today.getMonth()+1; // 0-11
-	if(m.toString().length<2)
-		m="0"+m.toString();
-
-	var y = today.getFullYear();
-
-	var d = today.getDate();
-	if(d.toString().length<2)
-		d="0"+d.toString();
-	
-	var h = today.getHours();
-	if(h.toString().length<2)
-		h="0"+h.toString();
-
-	var min = today.getMinutes();
-	if(min.toString().length<2)
-		min="0"+min.toString();
-
-	var s = today.getSeconds();
-	if(s.toString().length<2)
-		s="0"+s.toString();
-
-	var ml = today.getMilliseconds();
-	return y+"-"+m+"-"+d+" "+h+":"+min+":"+s+":"+ml;
-}
-function backupbdd(){
-  backupContent();
-  $('#myModalbdd').modal('show');
-}
 // backup content
-function backupContent() {
-var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
- db.transaction(
-  function(transaction) {
-   transaction.executeSql('SELECT * FROM FACTURAS;', null,
-    function (transaction, result) {
-     if (result.rows.length > 0) {
-      var tag = '{"FACTURAS":[';
-      for (var i=0; i < result.rows.length; i++) {
-       var row = result.rows.item(i);
-       // expand and change this according to your table attributes
-       tag = tag + '{"id":"' + row.id + '", "timespan":"' + row.timespan + '", "clientName":"' + row.clientName + '", "RUC":"' + row.RUC + '", "address":"' + row.address + '", "tele":"' + row.tele + '", "fetchJson":"' + row.fetchJson + '", "paymentsUsed":"' + row.paymentsUsed + '", "cash":"' + row.cash + '", "cards":"' + row.cards + '", "cheques":"' + row.cheques + '", "vauleCxC":"' + row.vauleCxC + '", "paymentConsumoInterno":"' + row.paymentConsumoInterno + '", "tablita":"' + row.tablita + '", "acc":"' + row.acc + '", "echo":"' + row.echo + '", "aux":"' + row.aux + '", "fecha":"' + row.fecha + '", "anulada":"' + row.anulada + '", "sincronizar":"' + row.sincronizar + '"}';
-       if (i+1 < result.rows.length) {
-        tag = tag + ',';
-       }
-      }
-      tag = tag + ']}';
-        //alert(tag);
-        $('#facturas').html(tag+',');
-     } else {
-      alert("No content to backup.");
-     }
-    },
-    errorHandlerSqlTransaction
-   );
-  }
- );
- db.transaction(
-  function(transaction) {
-   transaction.executeSql('SELECT * FROM FACTURAS_FORMULADOS;', null,
-    function (transaction, result) {
-     if (result.rows.length > 0) {
-      var tag = '{"FACTURAS_FORMULADOS":[';
-      for (var i=0; i < result.rows.length; i++) {
-       var row = result.rows.item(i);
-       // expand and change this according to your table attributes
-       tag = tag + '{"id":"' + row.id + '", "timespan_factura":"' + row.timespan_factura + '", "timespan_formulado":"' + row.timespan_formulado + '", "cantidad":"' + row.cantidad + '", "precio_unitario":"' + row.precio_unitario + '"}';
-       if (i+1 < result.rows.length) {
-        tag = tag + ',';
-       }
-      }
-      tag = tag + ']}';
-        //alert(tag);
-        $('#facturas_formulados').html(tag+',');
-     } else {
-      alert("No content to backup.");
-     }
-    },
-    errorHandlerSqlTransaction
-   );
-  }
- );
- db.transaction(
-  function(transaction) {
-   transaction.executeSql('SELECT * FROM MENU;', null,
-    function (transaction, result) {
-     if (result.rows.length > 0) {
-      var tag = '{"MENU":[';
-      for (var i=0; i < result.rows.length; i++) {
-       var row = result.rows.item(i);
-       // expand and change this according to your table attributes
-       tag = tag + '{"id":"' + row.id + '", "fila":"' + row.fila + '", "idcatmenu":"' + row.idcatmenu + '", "idproducto":"' + row.idproducto + '", "timespan":"' + row.timespan + '", "activo":"' + row.activo + '"}';
-       if (i+1 < result.rows.length) {
-        tag = tag + ',';
-       }
-      }
-      tag = tag + ']}';
-        //alert(tag);
-        $('#menu').html(tag+',');
-     } else {
-      alert("No content to backup.");
-     }
-    },
-    errorHandlerSqlTransaction
-   );
-  }
- );
- db.transaction(
-  function(transaction) {
-   transaction.executeSql('SELECT * FROM MENU_CATEGORIAS;', null,
-    function (transaction, result) {
-     if (result.rows.length > 0) {
-      var tag = '{"MENU_CATEGORIAS":[';
-      for (var i=0; i < result.rows.length; i++) {
-       var row = result.rows.item(i);
-       // expand and change this according to your table attributes
-       tag = tag + '{"id":"' + row.id + '", "orden":"' + row.orden + '", "nombre":"' + row.nombre + '", "timespan":"' + row.timespan + '", "activo":"' + row.activo + '"}';
-       if (i+1 < result.rows.length) {
-        tag = tag + ',';
-       }
-      }
-      tag = tag + ']}';
-        //alert(tag);
-        $('#menu_categorias').html(tag+',');
-     } else {
-      alert("No content to backup.");
-     }
-    },
-    errorHandlerSqlTransaction
-   );
-  }
- );
- db.transaction(
-  function(transaction) {
-   transaction.executeSql('SELECT * FROM PRODUCTOS;', null,
-    function (transaction, result) {
-     if (result.rows.length > 0) {
-      var tag = '{"PRODUCTOS":[';
-      for (var i=0; i < result.rows.length; i++) {
-       var row = result.rows.item(i);
-       // expand and change this according to your table attributes
-       tag = tag + '{"id_local":"' + row.id_local + '", "formulado":"' + row.formulado + '", "codigo":"' + row.codigo + '", "precio":"' + row.precio + '", "categoriaid":"' + row.categoriaid + '", "cargaiva":"' + row.cargaiva + '", "productofinal":"' + row.productofinal + '", "materiaprima":"' + row.materiaprima + '", "timespan":"' + row.timespan + '", "ppq":"' + row.ppq + '", "color":"' + row.color + '", "servicio":"' + row.servicio + '", "estado":"' + row.estado + '", "sincronizar":"' + row.sincronizar + '"}';
-       if (i+1 < result.rows.length) {
-        tag = tag + ',';
-       }
-      }
-      tag = tag + ']}';
-        //alert(tag);
-        $('#productos').html(tag);
-     } else {
-      alert("No content to backup.");
-     }
-    },
-    errorHandlerSqlTransaction
-   );
-  }
- );
-}
-
-
-function errorHandlerSqlTransaction(error) {
-  //alert(error);
-	console.error('SQLite - Error code: ' + error.code + ' - Error message: ' + error.message);
-	return true;
-}
-
-
-function actualizar(){
+	function backupContent() {
+		var apiURL='api.php';
+		$.post(apiURL,{
+		fun : 'backupContent'
+		}).done(function(response){
+			var resd =response.split('@@@');
+			result=JSON.parse(resd[0]);
+			result1=JSON.parse(resd[1]);
+			result2=JSON.parse(resd[2]);
+			result3=JSON.parse(resd[3]);
+			result4=JSON.parse(resd[4]);
+			if (result.rows.length > 0) {
+				var tag = '{"FACTURAS":[';
+				for (var i=0; i < result.rows.length; i++) {
+					var row = result.rows.item(i);
+	   // expand and change this according to your table attributes
+					tag = tag + '{"id":"' + row.id + '", "timespan":"' + row.timespan + '", "clientName":"' + row.clientName + '", "RUC":"' + row.RUC + '", "address":"' + row.address + '", "tele":"' + row.tele + '", "fetchJson":"' + row.fetchJson + '", "paymentsUsed":"' + row.paymentsUsed + '", "cash":"' + row.cash + '", "cards":"' + row.cards + '", "cheques":"' + row.cheques + '", "vauleCxC":"' + row.vauleCxC + '", "paymentConsumoInterno":"' + row.paymentConsumoInterno + '", "tablita":"' + row.tablita + '", "acc":"' + row.acc + '", "echo":"' + row.echo + '", "aux":"' + row.aux + '", "fecha":"' + row.fecha + '", "anulada":"' + row.anulada + '", "sincronizar":"' + row.sincronizar + '"}';
+					if (i+1 < result.rows.length) {
+						tag = tag + ',';
+					}
+				}
+				tag = tag + ']}';
+				//alert(tag);
+				$('#facturas').html(tag+',');
+			} 
+			else {
+				alert("No content to backup.");
+			}
+			if (result1.rows.length > 0) {
+				var tag1 = '{"FACTURAS_FORMULADOS":[';
+				for (var i=0; i < result1.rows.length; i++) {
+					var row1 = result1.rows.item(i);
+					// expand and change this according to your table attributes
+					tag1 = tag1 + '{"id":"' + row1.id + '", "timespan_factura":"' + row1.timespan_factura + '", "timespan_formulado":"' + row1.timespan_formulado + '", "cantidad":"' + row1.cantidad + '", "precio_unitario":"' + row1.precio_unitario + '"}';
+					if (i+1 < result1.rows.length) {
+						tag1 = tag1 + ',';
+					}
+				}
+				tag1 = tag1 + ']}';
+				//alert(tag);
+				$('#facturas_formulados').html(tag1+',');
+			} 
+			else {
+				alert("No content to backup.");
+			}
+			if (result2.rows.length > 0) {
+				var tag2 = '{"MENU":[';
+				for (var i=0; i < result2.rows.length; i++) {
+					var row2 = result2.rows.item(i);
+					// expand and change this according to your table attributes
+					tag2 = tag2 + '{"id":"' + row2.id + '", "fila":"' + row2.fila + '", "idcatmenu":"' + row2.idcatmenu + '", "idproducto":"' + row2.idproducto + '", "timespan":"' + row2.timespan + '", "activo":"' + row2.activo + '"}';
+					if (i+1 < result2.rows.length) {
+						tag2 = tag2 + ',';
+					}
+				}
+				tag2 = tag2 + ']}';
+				//alert(tag);
+				$('#menu').html(tag2+',');
+			} 
+			else {
+				alert("No content to backup.");
+			}
+			if (result3.rows.length > 0) {
+				var tag3 = '{"MENU_CATEGORIAS":[';
+				for (var i=0; i < result3.rows.length; i++) {
+					var row3 = result3.rows.item(i);
+					// expand and change this according to your table attributes
+					tag3 = tag3 + '{"id":"' + row3.id + '", "orden":"' + row3.orden + '", "nombre":"' + row3.nombre + '", "timespan":"' + row3.timespan + '", "activo":"' + row3.activo + '"}';
+					if (i+1 < result3.rows.length) {
+						tag3 = tag3 + ',';
+					}
+				}
+				tag3 = tag3 + ']}';
+				//alert(tag);
+				$('#menu_categorias').html(tag3+',');
+			} 
+			else {
+				alert("No content to backup.");
+			}
+			if (result4.rows.length > 0) {
+				var tag4 = '{"PRODUCTOS":[';
+				for (var i=0; i < result.rows.length; i++) {
+					var row4 = result4.rows.item(i);
+					// expand and change this according to your table attributes
+					tag4 = tag4 + '{"id_local":"' + row4.id_local + '", "formulado":"' + row4.formulado + '", "codigo":"' + row4.codigo + '", "precio":"' + row4.precio + '", "categoriaid":"' + row4.categoriaid + '", "cargaiva":"' + row4.cargaiva + '", "productofinal":"' + row4.productofinal + '", "materiaprima":"' + row4.materiaprima + '", "timespan":"' + row4.timespan + '", "ppq":"' + row4.ppq + '", "color":"' + row4.color + '", "servicio":"' + row4.servicio + '", "estado":"' + row4.estado + '", "sincronizar":"' + row4.sincronizar + '"}';
+					if (i+1 < result4.rows.length) {
+						tag4 = tag4 + ',';
+					}
+				}
+				tag4 = tag4 + ']}';
+				//alert(tag);
+				$('#productos').html(tag4);
+			} 
+			else {
+				alert("No content to backup.");
+			}			
+		});
+	}
+	function errorHandlerSqlTransaction(error) {
+	  //alert(error);
+		console.error('SQLite - Error code: ' + error.code + ' - Error message: ' + error.message);
+		return true;
+	}
+	
+	function actualizar(){
 		var nombreEsta = $('#nombreEsta').val();
 		var razon = $('#razon').val();
 		var ruc = $('#ruc').val();
@@ -2586,16 +2538,13 @@ function actualizar(){
 		var email = $('#email').val();
 		var dir = $('#dir').val();
 		var serie = $('#serie').val();
-		var establecimiento = $('#establecimiento').val();
-		
+		var establecimiento = $('#establecimiento').val();		
 		if(nombreEsta == '' ){
 			$('#nombreEsta').effect('highlight');
-		}
-		
+		}		
 		if(razon == '' ){
 			$('#razon').effect('highlight');
-		}
-		
+		}		
 		if(ruc == '' ){
 			$('#ruc').effect('highlight');
 		}
@@ -2607,18 +2556,28 @@ function actualizar(){
 		}
 		if(dir == '' ){
 			$('#dir').effect('highlight');
-		}
-		
+		}		
 		if(nombreEsta == '' || razon == '' || ruc == '' || tel == '' || email == '' || dir == '' ){
 			$('#campos').fadeIn('slow');
 			$('#msjOk').css('display','none');
 			setTimeout(function() {
 				$('#campos').fadeOut('slow');
 			}, 3000);
-		}else{
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function (tx){
-				tx.executeSql('update CONFIG set nombre = "'+nombreEsta+'" , razon = "'+razon+'", ruc = '+ruc+' , telefono = '+tel+', email = "'+email+'", direccion = "'+dir+'",sincronizar="true",serie="'+serie+'",establecimiento="'+establecimiento+'"');
+		}
+		else{
+			var apiURL='api.php';
+			$.post(apiURL,{
+			nombreEsta : nombreEsta,
+			razon : razon,
+			ruc : ruc,
+			tel : tel,
+			email : email,
+			dir : dir,
+			serie : serie,
+			establecimiento :establecimiento,
+			quehace : 'update',
+			fun : 'GuardarConfiguracion1'
+			}).done(function(response){
 				$('#msjOk').html('Informacion actualizada con Éxito');
 
                 $('#nombreEstable').val(nombreEsta);
@@ -2628,12 +2587,12 @@ function actualizar(){
 
 				$('#msjOk').fadeIn('slow');
 				$('#campos').css('display','none');
+				$('#JSONempresaLocal').html('"empresa":{'+'"nombre":"'+nombreEsta+'","direccion":"'+dir+'"},');
 				setTimeout(function() {
 					$('#msjOk').fadeOut('slow');
-				}, 3000);
-			},errorCB,function(){$('#JSONempresaLocal').html('"empresa":{'+'"nombre":"'+nombreEsta+'","direccion":"'+dir+'"},');});
-		}
-		
+				}, 3000);				
+			});
+		}		
 	}
 	function grabar(){
 		var nombreEsta = $('#nombreEsta').val();
@@ -2672,100 +2631,111 @@ function actualizar(){
 			setTimeout(function() {
 				$('#campos').fadeOut('slow');
 			}, 3000);
-		}else{
-			var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-			db.transaction(function (tx){
-				tx.executeSql('INSERT INTO CONFIG(nombre , razon , ruc , telefono , email , direccion,serie,establecimiento) VALUES("'+nombreEsta+'" , "'+razon+'" , '+ruc+' , '+tel+' , "'+email+'" , "'+dir+'" , "'+serie+'" , "'+establecimiento+'")');
+		}
+		else{
+			var apiURL='api.php';
+			$.post(apiURL,{
+			nombreEsta : nombreEsta,
+			razon : razon,
+			ruc : ruc,
+			tel : tel,
+			email : email,
+			dir : dir,
+			serie : serie,
+			establecimiento :establecimiento,
+			quehace : 'insert',
+			fun : 'GuardarConfiguracion1'
+			}).done(function(response){			
 				$('#msjOk').html('Informacion Ingresada con Éxito');
 				$('#msjOk').fadeIn('slow');
 				$('#campos').css('display','none');
-
                 $('#nombreEstable').val(nombreEsta);
         		$('#razonSo').val(razon);
         		$('#rucFac').val(ruc);
                 $('#dirFac').val(dir);
-
 				setTimeout(function() {
 					$('#msjOk').fadeOut('slow');
 				}, 3000);
-			},errorCB,successCB);
+			});
 		}
 	}
 	function saberDatosEmpresa(){
-		var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-		db.transaction(function(tx){
-			tx.executeSql('SELECT * from CONFIG ',[],function(tx,results){
-				if(results.rows.length>0){
-					for (var i=0; i < results.rows.length; i++){
-						var row = results.rows.item(i);
-						var nombre = row.nombre;
-						var razon = row.razon;
-						var ruc = row.ruc2;
-						var telefono = row.telefono;
-						var email = row.email;
-						var direccion = row.direccion;
-						var serie = row.serie;
-						var establecimiento = row.establecimiento;
+		var apiURL='api.php';
+		$.post(apiURL,{
+		fun : 'VerConfiguracion1'
+		}).done(function(response){	
+			var result = JSON.parse(response);			
+			if(results.rows.length>0){
+				for (var i=0; i < results.rows.length; i++){
+					var row = results.rows.item(i);
+					var nombre = row.nombre;
+					var razon = row.razon;
+					var ruc = row.ruc2;
+					var telefono = row.telefono;
+					var email = row.email;
+					var direccion = row.direccion;
+					var serie = row.serie;
+					var establecimiento = row.establecimiento;
 
-                        var email_fact = row.email_fact;
-                        var key = row.key;
-                        var numero_contribuyente = row.numero_contribuyente;
-                        var obligado_contabilidad = row.obligado_contabilidad;
-                        var prueba_produccion = row.prueba_produccion;
-                        var tiene_factura_electronica = row.tiene_factura_electronica;
-                        var msj_factura_electronica = row.mensaje_factura;
+					var email_fact = row.email_fact;
+					var key = row.key;
+					var numero_contribuyente = row.numero_contribuyente;
+					var obligado_contabilidad = row.obligado_contabilidad;
+					var prueba_produccion = row.prueba_produccion;
+					var tiene_factura_electronica = row.tiene_factura_electronica;
+					var msj_factura_electronica = row.mensaje_factura;
 
-						$('#nombreEsta').val(nombre);
-						$('#razon').val(razon);
-						$('#ruc').val(ruc);
-						$('#tel').val(telefono);
-						$('#email').val(email);
-						$('#dir').val(direccion);
-						$('#serie').val(serie);
-						$('#establecimiento').val(establecimiento);
+					$('#nombreEsta').val(nombre);
+					$('#razon').val(razon);
+					$('#ruc').val(ruc);
+					$('#tel').val(telefono);
+					$('#email').val(email);
+					$('#dir').val(direccion);
+					$('#serie').val(serie);
+					$('#establecimiento').val(establecimiento);
 
-                        $('#nombreEstable').val(nombre);
-						$('#razonSo').val(razon);
-						$('#rucFac').val(ruc);
-						$('#emailFac').val(email_fact);
-						$('#dirFac').val(direccion);
-                        $('#firmaFac').val(key);
-                        $('#numcontribuyenteFac').val(numero_contribuyente);
-                        $('#telFac').val(telefono);
-                        $('#serieFac').val(serie);
-						$('#establecimientoFac').val(establecimiento);
-                        $('#msjFac').val(msj_factura_electronica);
+					$('#nombreEstable').val(nombre);
+					$('#razonSo').val(razon);
+					$('#rucFac').val(ruc);
+					$('#emailFac').val(email_fact);
+					$('#dirFac').val(direccion);
+					$('#firmaFac').val(key);
+					$('#numcontribuyenteFac').val(numero_contribuyente);
+					$('#telFac').val(telefono);
+					$('#serieFac').val(serie);
+					$('#establecimientoFac').val(establecimiento);
+					$('#msjFac').val(msj_factura_electronica);
 
-                        if(obligado_contabilidad=='true'){
-							$('#obligado').bootstrapSwitch('state', true);
-						}else{
-							$('#obligado').bootstrapSwitch('state', false);
-						}
-                        if(prueba_produccion=='true'){
-							$('#produccion').bootstrapSwitch('state', false);
-                            $('#rucFac').attr('readonly',false);
-						}else{
-							$('#produccion').bootstrapSwitch('state', true);
-                            $('#rucFac').attr('readonly',true);
-						}
-                        if(tiene_factura_electronica=='true'){
-							$('#activafacturacionelectronica').bootstrapSwitch('state', true);
-						}else{
-							$('#activafacturacionelectronica').bootstrapSwitch('state', false);
-						}
-						
-						localStorage.setItem("factelectronica",tiene_factura_electronica);
-
+					if(obligado_contabilidad=='true'){
+						$('#obligado').bootstrapSwitch('state', true);
+					}else{
+						$('#obligado').bootstrapSwitch('state', false);
+					}
+					if(prueba_produccion=='true'){
+						$('#produccion').bootstrapSwitch('state', false);
+						$('#rucFac').attr('readonly',false);
+					}else{
+						$('#produccion').bootstrapSwitch('state', true);
+						$('#rucFac').attr('readonly',true);
+					}
+					if(tiene_factura_electronica=='true'){
+						$('#activafacturacionelectronica').bootstrapSwitch('state', true);
+					}else{
+						$('#activafacturacionelectronica').bootstrapSwitch('state', false);
 					}
 					
-					$('#actualiza').css('display','block');
-					$('#graba').css('display','none');
-				}else{
-					$('#actualiza').css('display','none');
-					$('#graba').css('display','block');
+					localStorage.setItem("factelectronica",tiene_factura_electronica);
+
 				}
-			});
-		},errorCB,successCB);
+				
+				$('#actualiza').css('display','block');
+				$('#graba').css('display','none');
+			}
+			else{
+				$('#actualiza').css('display','none');
+				$('#graba').css('display','block');
+			}
+		});		
 	}
 	
 	function mostrarSignIn(){
@@ -2796,7 +2766,7 @@ function actualizar(){
 	  //alert(elem);
 		//var url=$(elem).attr('link');
 		//window.open(url);
-			if(localStorage.getItem("idbarra") == '0'){
+		if(localStorage.getItem("idbarra") == '0'){
 			$('#noplan').fadeOut();
 			$('#cuentaactiva').fadeOut();
 			$('#pestanasconfig').fadeOut();
@@ -2813,56 +2783,58 @@ function actualizar(){
 			localStorage.removeItem("idbarra");
 			var url = 'https://www.practisis.net/indexupgrade.php?rvpas='+btoa(pa)+'&rvus='+btoa(us)+'&plan='+plan;
 			window.open(url);
-			}else{
+		}
+		else{
 				var url=$(elem).attr('link');
 				window.open(url);
-			}
+		}
 	}
 	
 	function activaidioma(cual){
-	  if(cual == 1){
-	   document.getElementById('id_idioma').value='1';
-	   document.getElementById('selEspaniol').style.backgroundColor="#337AB7";
-	   document.getElementById('selIngles').style.backgroundColor="#FFFFFF";
-	   localStorage.setItem('idioma',1);
-	   idiomaContinuar();
-	  }else{
-	   document.getElementById('id_idioma').value='2';
-	   document.getElementById('selIngles').style.backgroundColor="#337AB7";
-	   document.getElementById('selEspaniol').style.backgroundColor="#FFFFFF";
-	   localStorage.setItem('idioma',2);
-	   idiomaContinuar();
-	  }
+		if(cual == 1){
+			document.getElementById('id_idioma').value='1';
+			document.getElementById('selEspaniol').style.backgroundColor="#337AB7";
+			document.getElementById('selIngles').style.backgroundColor="#FFFFFF";
+			localStorage.setItem('idioma',1);
+			idiomaContinuar();
+		}
+		else{
+			document.getElementById('id_idioma').value='2';
+			document.getElementById('selIngles').style.backgroundColor="#337AB7";
+			document.getElementById('selEspaniol').style.backgroundColor="#FFFFFF";
+			localStorage.setItem('idioma',2);
+			idiomaContinuar();
+		}
 	}
 	function idiomaContinuar(){
-	  var linklang="es";
-	  if(localStorage.getItem("idioma")==2)
-		linklang="en";
-		var xmlidioma=$.get("lang/"+linklang+".html",function(datos){
-		d=JSON.parse(datos);
-		var itemestructura=d.estructura;
-		//console.log(itemestructura);
-		var itemmen=itemestructura.menu;
-		var itemplaceholder=itemestructura.placeholder;
-		var itemtitles=itemestructura.titles;
-		var itembuttons=itemestructura.botones;
-		var itemlabels=itemestructura.labels;
-		var todostitles=itemtitles.item;
-		var todosbuttons=itembuttons.item;
-		var todoslabels=itemlabels.item;
-		var todositems=itemmen.item;
-		var todosplaceholder=itemplaceholder.item;
+		var linklang="es";
+		if(localStorage.getItem("idioma")==2)
+			linklang="en";
+			var xmlidioma=$.get("lang/"+linklang+".html",function(datos){
+			d=JSON.parse(datos);
+			var itemestructura=d.estructura;
+			//console.log(itemestructura);
+			var itemmen=itemestructura.menu;
+			var itemplaceholder=itemestructura.placeholder;
+			var itemtitles=itemestructura.titles;
+			var itembuttons=itemestructura.botones;
+			var itemlabels=itemestructura.labels;
+			var todostitles=itemtitles.item;
+			var todosbuttons=itembuttons.item;
+			var todoslabels=itemlabels.item;
+			var todositems=itemmen.item;
+			var todosplaceholder=itemplaceholder.item;
 
-		for(var k=0;k<todosplaceholder.length;k++){
-			var miitemname=todosplaceholder[k].name;
-			//alert(miitemname);
-			$('.'+miitemname).prop("placeholder",todosplaceholder[k].text);
-		}
+			for(var k=0;k<todosplaceholder.length;k++){
+				var miitemname=todosplaceholder[k].name;
+				//alert(miitemname);
+				$('.'+miitemname).prop("placeholder",todosplaceholder[k].text);
+			}
 
-		for(var k=0;k<todositems.length;k++){
-				var miitem=todositems[k];
-				$('#lab_menu_'+(k+1)).html(miitem);
-		}
+			for(var k=0;k<todositems.length;k++){
+					var miitem=todositems[k];
+					$('#lab_menu_'+(k+1)).html(miitem);
+			}
 
 			for(var k=0;k<todostitles.length;k++){
 				var miitemname=todostitles[k].name;
@@ -2882,13 +2854,11 @@ function actualizar(){
 				$('#'+miitemname).html(todoslabels[k].text);
 			}
 
-	  });
+		});
 
-	  $('#demoGratis').fadeIn();
-	  $('#escojeIdioma').fadeOut();
-	}
-	
-	
+		$('#demoGratis').fadeIn();
+		$('#escojeIdioma').fadeOut();
+	}	
 	function Chequea(cual){
 		//alert(cual);
 		StarIOAdapter.check(cual,
@@ -2900,303 +2870,320 @@ function actualizar(){
 			}
 		);
 	}
-
-function ActivarVerDiseno(){
-  //alert('entra imprlogo');
-  var paquete=localStorage.getItem("paquete");
-  if(paquete==22 || paquete==36){
-    msjcloud=4;
-    envia('config');
-  }
-}
-function ActivarPermisos(){
-  //alert('entra imprlogo');
-  var paquete=localStorage.getItem("paquete");
-  if(paquete==22 || paquete==36){
-    msjcloud=5;
-    envia('config');
-  }
-}
-function ActivarBackup(){
-  //alert('entra imprlogo');
-  var paquete=localStorage.getItem("paquete");
-  if(paquete==22){
-    msjcloud=9;
-    envia('config');
-  }
-}
-function ActivarProduccion(){
-  //alert('entra imprlogo');
-  var paquete=localStorage.getItem("paquete");
-  if(paquete==22 || paquete==36){
-    msjcloud=6;
-    envia('config');
-  }
-}
-function grabarfac(){
-var nombreEstable = $('#nombreEstable').val();
-var razonSo = $('#razonSo').val();
-var rucFac = $('#rucFac').val();
-var cuantosrucFac = $('#rucFac').val().length;
-var emailFac = $('#emailFac').val();
-var dirFac = $('#dirFac').val();
-var numcontribuyenteFac = $('#numcontribuyenteFac').val();
-var obligado = $('#obligado').bootstrapSwitch('state');
-var produccionaux = $('#produccion').bootstrapSwitch('state');
-var activafacturacionelectronica = $('#activafacturacionelectronica').bootstrapSwitch('state');
-var firmaFac = $('#firmaFac').val();
-var produccion = true;
-var telFac = $('#telFac').val();
-var serieFac = $('#serieFac').val();
-var establecimientoFac = $('#establecimientoFac').val();
-var msjFac = $('#msjFac').val();
-
-if(nombreEstable == '' ){
-	$('#nombreEstable').effect('highlight');
-}
-if(razonSo == '' ){
-	$('#razonSo').effect('highlight');
-}
-if(rucFac == '' ){
-	$('#rucFac').effect('highlight');
-}
-if(cuantosrucFac != 13){
-	$('#rucFac').effect('highlight');
-}
-if( emailFac == '' ){
-	$('#emailFac').effect('highlight');
-}
-if(dirFac == '' ){
-	$('#dirFac').effect('highlight');
-}
-if(numcontribuyenteFac == '' ){
-	$('#numcontribuyenteFac').val('0');
-}
-/*if(produccionaux == false){
-  produccion = true;
-}else{
-  produccion = false;
-}*/
-//alert(produccion);
-if(nombreEstable == '' || razonSo == '' || rucFac == '' || emailFac == '' || dirFac == ''){
-	$('#camposFac').fadeIn('slow');
-
-    if(localStorage.getItem("idioma")==1){
-		$('#camposFac').html('Debe ingresar todos los campos requeridos.');
-	}else{
-		$('#camposFac').html('You must enter all required fields.');
-	}
-
-	$('#msjOkFac').css('display','none');
-	setTimeout(function() {
-		$('#camposFac').fadeOut('slow');
-	}, 3000);
-}else if(cuantosrucFac != 13){
-	$('#camposFac').fadeIn('slow');
-
-    if(localStorage.getItem("idioma")==1){
-		$('#camposFac').html('Su RUC debe tener 13 digitos por favor.');
-	}else{
-		$('#camposFac').html('His RUC must be 13 digits please.');
-	}
-
-	$('#msjOkFac').css('display','none');
-	setTimeout(function() {
-		$('#camposFac').fadeOut('slow');
-	}, 3000);
-}/*else if(produccion == false && firmaFac== '' ){
-	$('#camposFac').fadeIn('slow');
-
-    if(localStorage.getItem("idioma")==1){
-		 $('#camposFac').html('Para poder pasar a producción debe primero tener la firma.');
-	}else{
-		 $('#camposFac').html('To go into production must first be signed.');
-	}
-    $('#produccion').bootstrapSwitch('state',false);
-
-	$('#msjOkFac').css('display','none');
-	setTimeout(function() {
-		$('#camposFac').fadeOut('slow');
-	}, 3000);
-}*/else{
-	var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-	db.transaction(function (tx){
-		tx.executeSql('update CONFIG set nombre="'+nombreEstable+'",razon="'+razonSo+'",ruc2="'+rucFac+'",email_fact="'+emailFac+'",direccion="'+dirFac+'",numero_contribuyente="'+numcontribuyenteFac+'",obligado_contabilidad="'+obligado+'",tiene_factura_electronica="'+activafacturacionelectronica+'",sincronizar="true",telefono='+telFac+',serie="'+serieFac+'",establecimiento="'+establecimientoFac+'",mensaje_factura="'+msjFac+'" where id=1');
-
-        if(localStorage.getItem("idioma")==1){
-    		 $('#msjOkFac').html('Información Ingresada con Éxito');
-    	}else{
-    		 $('#msjOkFac').html('Information entered Success.');
-    	}
-
-        if(firmaFac == ''){
-          $('#paso2').fadeOut('fast');
-          $('#paso3').fadeIn('slow');
-        }else{
-          $('#paso2').fadeOut('fast');
-          $('#paso3').fadeOut('fast');
-          continuarpasos(5,1);
-        }
-
-		//variable local de si tiene facturación electrónica
-		localStorage.setItem("factelectronica",activafacturacionelectronica);
-
-        $('#nombreEsta').val(nombreEstable);
-		$('#razon').val(razonSo);
-		$('#ruc').val(rucFac);
-        $('#dir').val(dirFac);
-
-		$('#msjOkFac').fadeIn('slow');
-		$('#camposFac').css('display','none');
-		setTimeout(function() {
-			$('#msjOkFac').fadeOut('slow');
-		}, 3000);
-	},errorCB,successCB);
-}
-}
-function subirfirma(){
-  var idemp = localStorage.getItem("empresa");
-  var url = 'http://practifactura.com/facturaelectronica/subpages/administrador/firmam.php?idemp='+btoa(idemp);
-  window.open(url);
-}
-function ActivarFirma(){
-  var paquete=localStorage.getItem("paquete");
-  if(paquete==22 || paquete==36){
-    msjcloud=7;
-    envia('config');
-  }
-}
-function ActivarMsjFactura(){
-  var paquete=localStorage.getItem("paquete");
-  if(paquete==22 || paquete==36){
-    msjcloud=8;
-    envia('config');
-  }
-}
-function editarimpuesto(quien){
-  if(quien==0){
-    $('#popimpuesto').modal('show');
-    $('#idimp').val(quien);
-    $('#impuesto').val('');
-    $('#simbolo').val('*');
-    $('#porcentaje').val('');
-  }else{
-    /*alert(quien);
-    return false;*/
-    /*$.ajax({
-	  url: "/practipos2/ajax/administrador/terminales/impuestos.php",
-	  data:{que:'3',id:quien}
-	}).done(function(resp){
-		$('#loaderelim').fadeOut();
-		var data=resp.split('|');
-        //alert(data);
-		if(data[0]=='ok'){
-		  $('#popimpuesto').modal('show');
-		  $('#idimp').val(data[1]);
-          $('#impuesto').val(data[2]);
-          $('#simbolo').val(data[3]);
-          $('#porcentaje').val(data[4]);
-		  $('#activo').bootstrapSwitch('state', data[5]);
-		}else{
-		  var queidioma = $('#queidioma').val();
-          if(queidioma != 1){
-            $('#jsalertimp').html("The tax can not be charged.");
-          }else{
-            $('#jsalertimp').html("El impuesto no se puede cargar.");
-          }
+	function ActivarVerDiseno(){
+	  //alert('entra imprlogo');
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22 || paquete==36){
+			msjcloud=4;
+			envia('config');
 		}
-	});*/
-  }
-}
-function grabarimpuesto(){
-  $('#loaderimp').fadeIn();
-	var id = $('#idimp').val();
-    var impuesto = $('#impuesto').val();
-    var porcentaje = $('#porcentaje').val();
-	var activo=$('#activo').bootstrapSwitch('state');
-    var timespan_impuesto = getTimeSpan();
+	}
+	function ActivarPermisos(){
+	  //alert('entra imprlogo');
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22 || paquete==36){
+			msjcloud=5;
+			envia('config');
+		}
+	}
+	function ActivarBackup(){
+	  //alert('entra imprlogo');
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22){
+			msjcloud=9;
+			envia('config');
+		}
+	}
+	function ActivarProduccion(){
+	  //alert('entra imprlogo');
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22 || paquete==36){
+			msjcloud=6;
+			envia('config');
+		}
+	}
+	function grabarfac(){
+		var nombreEstable = $('#nombreEstable').val();
+		var razonSo = $('#razonSo').val();
+		var rucFac = $('#rucFac').val();
+		var cuantosrucFac = $('#rucFac').val().length;
+		var emailFac = $('#emailFac').val();
+		var dirFac = $('#dirFac').val();
+		var numcontribuyenteFac = $('#numcontribuyenteFac').val();
+		var obligado = $('#obligado').bootstrapSwitch('state');
+		var produccionaux = $('#produccion').bootstrapSwitch('state');
+		var activafacturacionelectronica = $('#activafacturacionelectronica').bootstrapSwitch('state');
+		var firmaFac = $('#firmaFac').val();
+		var produccion = true;
+		var telFac = $('#telFac').val();
+		var serieFac = $('#serieFac').val();
+		var establecimientoFac = $('#establecimientoFac').val();
+		var msjFac = $('#msjFac').val();
 
-    if(impuesto == '' || porcentaje == ''){
-      if(localStorage.getItem('idioma') == 2){
-        $('#jsalertimp').html("You must enter all fields to save.");
-      }else{
-        $('#jsalertimp').html("Debe ingresar todos los campos para poder guardar.");
-      }
-	  $('#jsalertimp').slideDown();
-      $('#loaderimp').fadeOut();
-      setTimeout(function() {
-	    $('#jsalertimp').slideUp();
-	  }, 3000);
-    }else{
+		if(nombreEstable == '' ){
+			$('#nombreEstable').effect('highlight');
+		}
+		if(razonSo == '' ){
+			$('#razonSo').effect('highlight');
+		}
+		if(rucFac == '' ){
+			$('#rucFac').effect('highlight');
+		}
+		if(cuantosrucFac != 13){
+			$('#rucFac').effect('highlight');
+		}
+		if( emailFac == '' ){
+			$('#emailFac').effect('highlight');
+		}
+		if(dirFac == '' ){
+			$('#dirFac').effect('highlight');
+		}
+		if(numcontribuyenteFac == '' ){
+			$('#numcontribuyenteFac').val('0');
+		}
+		/*if(produccionaux == false){
+		  produccion = true;
+		}else{
+		  produccion = false;
+		}*/
+		//alert(produccion);
+		if(nombreEstable == '' || razonSo == '' || rucFac == '' || emailFac == '' || dirFac == ''){
+			$('#camposFac').fadeIn('slow');
+			if(localStorage.getItem("idioma")==1){
+				$('#camposFac').html('Debe ingresar todos los campos requeridos.');
+			}
+			else{
+				$('#camposFac').html('You must enter all required fields.');
+			}
+			$('#msjOkFac').css('display','none');
+			setTimeout(function() {
+				$('#camposFac').fadeOut('slow');
+			}, 3000);
+		}
+		else if(cuantosrucFac != 13){
+			$('#camposFac').fadeIn('slow');
+			if(localStorage.getItem("idioma")==1){
+				$('#camposFac').html('Su RUC debe tener 13 digitos por favor.');
+			}
+			else{
+				$('#camposFac').html('His RUC must be 13 digits please.');
+			}
+			$('#msjOkFac').css('display','none');
+			setTimeout(function() {
+				$('#camposFac').fadeOut('slow');
+			}, 3000);
+		}/*else if(produccion == false && firmaFac== '' ){
+		$('#camposFac').fadeIn('slow');
 
-        var db = window.openDatabase("Database", "1.0", "PractisisMobile", 200000);
-    	db.transaction(function(tx1){
-          if(id==0){
-          	tx1.executeSql("INSERT INTO IMPUESTOS (nombre,porcentaje,activo,timespan,sincronizar) VALUES(?,?,?,?,?)",[impuesto,porcentaje,activo,timespan_impuesto,"true"],function(tx1,res2){
-        		console.log("impuesto creado");
-                if(localStorage.getItem('idioma') == 2){
-                  $('#jsalertimp').html("The tax has been successfully created.");
-                }else{
-                  $('#jsalertimp').html("El impuesto se ha creado con éxito.");
-                }
-                $('#loaderimp').fadeOut();
+		if(localStorage.getItem("idioma")==1){
+			 $('#camposFac').html('Para poder pasar a producción debe primero tener la firma.');
+		}else{
+			 $('#camposFac').html('To go into production must first be signed.');
+		}
+		$('#produccion').bootstrapSwitch('state',false);
 
-                $('#confimpuestos tbody').html('');
-            	tx1.executeSql("SELECT * FROM IMPUESTOS GROUP BY NOMBRE",[],function(tx1,results3){
-            		if(results3.rows.length>0){
-            			for(var t=0;t<results3.rows.length;t++){
-            				var itemimp=results3.rows.item(t);
-            				var esactivo=itemimp.activo;
-            				var porcen=itemimp.porcentaje;
-            				var nombreimp=itemimp.nombre;
-            				var timespanimp=itemimp.timespan;
-            				var checked='';
-            				if(esactivo=='true')
-            					checked='checked';
-            				var mifila='<tr><td style="text-align:left;">'+nombreimp.toUpperCase()+'</td><td  style="text-align:left;"><input id="impval_'+timespanimp+'" style="display:inline; width:60%;" type="text" class="input form-control imporcent" value="'+porcen+'"/><span style="display:inline;"> %</span></td><td  style="text-align:left;"><input id="impact_'+timespanimp+'" type="checkbox" '+checked+' data-size="mini"; /></td></tr>';
-            				$('#confimpuestos tbody').append(mifila);
+		$('#msjOkFac').css('display','none');
+		setTimeout(function() {
+			$('#camposFac').fadeOut('slow');
+		}, 3000);
+	}*/	else{
+			var apiURL='api.php';
+			$.post(apiURL,{
+				nombreEstable : nombreEstable,
+				razonSo : razonSo,
+				rucFac : rucFac,
+				emailFac : emailFac,
+				dirFac : dirFac,
+				numcontribuyenteFac : numcontribuyenteFac,
+				obligado : obligado,
+				activafacturacionelectronica : activafacturacionelectronica,
+				telFac : telFac,
+				serieFac : serieFac,
+				establecimientoFac : establecimientoFac,
+				msjFac : msjFac,
+				fun : 'GuardarConfiguracion2'
+			}).done(function(response){		
+				if(localStorage.getItem("idioma")==1){
+					 $('#msjOkFac').html('Información Ingresada con Éxito');
+				}
+				else{
+					 $('#msjOkFac').html('Information entered Success.');
+				}
 
-            				if(esactivo=='true'){
-            					$('#impact_'+timespanimp).bootstrapSwitch('state', true);
-            				}else{
-            					$('#impact_'+timespanimp).bootstrapSwitch('state', false);
-            				}
-            			}
-            		}
-            	});
+				if(firmaFac == ''){
+				  $('#paso2').fadeOut('fast');
+				  $('#paso3').fadeIn('slow');
+				}
+				else{
+				  $('#paso2').fadeOut('fast');
+				  $('#paso3').fadeOut('fast');
+				  continuarpasos(5,1);
+				}
+				//variable local de si tiene facturación electrónica
+				localStorage.setItem("factelectronica",activafacturacionelectronica);
 
-                $("#popimpuesto").modal("hide");
+				$('#nombreEsta').val(nombreEstable);
+				$('#razon').val(razonSo);
+				$('#ruc').val(rucFac);
+				$('#dir').val(dirFac);
 
-        	});
-          }else{
-              if(localStorage.getItem('idioma') == 2){
-                $('#jsalertimp').html("The tax has been updated successfully.");
-              }else{
-                $('#jsalertimp').html("El impuesto se ha actualizado con éxito.");
-              }
-              $('#loaderimp').fadeOut();
-          }
+				$('#msjOkFac').fadeIn('slow');
+				$('#camposFac').css('display','none');
+				setTimeout(function() {
+					$('#msjOkFac').fadeOut('slow');
+				}, 3000);
+			});
+		}
+	}
+	function subirfirma(){
+		var idemp = localStorage.getItem("empresa");
+		var url = 'http://practifactura.com/facturaelectronica/subpages/administrador/firmam.php?idemp='+btoa(idemp);
+		window.open(url);
+	}
+	function ActivarFirma(){
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22 || paquete==36){
+			msjcloud=7;
+			envia('config');
+		}
+	}
+	function ActivarMsjFactura(){
+		var paquete=localStorage.getItem("paquete");
+		if(paquete==22 || paquete==36){
+			msjcloud=8;
+			envia('config');
+		}
+	}
+	function editarimpuesto(quien){
+		if(quien==0){
+			$('#popimpuesto').modal('show');
+			$('#idimp').val(quien);
+			$('#impuesto').val('');
+			$('#simbolo').val('*');
+			$('#porcentaje').val('');
+		}
+		else{
+		/*alert(quien);
+		return false;*/
+		/*$.ajax({
+		  url: "/practipos2/ajax/administrador/terminales/impuestos.php",
+		  data:{que:'3',id:quien}
+		}).done(function(resp){
+			$('#loaderelim').fadeOut();
+			var data=resp.split('|');
+			//alert(data);
+			if(data[0]=='ok'){
+			  $('#popimpuesto').modal('show');
+			  $('#idimp').val(data[1]);
+			  $('#impuesto').val(data[2]);
+			  $('#simbolo').val(data[3]);
+			  $('#porcentaje').val(data[4]);
+			  $('#activo').bootstrapSwitch('state', data[5]);
+			}else{
+			  var queidioma = $('#queidioma').val();
+			  if(queidioma != 1){
+				$('#jsalertimp').html("The tax can not be charged.");
+			  }else{
+				$('#jsalertimp').html("El impuesto no se puede cargar.");
+			  }
+			}
+		});*/
+		}
+	}
+	function grabarimpuesto(){
+		$('#loaderimp').fadeIn();
+		var id = $('#idimp').val();
+		var impuesto = $('#impuesto').val();
+		var porcentaje = $('#porcentaje').val();
+		var activo=$('#activo').bootstrapSwitch('state');
+		var timespan_impuesto = getTimeSpan();
+		if(impuesto == '' || porcentaje == ''){
+			if(localStorage.getItem('idioma') == 2){
+				$('#jsalertimp').html("You must enter all fields to save.");
+			}
+			else{
+				$('#jsalertimp').html("Debe ingresar todos los campos para poder guardar.");
+			}
+			$('#jsalertimp').slideDown();
+			$('#loaderimp').fadeOut();
+			setTimeout(function() {
+				$('#jsalertimp').slideUp();
+			}, 3000);
+		}
+		else{
+			var apiURL='api.php';
+			$.post(apiURL,{
+				impuesto : impuesto,
+				porcentaje : porcentaje,
+				activo : activo,
+				timespan_impuesto : timespan_impuesto,
+				fun : 'InsertaImpuestos'
+			}).done(function(response){		
+				console.log("impuesto creado");
+				if(localStorage.getItem('idioma') == 2){
+				  $('#jsalertimp').html("The tax has been successfully created.");
+				}
+				else{
+				  $('#jsalertimp').html("El impuesto se ha creado con éxito.");
+				}
+				$('#loaderimp').fadeOut();
+				$('#confimpuestos tbody').html('');
+				apiURL='api.php';
+				$.post(apiURL,{
+					fun : 'SacaImpuestos'
+				}).done(function(response1){
+					var results3=JSON.parse(response1);					
+					if(results3.rows.length>0){
+						for(var t=0;t<results3.rows.length;t++){
+							var itemimp=results3.rows.item(t);
+							var esactivo=itemimp.activo;
+							var porcen=itemimp.porcentaje;
+							var nombreimp=itemimp.nombre;
+							var timespanimp=itemimp.timespan;
+							var checked='';
+							if(esactivo=='true')
+								checked='checked';
+							var mifila='<tr><td style="text-align:left;">'+nombreimp.toUpperCase()+'</td><td  style="text-align:left;"><input id="impval_'+timespanimp+'" style="display:inline; width:60%;" type="text" class="input form-control imporcent" value="'+porcen+'"/><span style="display:inline;"> %</span></td><td  style="text-align:left;"><input id="impact_'+timespanimp+'" type="checkbox" '+checked+' data-size="mini"; /></td></tr>';
+							$('#confimpuestos tbody').append(mifila);
 
-        }
-    	,errorCB,successCB);
+							if(esactivo=='true'){
+								$('#impact_'+timespanimp).bootstrapSwitch('state', true);
+							}else{
+								$('#impact_'+timespanimp).bootstrapSwitch('state', false);
+							}
+						}
+					}
+				});
 
-    }
-}
+				$("#popimpuesto").modal("hide");			
+			
+				if(localStorage.getItem('idioma') == 2){
+					$('#jsalertimp').html("The tax has been updated successfully.");
+				}
+				else{
+					$('#jsalertimp').html("El impuesto se ha actualizado con éxito.");
+				}
+				$('#loaderimp').fadeOut();
+			});
 
-function VerPlanes(){
+		}
+	}
+
+	function VerPlanes(){
 		if(localStorage.getItem("idioma")==1){
 			$('#planes_es').fadeIn('fast',function(){
 				DefinirJumbo();
 			});
-		}else{
+		}
+		else{
 			$('#planes_en').fadeIn('fast',function(){
 				DefinirJumbo();
 			});
 		}
-}
+	}
 
-function DefinirJumbo(){
-	var maxheight=0;
+	function DefinirJumbo(){
+		var maxheight=0;
 		$('.jumbotron').each(function(){
 			var mh=parseFloat($(this).outerHeight());
 			console.log(mh);
@@ -3208,7 +3195,7 @@ function DefinirJumbo(){
 		});
 
 		$('.jumbotron').css('height',maxheight);
-}
+	}
 function continuarpasos(paso,que){
  if(paso==5){
    if(que==1){
