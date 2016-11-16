@@ -526,32 +526,41 @@
 		if((int)$_REQUEST['id']>0)
 			VerDatosFacturast((int)$_REQUEST['id'],$_REQUEST['clave']);
 	}
+	//funciones Ana
 	else if($_REQUEST['fun']=='DataEmpresa'){
 		DataEmpresa();
 	}
 	else if($_REQUEST['fun']=='ApiCategorias'){
 		$categorias=json_decode($_REQUEST['categorias']);
+		
 		if($categorias!=null)
 			APICategorias($categorias);
+		
 	}else if($_REQUEST['fun']=='ApiModificadoresProductos'){
 		$modificadores=json_decode($_REQUEST['modificadores']);
 		$productos=json_decode($_REQUEST['productos']);
+		
 		if($modificadores!=null||$productos!=null)
 			APIModificadoresProductos($modificadores,$productos);
+		
 	}else if($_REQUEST['fun']=='ApiClientes'){
 		$clientes=json_decode($_REQUEST['clientes']);
+		
 		if($clientes!=null)
 			APIClientes($clientes);
 	}else if($_REQUEST['fun']=='APIPresupuesto'){
 		$presup=json_decode($_REQUEST['presupuesto']);
+		
 		if($presup!=null)
 			APIPresupuesto($presup);
 	}else if($_REQUEST['fun']=='APICategoriasMenu'){
 		$catmenu=json_decode($_REQUEST['menucategorias']);
+		
 		if($catmenu!=null)
 			APICategoriasMenu($catmenu);
 	}else if($_REQUEST['fun']=='APIMenuDiseno'){
 		$menu=json_decode($_REQUEST['menudiseno']);
+		
 		if($menu!=null)
 			APIMenuDiseno($menu);
 	}else if($_REQUEST['fun']=='APIProductosProfesional'){
@@ -596,6 +605,7 @@
 			RECEmpresa(json_decode($_REQUEST['empresa']));
 		}
 	}
+	//fin funciones Ana
 	
 	$db = new PDO('sqlite:PractisisMobile.sqlite3');
 	print "<table border=1>";
